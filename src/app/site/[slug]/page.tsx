@@ -2,19 +2,30 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ContactForm } from "@/components/site/ContactForm";
-import type { Client } from "@/lib/types";
+import type { Client, ClientSettings } from "@/lib/types";
+import { businessName } from "@/lib/types";
 
 // Public, branded website template for a single client (tenant), keyed by slug.
 // Reads are allowed by RLS, so the cookie-bound server client is fine here.
 
-async function getClient(slug: string): Promise<Client | null> {
+async function getSite(
+  slug: string
+): Promise<{ client: Client; settings: ClientSettings | null } | null> {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data: client } = await supabase
     .from("clients")
     .select("*")
     .eq("slug", slug)
     .single<Client>();
-  return data;
+  if (!client) return null;
+
+  const { data: settings } = await supabase
+    .from("client_settings")
+    .select("*")
+    .eq("client_id", client.id)
+    .maybeSingle<ClientSettings>();
+
+  return { client, settings };
 }
 
 export async function generateMetadata({
@@ -22,20 +33,23 @@ export async function generateMetadata({
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const client = await getClient(params.slug);
-  if (!client) return { title: "Not found" };
+  const site = await getSite(params.slug);
+  if (!site) return { title: "Not found" };
+  const name = businessName(site.client, site.settings);
   return {
-    title: client.business_name,
-    description: client.hero_subheadline ?? `${client.business_name} — ${client.service_area ?? ""}`,
+    title: name,
+    description: site.settings?.hero_subheadline ?? `${name} — ${site.settings?.service_area ?? ""}`,
   };
 }
 
 export default async function SitePage({ params }: { params: { slug: string } }) {
-  const client = await getClient(params.slug);
-  if (!client) notFound();
+  const site = await getSite(params.slug);
+  if (!site) notFound();
 
-  const brand = client.brand_color ?? "#1e3a8a";
-  const services = client.services ?? [];
+  const { client, settings } = site;
+  const name = businessName(client, settings);
+  const brand = settings?.brand_color ?? "#1e3a8a";
+  const services = settings?.services ?? [];
 
   return (
     <div style={{ ["--brand" as string]: brand }} className="min-h-screen bg-white">
@@ -43,16 +57,16 @@ export default async function SitePage({ params }: { params: { slug: string } })
       <header className="border-b border-gray-100">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-3">
-            {client.logo_url ? (
+            {settings?.logo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={client.logo_url} alt={client.business_name} className="h-9 w-auto" />
+              <img src={settings.logo_url} alt={name} className="h-9 w-auto" />
             ) : (
-              <span className="text-lg font-bold text-client">{client.business_name}</span>
+              <span className="text-lg font-bold text-client">{name}</span>
             )}
           </div>
-          {client.phone && (
-            <a href={`tel:${client.phone}`} className="text-sm font-semibold text-client">
-              {client.phone}
+          {settings?.phone && (
+            <a href={`tel:${settings.phone}`} className="text-sm font-semibold text-client">
+              {settings.phone}
             </a>
           )}
         </div>
@@ -62,16 +76,16 @@ export default async function SitePage({ params }: { params: { slug: string } })
       <section className="bg-client text-white">
         <div className="mx-auto max-w-5xl px-6 py-20 text-center">
           <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            {client.hero_headline ?? client.business_name}
+            {settings?.hero_headline ?? name}
           </h1>
-          {client.hero_subheadline && (
+          {settings?.hero_subheadline && (
             <p className="mx-auto mt-5 max-w-2xl text-lg text-white/90">
-              {client.hero_subheadline}
+              {settings.hero_subheadline}
             </p>
           )}
-          {client.service_area && (
+          {settings?.service_area && (
             <p className="mt-3 text-sm font-medium text-white/80">
-              Proudly serving {client.service_area}
+              Proudly serving {settings.service_area}
             </p>
           )}
           <a
@@ -119,9 +133,9 @@ export default async function SitePage({ params }: { params: { slug: string } })
       {/* Footer */}
       <footer className="border-t border-gray-100">
         <div className="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-gray-500">
-          <p className="font-semibold text-gray-700">{client.business_name}</p>
+          <p className="font-semibold text-gray-700">{name}</p>
           <p className="mt-1">
-            {[client.phone, client.email, client.service_area].filter(Boolean).join(" · ")}
+            {[settings?.phone, settings?.email, settings?.service_area].filter(Boolean).join(" · ")}
           </p>
         </div>
       </footer>

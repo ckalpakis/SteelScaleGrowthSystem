@@ -1,12 +1,17 @@
-import type { Client, Lead } from "./types";
+import type { Client, ClientSettings, Lead } from "./types";
+import { businessName } from "./types";
 
 // Builds a friendly, prefilled review-request message pointing the customer at
 // the client's Google review link.
-export function buildReviewMessage(client: Client, lead?: Lead | null): string {
-  const business = client.business_name;
+export function buildReviewMessage(
+  client: Client,
+  settings: ClientSettings | null,
+  lead?: Lead | null
+): string {
+  const business = businessName(client, settings);
   const firstName = lead?.name?.split(" ")[0];
   const greeting = firstName ? `Hi ${firstName},` : "Hi there,";
-  const link = client.google_review_link ?? "";
+  const link = settings?.google_review_link ?? "";
 
   return (
     `${greeting}\n\n` +

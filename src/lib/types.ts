@@ -1,5 +1,6 @@
 // Shared domain types and the lead pipeline definition.
 // Keeping the pipeline in one place makes it trivial to add/rename stages.
+// Field names mirror supabase/migrations/0001_init.sql.
 
 export type LeadStatus =
   | "new"
@@ -11,26 +12,37 @@ export type LeadStatus =
 export interface PipelineStage {
   value: LeadStatus;
   label: string;
-  /** Tailwind classes for the status badge. */
+  /** Tailwind classes for the status badge / accent. */
   badgeClass: string;
+  dotClass: string;
 }
 
 export const PIPELINE_STAGES: PipelineStage[] = [
-  { value: "new", label: "New", badgeClass: "bg-blue-100 text-blue-800" },
-  { value: "contacted", label: "Contacted", badgeClass: "bg-amber-100 text-amber-800" },
-  { value: "estimate_scheduled", label: "Estimate Scheduled", badgeClass: "bg-purple-100 text-purple-800" },
-  { value: "won", label: "Won", badgeClass: "bg-green-100 text-green-800" },
-  { value: "lost", label: "Lost", badgeClass: "bg-gray-200 text-gray-700" },
+  { value: "new", label: "New", badgeClass: "bg-blue-100 text-blue-800", dotClass: "bg-blue-500" },
+  { value: "contacted", label: "Contacted", badgeClass: "bg-amber-100 text-amber-800", dotClass: "bg-amber-500" },
+  { value: "estimate_scheduled", label: "Estimate Scheduled", badgeClass: "bg-purple-100 text-purple-800", dotClass: "bg-purple-500" },
+  { value: "won", label: "Won", badgeClass: "bg-green-100 text-green-800", dotClass: "bg-green-500" },
+  { value: "lost", label: "Lost", badgeClass: "bg-gray-200 text-gray-700", dotClass: "bg-gray-400" },
 ];
 
 export function stageFor(status: string): PipelineStage {
   return PIPELINE_STAGES.find((s) => s.value === status) ?? PIPELINE_STAGES[0];
 }
 
+// `clients` table — core tenant identity.
 export interface Client {
   id: string;
+  name: string;
   slug: string;
-  business_name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+// `client_settings` table — branding + contact config (1:1 with a client).
+export interface ClientSettings {
+  id: string;
+  client_id: string;
+  business_name: string | null;
   phone: string | null;
   email: string | null;
   logo_url: string | null;
@@ -41,24 +53,36 @@ export interface Client {
   hero_headline: string | null;
   hero_subheadline: string | null;
   created_at: string;
+  updated_at: string;
 }
 
+// `leads` table.
 export interface Lead {
   id: string;
   client_id: string;
   name: string;
-  email: string | null;
   phone: string | null;
-  service: string | null;
+  email: string | null;
+  service_needed: string | null;
   message: string | null;
+  source: string | null;
   status: LeadStatus;
   created_at: string;
+  updated_at: string;
 }
 
+// `lead_notes` table.
 export interface LeadNote {
   id: string;
   lead_id: string;
-  client_id: string;
-  body: string;
+  user_id: string | null;
+  note: string;
   created_at: string;
+  updated_at: string;
+}
+
+// Convenience: the business display name, preferring the editable settings
+// value and falling back to the client's canonical name.
+export function businessName(client: Client, settings: ClientSettings | null): string {
+  return settings?.business_name?.trim() || client.name;
 }

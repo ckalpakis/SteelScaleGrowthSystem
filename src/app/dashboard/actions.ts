@@ -18,21 +18,21 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${leadId}`);
 }
 
 export async function addNote(leadId: string, formData: FormData) {
-  const body = String(formData.get("body") ?? "").trim();
-  if (!body) return;
+  const note = String(formData.get("note") ?? "").trim();
+  if (!note) return;
 
-  const { client } = await requireClient();
-  if (!client) throw new Error("No client");
+  const { userId } = await requireClient();
 
   const supabase = createClient();
   const { error } = await supabase.from("lead_notes").insert({
     lead_id: leadId,
-    client_id: client.id,
-    body,
+    user_id: userId,
+    note,
   });
   if (error) throw new Error(error.message);
 
@@ -56,8 +56,11 @@ export async function updateSettings(formData: FormData) {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const updates = {
-    business_name: String(formData.get("business_name") ?? "").trim(),
+  const business_name = String(formData.get("business_name") ?? "").trim() || client.name;
+
+  const settings = {
+    client_id: client.id,
+    business_name,
     phone: nullify(formData.get("phone")),
     email: nullify(formData.get("email")),
     logo_url: nullify(formData.get("logo_url")),
@@ -70,8 +73,15 @@ export async function updateSettings(formData: FormData) {
   };
 
   const supabase = createClient();
-  const { error } = await supabase.from("clients").update(updates).eq("id", client.id);
-  if (error) throw new Error(error.message);
+
+  // Upsert settings (a client may not have a settings row yet) and keep the
+  // canonical business name on the client record in sync.
+  const [{ error: settingsError }, { error: clientError }] = await Promise.all([
+    supabase.from("client_settings").upsert(settings, { onConflict: "client_id" }),
+    supabase.from("clients").update({ name: business_name }).eq("id", client.id),
+  ]);
+  if (settingsError) throw new Error(settingsError.message);
+  if (clientError) throw new Error(clientError.message);
 
   revalidatePath("/dashboard/settings");
   revalidatePath(`/site/${client.slug}`);

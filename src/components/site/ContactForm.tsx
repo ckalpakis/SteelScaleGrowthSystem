@@ -73,7 +73,7 @@ export function ContactForm({ clientId, services }: Props) {
       {services.length > 0 && (
         <div>
           <label className="mb-1 block text-sm font-medium text-gray-700">Service needed</label>
-          <select name="service" className={fieldClass} defaultValue="">
+          <select name="service_needed" className={fieldClass} defaultValue="">
             <option value="" disabled>
               Select a service
             </option>

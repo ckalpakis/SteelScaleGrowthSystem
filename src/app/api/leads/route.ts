@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sendNewLeadEmail } from "@/lib/email";
-import type { Client, Lead } from "@/lib/types";
+import type { Client, ClientSettings, Lead } from "@/lib/types";
 
 // Public lead-capture endpoint. Called from the public site contact form.
 // Uses the service-role client so the anonymous visitor can create a lead
@@ -18,20 +18,20 @@ export async function POST(request: Request) {
   const name = str(payload.name);
 
   if (!clientId || !name) {
-    return NextResponse.json(
-      { error: "Name is required." },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Name is required." }, { status: 400 });
   }
 
   const supabase = createAdminClient();
 
-  // Confirm the client exists (and grab notification config).
-  const { data: client, error: clientError } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("id", clientId)
-    .single<Client>();
+  // Confirm the client exists, and pull settings for the notification email.
+  const [{ data: client, error: clientError }, { data: settings }] = await Promise.all([
+    supabase.from("clients").select("*").eq("id", clientId).single<Client>(),
+    supabase
+      .from("client_settings")
+      .select("*")
+      .eq("client_id", clientId)
+      .maybeSingle<ClientSettings>(),
+  ]);
 
   if (clientError || !client) {
     return NextResponse.json({ error: "Unknown business." }, { status: 404 });
@@ -44,8 +44,9 @@ export async function POST(request: Request) {
       name,
       email: str(payload.email),
       phone: str(payload.phone),
-      service: str(payload.service),
+      service_needed: str(payload.service_needed),
       message: str(payload.message),
+      source: str(payload.source) ?? "website",
       status: "new",
     })
     .select("*")
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
   }
 
   // Notify the business. Awaited but fails soft inside the helper.
-  await sendNewLeadEmail(client, lead);
+  await sendNewLeadEmail(client, settings, lead);
 
   return NextResponse.json({ ok: true }, { status: 201 });
 }

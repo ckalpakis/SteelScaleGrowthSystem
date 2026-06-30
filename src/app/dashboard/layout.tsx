@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { requireClient } from "@/lib/auth";
+import { businessName } from "@/lib/types";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { email, client } = await requireClient();
+  const { email, client, settings } = await requireClient();
+  const name = client ? businessName(client, settings) : "Dashboard";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,29 +16,16 @@ export default async function DashboardLayout({
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <div className="flex items-center gap-6">
             <Link href="/dashboard" className="font-bold text-gray-900">
-              {client?.business_name ?? "Dashboard"}
+              {name}
             </Link>
             <nav className="flex items-center gap-1 text-sm">
-              <Link
-                href="/dashboard"
-                className="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
-              >
-                Leads
-              </Link>
-              <Link
-                href="/dashboard/settings"
-                className="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
-              >
-                Settings
-              </Link>
+              <NavLink href="/dashboard">Overview</NavLink>
+              <NavLink href="/dashboard/leads">Leads</NavLink>
+              <NavLink href="/dashboard/settings">Settings</NavLink>
               {client && (
-                <Link
-                  href={`/site/${client.slug}`}
-                  target="_blank"
-                  className="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
-                >
+                <NavLink href={`/site/${client.slug}`} external>
                   View site ↗
-                </Link>
+                </NavLink>
               )}
             </nav>
           </div>
@@ -52,5 +41,25 @@ export default async function DashboardLayout({
       </header>
       <main className="mx-auto max-w-6xl px-6 py-8">{children}</main>
     </div>
+  );
+}
+
+function NavLink({
+  href,
+  children,
+  external,
+}: {
+  href: string;
+  children: React.ReactNode;
+  external?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      target={external ? "_blank" : undefined}
+      className="rounded-md px-3 py-1.5 text-gray-600 hover:bg-gray-100"
+    >
+      {children}
+    </Link>
   );
 }

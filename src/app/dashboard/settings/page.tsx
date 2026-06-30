@@ -1,19 +1,12 @@
 import { requireClient } from "@/lib/auth";
 import { Button, Card, CardBody, Input, Label, Textarea } from "@/components/ui";
 import { updateSettings } from "@/app/dashboard/actions";
+import { NotLinked } from "@/components/dashboard/NotLinked";
+import { businessName } from "@/lib/types";
 
 export default async function SettingsPage() {
-  const { client } = await requireClient();
-
-  if (!client) {
-    return (
-      <Card>
-        <CardBody>
-          <p className="text-sm text-gray-600">Your account isn&apos;t linked to a business yet.</p>
-        </CardBody>
-      </Card>
-    );
-  }
+  const { client, settings } = await requireClient();
+  if (!client) return <NotLinked />;
 
   return (
     <div className="max-w-2xl">
@@ -25,18 +18,33 @@ export default async function SettingsPage() {
       <form action={updateSettings} className="mt-6 space-y-6">
         <Card>
           <CardBody className="space-y-4">
-            <Field label="Business name" name="business_name" defaultValue={client.business_name} required />
+            <Field
+              label="Business name"
+              name="business_name"
+              defaultValue={businessName(client, settings)}
+              required
+            />
             <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Phone number" name="phone" defaultValue={client.phone} />
-              <Field label="Email (lead notifications)" name="email" type="email" defaultValue={client.email} />
+              <Field label="Phone number" name="phone" defaultValue={settings?.phone ?? null} />
+              <Field
+                label="Email (lead notifications)"
+                name="email"
+                type="email"
+                defaultValue={settings?.email ?? null}
+              />
             </div>
-            <Field label="Service area" name="service_area" defaultValue={client.service_area} placeholder="Greater Pittsburgh, PA" />
+            <Field
+              label="Service area"
+              name="service_area"
+              defaultValue={settings?.service_area ?? null}
+              placeholder="Greater Pittsburgh, PA"
+            />
             <div>
               <Label>Services (comma-separated)</Label>
               <Textarea
                 name="services"
                 rows={2}
-                defaultValue={(client.services ?? []).join(", ")}
+                defaultValue={(settings?.services ?? []).join(", ")}
                 placeholder="Roof Repair, Gutters, Siding"
               />
             </div>
@@ -46,23 +54,23 @@ export default async function SettingsPage() {
         <Card>
           <CardBody className="space-y-4">
             <h2 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Branding</h2>
-            <Field label="Logo URL" name="logo_url" defaultValue={client.logo_url} placeholder="https://..." />
+            <Field label="Logo URL" name="logo_url" defaultValue={settings?.logo_url ?? null} placeholder="https://..." />
             <div>
               <Label>Brand color</Label>
               <div className="flex items-center gap-3">
                 <input
                   type="color"
                   name="brand_color"
-                  defaultValue={client.brand_color ?? "#1e3a8a"}
+                  defaultValue={settings?.brand_color ?? "#1e3a8a"}
                   className="h-10 w-16 cursor-pointer rounded border border-gray-300"
                 />
-                <span className="text-sm text-gray-500">{client.brand_color}</span>
+                <span className="text-sm text-gray-500">{settings?.brand_color ?? "#1e3a8a"}</span>
               </div>
             </div>
-            <Field label="Hero headline" name="hero_headline" defaultValue={client.hero_headline} />
+            <Field label="Hero headline" name="hero_headline" defaultValue={settings?.hero_headline ?? null} />
             <div>
               <Label>Hero subheadline</Label>
-              <Textarea name="hero_subheadline" rows={2} defaultValue={client.hero_subheadline ?? ""} />
+              <Textarea name="hero_subheadline" rows={2} defaultValue={settings?.hero_subheadline ?? ""} />
             </div>
           </CardBody>
         </Card>
@@ -73,7 +81,7 @@ export default async function SettingsPage() {
             <Field
               label="Google review link"
               name="google_review_link"
-              defaultValue={client.google_review_link}
+              defaultValue={settings?.google_review_link ?? null}
               placeholder="https://g.page/r/.../review"
             />
           </CardBody>

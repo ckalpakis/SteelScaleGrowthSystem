@@ -1,11 +1,17 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import type { Client } from "@/lib/types";
+import type { Client, ClientSettings } from "@/lib/types";
 
-// Resolves the signed-in user and the client (tenant) they belong to.
-// Redirects to /login if unauthenticated. Returns null client if the profile
-// isn't linked to a tenant yet (shown as an onboarding message in the UI).
-export async function requireClient(): Promise<{ userId: string; email: string; client: Client | null }> {
+// Resolves the signed-in user and the client (tenant) they belong to, along
+// with that client's settings. Redirects to /login if unauthenticated.
+// `client` is null if the profile isn't linked to a tenant yet (the UI shows
+// an onboarding message in that case).
+export async function requireClient(): Promise<{
+  userId: string;
+  email: string;
+  client: Client | null;
+  settings: ClientSettings | null;
+}> {
   const supabase = createClient();
   const {
     data: { user },
@@ -20,14 +26,20 @@ export async function requireClient(): Promise<{ userId: string; email: string; 
     .single<{ client_id: string | null }>();
 
   let client: Client | null = null;
+  let settings: ClientSettings | null = null;
+
   if (profile?.client_id) {
-    const { data } = await supabase
-      .from("clients")
-      .select("*")
-      .eq("id", profile.client_id)
-      .single<Client>();
-    client = data;
+    const [{ data: c }, { data: s }] = await Promise.all([
+      supabase.from("clients").select("*").eq("id", profile.client_id).single<Client>(),
+      supabase
+        .from("client_settings")
+        .select("*")
+        .eq("client_id", profile.client_id)
+        .maybeSingle<ClientSettings>(),
+    ]);
+    client = c;
+    settings = s;
   }
 
-  return { userId: user.id, email: user.email ?? "", client };
+  return { userId: user.id, email: user.email ?? "", client, settings };
 }

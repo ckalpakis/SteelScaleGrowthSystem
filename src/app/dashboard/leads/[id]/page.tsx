@@ -10,7 +10,7 @@ import { stageFor, type Lead, type LeadNote } from "@/lib/types";
 import { buildReviewMessage, buildSmsHref } from "@/lib/review";
 
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
-  const { client } = await requireClient();
+  const { client, settings } = await requireClient();
   if (!client) notFound();
 
   const supabase = createClient();
@@ -30,7 +30,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
     .returns<LeadNote[]>();
 
   const stage = stageFor(lead.status);
-  const reviewMessage = buildReviewMessage(client, lead);
+  const reviewMessage = buildReviewMessage(client, settings, lead);
   const smsHref = buildSmsHref(lead.phone, reviewMessage);
 
   // Bind server actions to this lead.
@@ -38,7 +38,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
   return (
     <div>
-      <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-700">
+      <Link href="/dashboard/leads" className="text-sm text-gray-500 hover:text-gray-700">
         ← Back to leads
       </Link>
 
@@ -61,7 +61,8 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
               <dl className="grid gap-3 sm:grid-cols-2">
                 <Detail label="Phone" value={lead.phone} href={lead.phone ? `tel:${lead.phone}` : undefined} />
                 <Detail label="Email" value={lead.email} href={lead.email ? `mailto:${lead.email}` : undefined} />
-                <Detail label="Service" value={lead.service} />
+                <Detail label="Service requested" value={lead.service_needed} />
+                <Detail label="Source" value={lead.source} />
                 <Detail label="Received" value={new Date(lead.created_at).toLocaleString()} />
               </dl>
               {lead.message && (
@@ -80,7 +81,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                 Notes
               </h2>
               <form action={addNoteAction} className="space-y-2">
-                <Textarea name="body" rows={3} placeholder="Add a note about this lead..." required />
+                <Textarea name="note" rows={3} placeholder="Add a note about this lead..." required />
                 <div className="flex justify-end">
                   <Button type="submit">Add note</Button>
                 </div>
@@ -94,7 +95,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                   const deleteAction = deleteNote.bind(null, note.id, lead.id);
                   return (
                     <li key={note.id} className="rounded-lg border border-gray-100 bg-gray-50 p-3">
-                      <p className="whitespace-pre-wrap text-sm text-gray-800">{note.body}</p>
+                      <p className="whitespace-pre-wrap text-sm text-gray-800">{note.note}</p>
                       <div className="mt-2 flex items-center justify-between">
                         <span className="text-xs text-gray-400">
                           {new Date(note.created_at).toLocaleString()}
@@ -123,7 +124,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
               <ReviewRequestButton
                 message={reviewMessage}
                 smsHref={smsHref}
-                hasReviewLink={Boolean(client.google_review_link)}
+                hasReviewLink={Boolean(settings?.google_review_link)}
               />
             </CardBody>
           </Card>
