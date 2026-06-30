@@ -7,7 +7,7 @@ import { NotLinked } from "@/components/dashboard/NotLinked";
 
 // Leads board — cards grouped into a column per pipeline stage.
 export default async function LeadsPage() {
-  const { client } = await requireClient();
+  const { client, settings } = await requireClient();
   if (!client) return <NotLinked />;
 
   const supabase = createClient();
@@ -55,7 +55,9 @@ export default async function LeadsPage() {
                       Nothing here yet
                     </p>
                   ) : (
-                    stageLeads.map((lead) => <LeadCard key={lead.id} lead={lead} />)
+                    stageLeads.map((lead) => (
+                      <LeadCard key={lead.id} lead={lead} client={client} settings={settings} />
+                    ))
                   )}
                 </div>
               </div>

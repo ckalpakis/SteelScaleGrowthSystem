@@ -5,16 +5,22 @@ import { Button } from "@/components/ui";
 
 // Generates a prefilled review-request message and lets the user copy it, text
 // it, or email it. The message + links are built server-side and passed in.
+//
+// `compact` renders a small inline trigger suited to a lead card: just the
+// action buttons (no message preview), and nothing at all when there's no
+// review link configured.
 export function ReviewRequestButton({
   message,
   smsHref,
   emailHref,
   hasReviewLink,
+  compact = false,
 }: {
   message: string;
   smsHref: string;
   emailHref: string;
   hasReviewLink: boolean;
+  compact?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -26,6 +32,8 @@ export function ReviewRequestButton({
   }
 
   if (!hasReviewLink) {
+    // On cards, stay quiet; on the detail page, nudge the owner to set it up.
+    if (compact) return null;
     return (
       <p className="text-sm text-gray-500">
         Add your Google review link in{" "}
@@ -34,6 +42,26 @@ export function ReviewRequestButton({
         </a>{" "}
         to enable review requests.
       </p>
+    );
+  }
+
+  if (compact) {
+    return (
+      <div onClick={(e) => e.stopPropagation()}>
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-xs font-medium text-brand hover:underline"
+        >
+          ⭐ {open ? "Hide" : "Review request"}
+        </button>
+        {open && (
+          <div className="mt-2 flex flex-wrap gap-1.5">
+            <CompactAction onClick={copy}>{copied ? "Copied!" : "Copy"}</CompactAction>
+            <CompactLink href={smsHref}>SMS</CompactLink>
+            <CompactLink href={emailHref}>Email</CompactLink>
+          </div>
+        )}
+      </div>
     );
   }
 
@@ -69,5 +97,33 @@ export function ReviewRequestButton({
         </div>
       )}
     </div>
+  );
+}
+
+function CompactAction({
+  onClick,
+  children,
+}: {
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+    >
+      {children}
+    </button>
+  );
+}
+
+function CompactLink({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      className="rounded-md border border-gray-300 bg-white px-2 py-1 text-xs font-medium text-gray-700 hover:bg-gray-50"
+    >
+      {children}
+    </a>
   );
 }

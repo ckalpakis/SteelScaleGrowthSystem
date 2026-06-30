@@ -1,11 +1,31 @@
 import Link from "next/link";
 import { StatusSelect } from "./StatusSelect";
-import type { Lead } from "@/lib/types";
+import { ReviewRequestButton } from "./ReviewRequestButton";
+import type { Client, ClientSettings, Lead } from "@/lib/types";
+import { businessName } from "@/lib/types";
+import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
 
 // A single lead card. Used on the grouped board and the overview. Shows the
 // key contact info at a glance; the status dropdown updates inline; clicking
-// the name opens the detail page.
-export function LeadCard({ lead }: { lead: Lead }) {
+// the name opens the detail page; and a compact review-request action lets the
+// owner reach out without leaving the board.
+export function LeadCard({
+  lead,
+  client,
+  settings,
+}: {
+  lead: Lead;
+  client: Client;
+  settings: ClientSettings | null;
+}) {
+  const reviewMessage = buildReviewMessage(client, settings, lead);
+  const smsHref = buildSmsHref(lead.phone, reviewMessage);
+  const emailHref = buildEmailHref(
+    lead.email,
+    `Quick favor — review for ${businessName(client, settings)}?`,
+    reviewMessage
+  );
+
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
       <div className="flex items-start justify-between gap-2">
@@ -49,6 +69,18 @@ export function LeadCard({ lead }: { lead: Lead }) {
           <StatusSelect leadId={lead.id} status={lead.status} />
         </div>
       </div>
+
+      {settings?.google_review_link && (
+        <div className="mt-3 border-t border-gray-100 pt-3">
+          <ReviewRequestButton
+            message={reviewMessage}
+            smsHref={smsHref}
+            emailHref={emailHref}
+            hasReviewLink
+            compact
+          />
+        </div>
+      )}
     </div>
   );
 }
