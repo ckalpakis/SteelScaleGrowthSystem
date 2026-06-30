@@ -108,30 +108,36 @@ export function StatStrip({ stats, invert = false }: { stats: Stat[]; invert?: b
 // ---------------------------------------------------------------------------
 export function ServicesShowcase({ services, base }: { services: ServiceDetail[]; base: string }) {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
       {services.map((s, i) => (
         <Reveal key={s.slug} delay={i * 70}>
           <Link
             href={`${base}/services/${s.slug}`}
-            className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-card hover-lift"
+            className="group flex h-full flex-col rounded-2xl bg-white p-3 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-hover"
           >
-            {s.image_url ? (
-              <div className="relative h-44 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={s.image_url} alt={s.name} className="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
-              </div>
-            ) : (
-              <div className="flex h-28 items-center bg-client-tint px-7">
-                <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-client text-white">
-                  <RoofIcon className="h-7 w-7" />
-                </span>
-              </div>
-            )}
-            <div className="flex flex-1 flex-col p-7">
-              <h3 className="text-xl font-bold text-ink group-hover:text-client">{s.name}</h3>
-              <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-slate-600">{s.description}</p>
-              <span className="mt-4 inline-flex items-center gap-1 text-sm font-bold uppercase tracking-wide text-client">
-                Learn more <span className="transition group-hover:translate-x-1">→</span>
+            {/* Inset, rounded photo area */}
+            <div className="overflow-hidden rounded-xl">
+              {s.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={s.image_url}
+                  alt={s.name}
+                  className="aspect-[16/11] w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="flex aspect-[16/11] w-full items-center justify-center bg-client-tint">
+                  <span className="flex h-16 w-16 items-center justify-center rounded-2xl bg-client text-white">
+                    <RoofIcon className="h-8 w-8" />
+                  </span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-1 flex-col px-4 pb-5 pt-6">
+              <h3 className="font-display text-xl font-extrabold uppercase tracking-tight text-client">{s.name}</h3>
+              <p className="mt-3 flex-1 text-[15px] leading-relaxed text-slate-600">{s.description}</p>
+              <span className="mt-6 inline-flex items-center justify-center self-center rounded-lg bg-ink px-5 py-3 text-xs font-bold uppercase tracking-wide text-white transition group-hover:bg-client">
+                See {s.name}
               </span>
             </div>
           </Link>
@@ -270,7 +276,7 @@ export function Testimonials({ items }: { items: Testimonial[] }) {
     <div className="grid gap-6 md:grid-cols-3">
       {items.map((t, i) => (
         <Reveal key={i} delay={i * 90}>
-          <figure className="flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-7 shadow-card">
+          <figure className="flex h-full flex-col rounded-2xl bg-white p-7 shadow-card">
             <Stars value={t.rating ?? 5} className="text-lg" />
             <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-slate-700">“{t.quote}”</blockquote>
             <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
@@ -298,7 +304,7 @@ export function FinancingCards({ items }: { items: FinancingOption[] }) {
     <div className="grid gap-6 md:grid-cols-3">
       {items.map((f, i) => (
         <Reveal key={i} delay={i * 80}>
-          <div className="flex h-full flex-col rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-card hover-lift">
+          <div className="flex h-full flex-col rounded-2xl bg-white p-8 text-center shadow-card hover-lift">
             <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-client-tint text-2xl font-extrabold text-client">$</span>
             <h3 className="text-lg font-bold text-ink">{f.title}</h3>
             <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.description}</p>

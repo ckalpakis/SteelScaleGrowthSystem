@@ -81,7 +81,7 @@ export function SectionHeading({
 type ButtonProps = {
   href: string;
   children: React.ReactNode;
-  variant?: "primary" | "secondary" | "ghost" | "white";
+  variant?: "primary" | "secondary" | "ghost" | "white" | "dark";
   size?: "md" | "lg";
   className?: string;
   external?: boolean;
@@ -104,6 +104,7 @@ export function Button({
     secondary: "border-2 border-ink/15 bg-white text-ink hover:border-ink/30",
     ghost: "text-ink hover:bg-slate-100",
     white: "bg-white text-ink shadow-card hover:shadow-card-hover",
+    dark: "bg-ink text-white shadow-card hover:bg-client",
   };
   return (
     <Link
@@ -120,10 +121,7 @@ export function Button({
 export function Card({ className, children }: { className?: string; children: React.ReactNode }) {
   return (
     <div
-      className={cn(
-        "rounded-2xl border border-slate-100 bg-white p-7 shadow-card hover-lift",
-        className
-      )}
+      className={cn("rounded-2xl bg-white p-7 shadow-card hover-lift", className)}
     >
       {children}
     </div>
