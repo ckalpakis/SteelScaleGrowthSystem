@@ -26,14 +26,15 @@ export async function sendNewLeadEmail(
   }
 
   const resend = new Resend(apiKey);
+  const business = businessName(client, settings);
 
   try {
     await resend.emails.send({
       from,
       to,
       ...(agencyBcc ? { bcc: agencyBcc } : {}),
-      subject: `New lead: ${lead.name}`,
-      html: renderLeadEmail(businessName(client, settings), lead),
+      subject: `New lead for ${business}: ${lead.name}`,
+      html: renderLeadEmail(business, lead),
     });
   } catch (err) {
     console.error("[email] failed to send new lead notification", err);
