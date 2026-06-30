@@ -105,9 +105,14 @@ export default async function HomePage({ params }: { params: { slug: string } })
         <Section tone="white"><AboutSplit site={site} /></Section>
       )}
 
+      {/* Reviews (light) */}
+      {site.testimonials.length > 0 && (
+        <Section tone="light"><ReviewsSplit site={site} /></Section>
+      )}
+
       {/* Portfolio (white) */}
       {site.gallery.length > 0 && (
-        <Section tone="light">
+        <Section tone="white">
           <SectionHeading eyebrow="Our work" title={<>See The Difference In Every <span className="text-client">Shingle</span></>} />
           <div className="mt-12"><PortfolioMasonry items={site.gallery.slice(0, 6)} /></div>
           <div className="mt-10 text-center"><Button href={`${base}/past-work`} variant="dark">View All Projects</Button></div>
@@ -125,32 +130,27 @@ export default async function HomePage({ params }: { params: { slug: string } })
       {/* Why choose us (white) */}
       <Section tone="white"><WhyChooseSplit site={site} /></Section>
 
-      {/* Reviews (white) */}
-      {site.testimonials.length > 0 && (
-        <Section tone="light"><ReviewsSplit site={site} /></Section>
-      )}
-
-      {/* Process (white) */}
+      {/* Process (light) */}
       {site.processSteps.length > 0 && (
-        <Section tone="white"><ProcessSplit site={site} /></Section>
+        <Section tone="light"><ProcessSplit site={site} /></Section>
       )}
 
       {/* Financing (white) */}
       {site.financing.length > 0 && (
-        <Section tone="light">
+        <Section tone="white">
           <SectionHeading eyebrow="Financing" title={<>Affordable Options That Fit Your <span className="text-client">Budget</span></>} />
           <div className="mt-12"><FinancingCards items={site.financing} /></div>
         </Section>
       )}
 
-      {/* Areas (white) */}
+      {/* Areas (light) */}
       {site.areas.length > 0 && (
-        <Section tone="white"><AreasSplit site={site} /></Section>
+        <Section tone="light"><AreasSplit site={site} /></Section>
       )}
 
       {/* FAQ (white) */}
       {site.faqs.length > 0 && (
-        <Section tone="light">
+        <Section tone="white">
           <SectionHeading eyebrow="Questions" title={<>Frequently Asked <span className="text-client">Questions</span></>} />
           <div className="mt-12"><FaqAccordion faqs={site.faqs} /></div>
         </Section>
