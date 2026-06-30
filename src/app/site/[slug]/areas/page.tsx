@@ -19,7 +19,7 @@ export async function generateMetadata({
 export default async function AreasPage({ params }: { params: { slug: string } }) {
   const site = await getSiteContent(params.slug);
   if (!site) notFound();
-  const base = `/site/${site.slug}`;
+  const base = site.base;
 
   return (
     <>

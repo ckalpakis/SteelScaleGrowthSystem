@@ -34,6 +34,7 @@ export interface Client {
   id: string;
   name: string;
   slug: string;
+  domain: string | null;
   created_at: string;
   updated_at: string;
 }

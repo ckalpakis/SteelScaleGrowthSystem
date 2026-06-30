@@ -38,7 +38,7 @@ export default async function AreaPage({
   const data = await getArea(params.slug, params.area);
   if (!data) notFound();
   const { site, area } = data;
-  const base = `/site/${site.slug}`;
+  const base = site.base;
 
   return (
     <>

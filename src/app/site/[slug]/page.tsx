@@ -34,7 +34,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
   const site = await getSiteContent(params.slug);
   if (!site) notFound();
 
-  const base = `/site/${site.slug}`;
+  const base = site.base;
   const serviceNames = site.services.map((s) => s.name);
 
   return (

@@ -10,8 +10,9 @@ import type { SiteContent } from "@/lib/site";
 // home-services sites.
 export function SiteHeader({ site }: { site: SiteContent }) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const base = `/site/${site.slug}`;
-  const quoteHref = `${base}#quote`;
+  const base = site.base;
+  const home = base || "/";
+  const quoteHref = `${base}/#quote`;
 
   return (
     <header className="sticky top-0 z-40">
@@ -43,7 +44,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
       {/* Primary nav */}
       <div className="border-b border-gray-200 bg-white shadow-sm">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link href={base} className="flex items-center gap-2">
+          <Link href={home} className="flex items-center gap-2">
             {site.logoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={site.logoUrl} alt={site.name} className="h-9 w-auto" />
@@ -56,7 +57,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
 
           {/* Desktop nav */}
           <nav className="hidden items-center gap-1 lg:flex">
-            <NavLink href={base}>Home</NavLink>
+            <NavLink href={home}>Home</NavLink>
             <Dropdown label="Services" href={`${base}/services`}>
               <DropItem href={`${base}/services`}>All Services</DropItem>
               {site.services.map((s) => (
@@ -103,7 +104,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
         {mobileOpen && (
           <div className="border-t border-gray-100 bg-white px-4 py-3 lg:hidden">
             <nav className="flex flex-col gap-1 text-sm">
-              <MobileLink href={base} onClick={() => setMobileOpen(false)}>Home</MobileLink>
+              <MobileLink href={home} onClick={() => setMobileOpen(false)}>Home</MobileLink>
               <MobileLink href={`${base}/services`} onClick={() => setMobileOpen(false)}>Services</MobileLink>
               {site.areas.length > 0 && (
                 <MobileLink href={`${base}/areas`} onClick={() => setMobileOpen(false)}>Areas</MobileLink>

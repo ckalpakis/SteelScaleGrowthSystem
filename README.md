@@ -104,6 +104,24 @@ supabase/schema.sql              Tables, RLS policies, demo seed
    - Public site: `http://localhost:3000/site/demo`
    - Dashboard: `http://localhost:3000/login`
 
+## Custom domains (clients on their own URL)
+
+Each client's site can be served on their own domain or a subdomain of your
+agency root — clean URLs, no `/site/<slug>` showing. Set `ROOT_DOMAIN` to enable
+it (e.g. `steelscale.xyz`); the middleware maps the incoming hostname to a client.
+
+**Subdomain (simplest):** add a wildcard `*.{ROOT_DOMAIN}` DNS record pointing at
+your host. Then `bluebuilt.steelscale.xyz` automatically serves the client whose
+`slug` is `bluebuilt` — no per-client config needed.
+
+**Client's own domain:**
+1. `update clients set domain = 'bluebuiltroofs.com' where slug = 'bluebuilt';`
+2. Add `bluebuiltroofs.com` (and `www`) in your host's Domains settings (Vercel).
+3. At the client's registrar, point the domain at your host (apex `A` record /
+   `www` `CNAME` per the host's instructions). SSL is issued automatically.
+
+Local testing: `bluebuilt.localhost:3000` resolves to the `bluebuilt` tenant.
+
 ## Onboarding a new client
 
 1. Insert a row into `clients` (set a unique `slug`).

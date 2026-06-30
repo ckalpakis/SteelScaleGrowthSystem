@@ -1,7 +1,9 @@
 import { cache } from "react";
+import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { businessName } from "@/lib/types";
 import type { Client, ClientSettings, ServiceDetail, GalleryItem } from "@/lib/types";
+import { hostnameFrom, classifyHost } from "@/lib/tenant";
 
 // =============================================================================
 // Data access + content normalization for the public website template.
@@ -17,6 +19,11 @@ export interface SiteArea {
 export interface SiteContent {
   clientId: string;
   slug: string;
+  /**
+   * URL prefix for all in-site links. Empty string when the site is served on
+   * its own domain/subdomain (clean URLs); "/site/<slug>" on the agency host.
+   */
+  base: string;
   name: string;
   brand: string;
   phone: string | null;
@@ -71,8 +78,17 @@ export const getSite = cache(
 export const getSiteContent = cache(async (slug: string): Promise<SiteContent | null> => {
   const site = await getSite(slug);
   if (!site) return null;
-  return normalizeSiteContent(site.client, site.settings);
+  const content = normalizeSiteContent(site.client, site.settings);
+  content.base = tenantBase(site.client.slug);
+  return content;
 });
+
+// On a tenant's own domain/subdomain the site lives at the root (no prefix);
+// on the agency host it lives under /site/<slug>.
+function tenantBase(slug: string): string {
+  const host = hostnameFrom(headers().get("host"));
+  return classifyHost(host).type === "primary" ? `/site/${slug}` : "";
+}
 
 export function slugify(input: string): string {
   return input
@@ -89,6 +105,7 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
   return {
     clientId: client.id,
     slug: client.slug,
+    base: `/site/${client.slug}`,
     name,
     brand: settings?.brand_color ?? "#1e3a8a",
     phone: settings?.phone ?? null,

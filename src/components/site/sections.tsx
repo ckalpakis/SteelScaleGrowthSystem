@@ -25,7 +25,7 @@ export function PageHero({
         {subtitle && <p className="mt-3 max-w-2xl text-lg text-gray-300">{subtitle}</p>}
         <div className="mt-6 flex flex-wrap gap-3">
           <Link
-            href={`/site/${site.slug}/contact`}
+            href={`${site.base}/contact`}
             className="bg-client rounded-lg px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white hover:opacity-90"
           >
             Get a Free Quote

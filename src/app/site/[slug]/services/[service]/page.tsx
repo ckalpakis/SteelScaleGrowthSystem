@@ -36,7 +36,7 @@ export default async function ServicePage({
   const data = await getService(params.slug, params.service);
   if (!data) notFound();
   const { site, service } = data;
-  const base = `/site/${site.slug}`;
+  const base = site.base;
   const loc = site.primaryLocation ? ` in ${site.primaryLocation}` : "";
 
   return (

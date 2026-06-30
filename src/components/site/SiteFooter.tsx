@@ -3,7 +3,7 @@ import type { SiteContent } from "@/lib/site";
 
 // Site-wide footer: contact info, quick links, services, areas, and a final CTA.
 export function SiteFooter({ site }: { site: SiteContent }) {
-  const base = `/site/${site.slug}`;
+  const base = site.base;
   const year = new Date().getFullYear();
 
   return (
@@ -49,7 +49,7 @@ export function SiteFooter({ site }: { site: SiteContent }) {
         <div>
           <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Company</p>
           <ul className="space-y-2 text-sm">
-            <FooterLink href={base}>Home</FooterLink>
+            <FooterLink href={base || "/"}>Home</FooterLink>
             <FooterLink href={`${base}/about`}>About</FooterLink>
             <FooterLink href={`${base}/past-work`}>Past Work</FooterLink>
             <FooterLink href={`${base}/contact`}>Contact</FooterLink>
