@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSiteContent } from "@/lib/site";
 import { Section, SectionHeading } from "@/components/site/ui";
-import { PageHero, StatStrip, TrustLogos, Testimonials, CTABand } from "@/components/site/sections";
+import { PageHero, StatStrip, Testimonials, CTABand } from "@/components/site/sections";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const site = await getSiteContent(params.slug);
@@ -39,8 +39,6 @@ export default async function AboutPage({ params }: { params: { slug: string } }
           <StatStrip stats={site.stats} invert />
         </Section>
       )}
-
-      <TrustLogos badges={site.badges} />
 
       {site.testimonials.length > 0 && (
         <Section tone="light">

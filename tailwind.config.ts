@@ -18,11 +18,11 @@ const config: Config = {
           DEFAULT: "#1e3a8a",
           dark: "#172554",
         },
-        // Flat navy used for dark emphasis sections across the template.
+        // Deep navy used for dark emphasis bands across the template.
         ink: {
-          DEFAULT: "#0b1220",
-          800: "#111a2e",
-          700: "#1b2740",
+          DEFAULT: "#0c2340",
+          800: "#102a4c",
+          700: "#173461",
         },
       },
       maxWidth: {
@@ -42,9 +42,14 @@ const config: Config = {
           "0%": { opacity: "0", transform: "translateY(16px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
       },
       animation: {
         "fade-up": "fade-up 0.7s ease-out both",
+        marquee: "marquee 28s linear infinite",
       },
     },
   },
