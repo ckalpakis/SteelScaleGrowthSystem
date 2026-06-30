@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: #1e3a8a;
+}
+
+html,
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+}
+
+/* Per-client sites set --brand inline; these utilities consume it. */
+.bg-client {
+  background-color: var(--brand);
+}
+.text-client {
+  color: var(--brand);
+}
+.border-client {
+  border-color: var(--brand);
+}
+.ring-client {
+  --tw-ring-color: var(--brand);
+}
