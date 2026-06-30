@@ -1,144 +1,198 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
-import { ContactForm } from "@/components/site/ContactForm";
-import type { Client, ClientSettings } from "@/lib/types";
-import { businessName } from "@/lib/types";
-
-// Public, branded website template for a single client (tenant), keyed by slug.
-// Reads are allowed by RLS, so the cookie-bound server client is fine here.
-
-async function getSite(
-  slug: string
-): Promise<{ client: Client; settings: ClientSettings | null } | null> {
-  const supabase = createClient();
-  const { data: client } = await supabase
-    .from("clients")
-    .select("*")
-    .eq("slug", slug)
-    .single<Client>();
-  if (!client) return null;
-
-  const { data: settings } = await supabase
-    .from("client_settings")
-    .select("*")
-    .eq("client_id", client.id)
-    .maybeSingle<ClientSettings>();
-
-  return { client, settings };
-}
+import { getSiteContent } from "@/lib/site";
+import { LeadForm } from "@/components/site/LeadForm";
+import {
+  SectionHeading,
+  TrustStrip,
+  ServicesGrid,
+  AreasGrid,
+  Gallery,
+  BadgesRow,
+  RatingInline,
+} from "@/components/site/sections";
 
 export async function generateMetadata({
   params,
 }: {
   params: { slug: string };
 }): Promise<Metadata> {
-  const site = await getSite(params.slug);
+  const site = await getSiteContent(params.slug);
   if (!site) return { title: "Not found" };
-  const name = businessName(site.client, site.settings);
+  const loc = site.primaryLocation ? ` | ${site.primaryLocation}` : "";
   return {
-    title: name,
-    description: site.settings?.hero_subheadline ?? `${name} — ${site.settings?.service_area ?? ""}`,
+    title: `${site.name}${loc}`,
+    description:
+      site.heroSubheadline ??
+      site.tagline ??
+      `${site.name}${site.primaryLocation ? ` serving ${site.primaryLocation}` : ""}. Free estimates and quality work.`,
   };
 }
 
-export default async function SitePage({ params }: { params: { slug: string } }) {
-  const site = await getSite(params.slug);
+export default async function HomePage({ params }: { params: { slug: string } }) {
+  const site = await getSiteContent(params.slug);
   if (!site) notFound();
 
-  const { client, settings } = site;
-  const name = businessName(client, settings);
-  const brand = settings?.brand_color ?? "#1e3a8a";
-  const services = settings?.services ?? [];
+  const base = `/site/${site.slug}`;
+  const serviceNames = site.services.map((s) => s.name);
 
   return (
-    <div style={{ ["--brand" as string]: brand }} className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-100">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-3">
-            {settings?.logo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={settings.logo_url} alt={name} className="h-9 w-auto" />
-            ) : (
-              <span className="text-lg font-bold text-client">{name}</span>
-            )}
-          </div>
-          {settings?.phone && (
-            <a href={`tel:${settings.phone}`} className="text-sm font-semibold text-client">
-              {settings.phone}
-            </a>
-          )}
-        </div>
-      </header>
-
+    <>
       {/* Hero */}
-      <section className="bg-client text-white">
-        <div className="mx-auto max-w-5xl px-6 py-20 text-center">
-          <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-            {settings?.hero_headline ?? name}
-          </h1>
-          {settings?.hero_subheadline && (
-            <p className="mx-auto mt-5 max-w-2xl text-lg text-white/90">
-              {settings.hero_subheadline}
-            </p>
-          )}
-          {settings?.service_area && (
-            <p className="mt-3 text-sm font-medium text-white/80">
-              Proudly serving {settings.service_area}
-            </p>
-          )}
-          <a
-            href="#contact"
-            className="mt-8 inline-flex rounded-lg bg-white px-6 py-3 text-sm font-semibold text-client shadow-sm transition hover:bg-gray-100"
-          >
-            Get a Free Estimate
-          </a>
+      <section className="relative isolate overflow-hidden bg-gray-900">
+        {site.heroImageUrl && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={site.heroImageUrl}
+            alt=""
+            className="absolute inset-0 -z-10 h-full w-full object-cover opacity-30"
+          />
+        )}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-gray-900 via-gray-900/90 to-gray-900/60" />
+
+        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 lg:grid-cols-2 lg:py-24">
+          {/* Copy */}
+          <div className="text-white">
+            {site.tagline && (
+              <p className="mb-3 inline-block rounded bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-white/90">
+                {site.tagline}
+              </p>
+            )}
+            <h1 className="text-4xl font-extrabold uppercase leading-tight tracking-tight sm:text-5xl">
+              {renderHeadline(site.heroHeadline, site.primaryLocation)}
+            </h1>
+            {site.heroSubheadline && (
+              <p className="mt-5 max-w-xl text-lg text-gray-200">{site.heroSubheadline}</p>
+            )}
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <Link
+                href="#quote"
+                className="bg-client rounded-lg px-6 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:opacity-90"
+              >
+                Get a Free Quote
+              </Link>
+              {site.phone && (
+                <a
+                  href={`tel:${site.phone}`}
+                  className="rounded-lg border border-white/30 px-6 py-3 text-sm font-bold text-white hover:bg-white/10"
+                >
+                  Call {site.phone}
+                </a>
+              )}
+            </div>
+            <div className="mt-6">
+              <RatingInline site={site} />
+            </div>
+          </div>
+
+          {/* Lead form */}
+          <div id="quote" className="scroll-mt-28">
+            <div className="rounded-2xl border border-white/10 bg-gray-800/80 p-6 shadow-2xl backdrop-blur">
+              <LeadForm
+                clientId={site.clientId}
+                services={serviceNames}
+                source="website-hero"
+                theme="dark"
+                title="Request a Free Quote"
+                subtitle="Take the first step — we'll get right back to you."
+              />
+            </div>
+          </div>
         </div>
       </section>
 
+      <TrustStrip valueProps={site.valueProps} />
+
       {/* Services */}
-      {services.length > 0 && (
-        <section className="mx-auto max-w-5xl px-6 py-16">
-          <h2 className="text-center text-2xl font-bold text-gray-900">Our Services</h2>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {services.map((service) => (
-              <div
-                key={service}
-                className="rounded-xl border border-gray-200 p-5 text-center shadow-sm"
-              >
-                <div className="mx-auto mb-3 h-10 w-10 rounded-full bg-client opacity-90" />
-                <p className="font-semibold text-gray-900">{service}</p>
-              </div>
-            ))}
+      {site.services.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-16">
+          <SectionHeading
+            eyebrow="What we do"
+            title="Our Services"
+            subtitle={
+              site.primaryLocation
+                ? `Trusted, professional service across ${site.primaryLocation}.`
+                : undefined
+            }
+          />
+          <div className="mt-10">
+            <ServicesGrid services={site.services} base={base} />
           </div>
         </section>
       )}
 
-      {/* Contact / quote form */}
-      <section id="contact" className="bg-gray-50">
-        <div className="mx-auto max-w-2xl px-6 py-16">
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900">Request Your Free Estimate</h2>
-            <p className="mt-2 text-gray-600">
-              Tell us what you need and we&apos;ll get right back to you.
-            </p>
+      {/* Why choose us / badges */}
+      {(site.valueProps.length > 0 || site.badges.length > 0) && (
+        <section className="bg-gray-50">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <SectionHeading eyebrow="Why choose us" title={`The ${site.name} difference`} />
+            {site.valueProps.length > 0 && (
+              <div className="mx-auto mt-10 grid max-w-4xl gap-5 sm:grid-cols-3">
+                {site.valueProps.map((vp) => (
+                  <div key={vp} className="rounded-xl border border-gray-200 bg-white p-5 text-center shadow-sm">
+                    <div className="bg-client mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full text-lg font-bold text-white">
+                      ✓
+                    </div>
+                    <p className="text-sm font-medium text-gray-700">{vp}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            {site.badges.length > 0 && (
+              <div className="mt-10 flex justify-center">
+                <BadgesRow badges={site.badges} />
+              </div>
+            )}
           </div>
-          <div className="mt-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
-            <ContactForm clientId={client.id} services={services} />
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
-      {/* Footer */}
-      <footer className="border-t border-gray-100">
-        <div className="mx-auto max-w-5xl px-6 py-8 text-center text-sm text-gray-500">
-          <p className="font-semibold text-gray-700">{name}</p>
-          <p className="mt-1">
-            {[settings?.phone, settings?.email, settings?.service_area].filter(Boolean).join(" · ")}
-          </p>
-        </div>
-      </footer>
-    </div>
+      {/* Past work preview */}
+      {site.gallery.length > 0 && (
+        <section className="mx-auto max-w-6xl px-4 py-16">
+          <SectionHeading eyebrow="Our work" title="Recent Projects" />
+          <div className="mt-10">
+            <Gallery items={site.gallery.slice(0, 3)} />
+          </div>
+          <div className="mt-8 text-center">
+            <Link href={`${base}/past-work`} className="font-semibold text-client hover:underline">
+              View all of our work →
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Areas */}
+      {site.areas.length > 0 && (
+        <section className="bg-gray-50">
+          <div className="mx-auto max-w-6xl px-4 py-16">
+            <SectionHeading
+              eyebrow="Where we work"
+              title="Areas We Serve"
+              subtitle="Proudly serving homeowners and businesses across the region."
+            />
+            <div className="mt-8 flex justify-center">
+              <AreasGrid areas={site.areas} base={base} />
+            </div>
+          </div>
+        </section>
+      )}
+    </>
   );
+}
+
+// Colors the location portion of the headline with the brand accent.
+function renderHeadline(headline: string, location: string | null) {
+  if (location && headline.includes(location)) {
+    const [before, after] = headline.split(location);
+    return (
+      <>
+        {before}
+        <span className="text-client">{location}</span>
+        {after}
+      </>
+    );
+  }
+  return headline;
 }

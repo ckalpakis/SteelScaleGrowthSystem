@@ -8,8 +8,16 @@ Built with **Next.js (App Router) · TypeScript · Tailwind CSS · Supabase · R
 
 ## Features
 
-- **Branded public website** per client (`/site/<slug>`) — hero, services,
-  contact form, all themed by the client's brand color and logo.
+- **Branded, multi-page public website** per client (`/site/<slug>`) — built for
+  conversion and local SEO:
+  - Utility bar (call/email + Google rating), sticky nav with Services/Areas
+    dropdowns, and a brand-color "Get a Free Quote" CTA
+  - Hero with location-based H1 and an **embedded lead form**
+  - **Services** page + an auto-generated landing page **per service**
+  - **Service Areas** page + an auto-generated local landing page **per city**
+  - **Past Work** gallery, **About**, and **Contact** (with map)
+  - LocalBusiness JSON-LD structured data + per-page title/meta
+  - All content is driven by `client_settings` (see migration `0002`)
 - **Lead capture** — contact/quote form saves leads to Supabase.
 - **Client login** (Supabase Auth) and a protected dashboard.
 - **Lead pipeline** — New → Contacted → Estimate Scheduled → Won → Lost, with
@@ -33,7 +41,12 @@ write access to the database is exposed.
 src/
   app/
     page.tsx                     Marketing landing for the product
-    site/[slug]/page.tsx         Public branded client website
+    site/[slug]/                 Public branded client website (multi-page)
+      layout.tsx                 Header/footer/brand + JSON-LD per tenant
+      page.tsx                   Home (hero + embedded lead form)
+      services/                  Services index + [service] SEO landing pages
+      areas/                     Areas index + [area] local SEO landing pages
+      past-work/ about/ contact/ Gallery, About, Contact (with map)
     login/page.tsx               Client login
     auth/signout/route.ts        Sign out
     api/leads/route.ts           Public lead-capture endpoint

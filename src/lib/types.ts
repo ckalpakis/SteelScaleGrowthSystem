@@ -38,7 +38,21 @@ export interface Client {
   updated_at: string;
 }
 
-// `client_settings` table — branding + contact config (1:1 with a client).
+// Structured content stored as jsonb on client_settings.
+export interface ServiceDetail {
+  slug: string;
+  name: string;
+  description: string;
+  image_url?: string | null;
+}
+
+export interface GalleryItem {
+  url: string;
+  caption?: string | null;
+}
+
+// `client_settings` table — branding, contact, and website content
+// (1:1 with a client).
 export interface ClientSettings {
   id: string;
   client_id: string;
@@ -52,6 +66,25 @@ export interface ClientSettings {
   service_area: string | null;
   hero_headline: string | null;
   hero_subheadline: string | null;
+  // Website content (migration 0002)
+  tagline: string | null;
+  primary_location: string | null;
+  hero_image_url: string | null;
+  service_areas: string[] | null;
+  service_details: ServiceDetail[] | null;
+  gallery: GalleryItem[] | null;
+  value_props: string[] | null;
+  badges: string[] | null;
+  about_headline: string | null;
+  about_text: string | null;
+  rating: number | null;
+  review_count: number | null;
+  facebook_url: string | null;
+  instagram_url: string | null;
+  google_business_url: string | null;
+  promo_text: string | null;
+  address: string | null;
+  hours: string | null;
   created_at: string;
   updated_at: string;
 }
