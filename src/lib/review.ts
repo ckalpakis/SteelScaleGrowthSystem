@@ -9,16 +9,13 @@ export function buildReviewMessage(
   lead?: Lead | null
 ): string {
   const business = businessName(client, settings);
-  const firstName = lead?.name?.split(" ")[0];
-  const greeting = firstName ? `Hi ${firstName},` : "Hi there,";
+  const customerName = lead?.name?.trim() || "there";
   const link = settings?.google_review_link ?? "";
 
   return (
-    `${greeting}\n\n` +
-    `Thanks so much for choosing ${business}! It was a pleasure working with you. ` +
-    `If you have a moment, we'd really appreciate a quick Google review — it helps our small business a lot.\n\n` +
-    `${link}\n\n` +
-    `Thank you!\n${business}`
+    `Hi ${customerName}, thank you for choosing ${business}. ` +
+    `If you were happy with the work, would you mind leaving us a quick Google review? ` +
+    `It really helps our local business: ${link}`
   );
 }
 
@@ -28,4 +25,15 @@ export function buildSmsHref(phone: string | null | undefined, message: string):
   const body = encodeURIComponent(message);
   const number = (phone ?? "").replace(/[^\d+]/g, "");
   return `sms:${number}?&body=${body}`;
+}
+
+// Convenience link for opening the user's email client with the review request
+// prefilled (to the customer, with a subject line).
+export function buildEmailHref(
+  email: string | null | undefined,
+  subject: string,
+  message: string
+): string {
+  const params = new URLSearchParams({ subject, body: message });
+  return `mailto:${email ?? ""}?${params.toString()}`;
 }

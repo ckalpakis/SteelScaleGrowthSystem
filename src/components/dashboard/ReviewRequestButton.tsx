@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { Button } from "@/components/ui";
 
-// Generates a prefilled review-request message and lets the user copy it or
-// open their SMS app. The message + link are built server-side and passed in.
+// Generates a prefilled review-request message and lets the user copy it, text
+// it, or email it. The message + links are built server-side and passed in.
 export function ReviewRequestButton({
   message,
   smsHref,
+  emailHref,
   hasReviewLink,
 }: {
   message: string;
   smsHref: string;
+  emailHref: string;
   hasReviewLink: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -38,7 +40,7 @@ export function ReviewRequestButton({
   return (
     <div>
       <Button variant="secondary" onClick={() => setOpen((v) => !v)}>
-        ⭐ Request a Google review
+        ⭐ Create Review Request
       </Button>
 
       {open && (
@@ -46,7 +48,7 @@ export function ReviewRequestButton({
           <textarea
             readOnly
             value={message}
-            rows={7}
+            rows={6}
             className="w-full rounded-lg border border-gray-300 bg-gray-50 p-3 text-sm text-gray-700"
           />
           <div className="flex flex-wrap gap-2">
@@ -55,7 +57,13 @@ export function ReviewRequestButton({
               href={smsHref}
               className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
             >
-              Text it
+              Open SMS
+            </a>
+            <a
+              href={emailHref}
+              className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-50"
+            >
+              Open Email
             </a>
           </div>
         </div>

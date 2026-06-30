@@ -7,7 +7,8 @@ import { StatusSelect } from "@/components/dashboard/StatusSelect";
 import { ReviewRequestButton } from "@/components/dashboard/ReviewRequestButton";
 import { addNote, deleteNote } from "@/app/dashboard/actions";
 import { stageFor, type Lead, type LeadNote } from "@/lib/types";
-import { buildReviewMessage, buildSmsHref } from "@/lib/review";
+import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
+import { businessName } from "@/lib/types";
 
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const { client, settings } = await requireClient();
@@ -32,6 +33,11 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   const stage = stageFor(lead.status);
   const reviewMessage = buildReviewMessage(client, settings, lead);
   const smsHref = buildSmsHref(lead.phone, reviewMessage);
+  const emailHref = buildEmailHref(
+    lead.email,
+    `Quick favor — review for ${businessName(client, settings)}?`,
+    reviewMessage
+  );
 
   // Bind server actions to this lead.
   const addNoteAction = addNote.bind(null, lead.id);
@@ -124,6 +130,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
               <ReviewRequestButton
                 message={reviewMessage}
                 smsHref={smsHref}
+                emailHref={emailHref}
                 hasReviewLink={Boolean(settings?.google_review_link)}
               />
             </CardBody>
