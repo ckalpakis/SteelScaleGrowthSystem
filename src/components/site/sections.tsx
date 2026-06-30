@@ -393,25 +393,25 @@ export function AreasGrid({ areas, base }: { areas: SiteArea[]; base: string }) 
   );
 }
 
-export function AreasSplit({ site }: { site: SiteContent }) {
+export function AreasSplit({ site, invert = false }: { site: SiteContent; invert?: boolean }) {
   const mapSrc = site.address ? `https://www.google.com/maps?q=${encodeURIComponent(site.address)}&output=embed` : null;
   return (
     <div className="grid items-start gap-12 lg:grid-cols-2">
       <div>
         <p className="eyebrow">Where we work</p>
-        <h2 className="mt-3 font-display text-3xl font-extrabold uppercase leading-tight text-ink sm:text-4xl">
+        <h2 className={cn("mt-3 font-display text-3xl font-extrabold uppercase leading-tight sm:text-4xl", invert ? "text-white" : "text-ink")}>
           Proudly Serving <span className="text-client">{site.primaryLocation ?? "Your Area"}</span>
         </h2>
-        <p className="mt-4 text-slate-600">Local, reliable service for the communities we call home.</p>
+        <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Local, reliable service for the communities we call home.</p>
         {mapSrc && (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-slate-100 shadow-card">
+          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 shadow-card">
             <iframe title="Service area map" src={mapSrc} className="h-64 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
           </div>
         )}
       </div>
       <div>
         <AreasGrid areas={site.areas} base={site.base} />
-        <div className="mt-7"><Button href={`${site.base}/areas`} variant="dark">Explore All Service Areas</Button></div>
+        <div className="mt-7"><Button href={`${site.base}/areas`} variant={invert ? "white" : "dark"}>Explore All Service Areas</Button></div>
       </div>
     </div>
   );

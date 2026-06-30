@@ -143,9 +143,9 @@ export default async function HomePage({ params }: { params: { slug: string } })
         </Section>
       )}
 
-      {/* Areas (light) */}
+      {/* Areas (navy) */}
       {site.areas.length > 0 && (
-        <Section tone="light"><AreasSplit site={site} /></Section>
+        <Section tone="navy"><AreasSplit site={site} invert /></Section>
       )}
 
       {/* FAQ (white) */}
