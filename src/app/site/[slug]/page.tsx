@@ -101,21 +101,21 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* -------------------------------------------------------------- Stats */}
       {site.stats.length > 0 && (
-        <Section tone="white" className="!py-14">
+        <Section tone="light" className="!py-14">
           <StatStrip stats={site.stats} />
         </Section>
       )}
 
       {/* -------------------------------------------------------------- About */}
       {(site.aboutText || site.gallery.length > 0) && (
-        <Section tone="light">
-          <AboutSplit site={site} />
+        <Section tone="navy">
+          <AboutSplit site={site} invert />
         </Section>
       )}
 
       {/* ----------------------------------------------------------- Reviews */}
       {site.testimonials.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading eyebrow="Reviews" title="Real Reviews From Real Neighbors" />
           <div className="mt-12">
             <Testimonials items={site.testimonials} />
@@ -125,11 +125,12 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* ----------------------------------------------------------- Services */}
       {site.services.length > 0 && (
-        <Section tone="light">
+        <Section tone="navy">
           <SectionHeading
             eyebrow="What we do"
             title="Full-Service Roofing & Exteriors"
             subtitle={site.primaryLocation ? `Trusted, professional service across ${site.primaryLocation}.` : undefined}
+            invert
           />
           <div className="mt-12">
             <ServicesShowcase services={site.services} base={base} />
@@ -139,7 +140,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* ------------------------------------------------------------ Process */}
       {site.processSteps.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading eyebrow="How it works" title="A Simple, Stress-Free Process" />
           <div className="mt-14">
             <ProcessTimeline steps={site.processSteps} />
@@ -149,8 +150,8 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* ------------------------------------------------------------ Portfolio */}
       {site.gallery.length > 0 && (
-        <Section tone="light">
-          <SectionHeading eyebrow="Our work" title="See The Difference In Every Detail" />
+        <Section tone="navy">
+          <SectionHeading eyebrow="Our work" title="See The Difference In Every Detail" invert />
           <div className="mt-12">
             <PortfolioMasonry items={site.gallery.slice(0, 6)} />
           </div>
@@ -162,7 +163,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* ----------------------------------------------------------- Financing */}
       {site.financing.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading eyebrow="Financing" title="Affordable Options That Fit Your Budget" />
           <div className="mt-12">
             <FinancingCards items={site.financing} />
@@ -172,11 +173,12 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* -------------------------------------------------------------- Areas */}
       {site.areas.length > 0 && (
-        <Section tone="light">
+        <Section tone="navy">
           <SectionHeading
             eyebrow="Where we work"
             title="Proudly Serving Your Area"
             subtitle="Local, reliable service for the communities we call home."
+            invert
           />
           <div className="mt-10">
             <AreasGrid areas={site.areas} base={base} />
@@ -186,7 +188,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* --------------------------------------------------------------- FAQ */}
       {site.faqs.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading eyebrow="Questions" title="Frequently Asked Questions" />
           <div className="mt-12">
             <FaqAccordion faqs={site.faqs} />

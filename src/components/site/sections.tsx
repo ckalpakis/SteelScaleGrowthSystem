@@ -144,7 +144,7 @@ export function ServicesShowcase({ services, base }: { services: ServiceDetail[]
 // ---------------------------------------------------------------------------
 // About split — large photo beside copy + stats.
 // ---------------------------------------------------------------------------
-export function AboutSplit({ site }: { site: SiteContent }) {
+export function AboutSplit({ site, invert = false }: { site: SiteContent; invert?: boolean }) {
   const photo = site.gallery[0]?.url ?? site.heroImageUrl;
   return (
     <div className="grid items-center gap-12 lg:grid-cols-2">
@@ -168,22 +168,28 @@ export function AboutSplit({ site }: { site: SiteContent }) {
       <Reveal delay={120}>
         <div>
           <p className="eyebrow">About {site.name}</p>
-          <h2 className="mt-3 text-3xl font-extrabold leading-tight text-ink sm:text-4xl">
+          <h2 className={cn("mt-3 text-3xl font-extrabold leading-tight sm:text-4xl", invert ? "text-white" : "text-ink")}>
             {site.aboutHeadline ?? "Your neighbors' trusted local experts"}
           </h2>
-          {site.aboutText && <p className="mt-5 text-lg leading-relaxed text-slate-600">{site.aboutText}</p>}
+          {site.aboutText && (
+            <p className={cn("mt-5 text-lg leading-relaxed", invert ? "text-white/75" : "text-slate-600")}>
+              {site.aboutText}
+            </p>
+          )}
           {site.stats.length > 0 && (
             <div className="mt-8 grid grid-cols-2 gap-6">
               {site.stats.slice(0, 4).map((s) => (
                 <div key={s.label}>
                   <div className="font-display text-3xl font-extrabold text-client">{s.value}</div>
-                  <div className="text-sm font-medium uppercase tracking-wide text-slate-500">{s.label}</div>
+                  <div className={cn("text-sm font-medium uppercase tracking-wide", invert ? "text-white/60" : "text-slate-500")}>
+                    {s.label}
+                  </div>
                 </div>
               ))}
             </div>
           )}
           <div className="mt-8">
-            <Button href={`${site.base}/about`} variant="secondary">Our Story</Button>
+            <Button href={`${site.base}/about`} variant={invert ? "white" : "secondary"}>Our Story</Button>
           </div>
         </div>
       </Reveal>

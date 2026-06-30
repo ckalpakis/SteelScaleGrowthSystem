@@ -60,7 +60,7 @@ export function SectionHeading({
 }) {
   return (
     <div className={cn("max-w-2xl", align === "center" && "mx-auto text-center")}>
-      {eyebrow && <Eyebrow className={invert ? "text-white/70" : undefined}>{eyebrow}</Eyebrow>}
+      {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
       <h2
         className={cn(
           "mt-3 text-3xl font-extrabold leading-[1.1] sm:text-4xl md:text-[2.6rem]",
