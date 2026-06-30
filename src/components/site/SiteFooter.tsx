@@ -1,103 +1,97 @@
 import Link from "next/link";
+import { Container } from "./ui";
 import type { SiteContent } from "@/lib/site";
 
-// Site-wide footer: contact info, quick links, services, areas, and a final CTA.
+// Large premium footer: brand, contact, services, areas, socials.
 export function SiteFooter({ site }: { site: SiteContent }) {
   const base = site.base;
   const year = new Date().getFullYear();
+  const socials = [
+    { href: site.facebookUrl, label: "Facebook", glyph: "f" },
+    { href: site.instagramUrl, label: "Instagram", glyph: "◎" },
+    { href: site.googleBusinessUrl, label: "Google", glyph: "G" },
+  ].filter((s) => s.href);
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      {/* CTA band */}
-      <div className="bg-client">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-4 py-8 text-center sm:flex-row sm:text-left">
-          <div>
-            <h2 className="text-xl font-bold text-white">Ready to get started?</h2>
-            <p className="text-white/85">Free estimates. Fast, friendly service.</p>
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-3">
-            {site.phone && (
-              <a
-                href={`tel:${site.phone}`}
-                className="rounded-lg bg-white/15 px-5 py-2.5 text-sm font-bold text-white hover:bg-white/25"
-              >
-                Call {site.phone}
-              </a>
-            )}
-            <Link
-              href={`${base}/contact`}
-              className="rounded-lg bg-white px-5 py-2.5 text-sm font-bold text-client hover:bg-gray-100"
-            >
-              Get a Free Quote
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 sm:grid-cols-2 lg:grid-cols-4">
+    <footer className="bg-ink text-slate-300">
+      <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div>
-          <p className="text-lg font-extrabold uppercase text-white">{site.name}</p>
-          {site.tagline && <p className="mt-2 text-sm text-gray-400">{site.tagline}</p>}
-          <div className="mt-4 space-y-1 text-sm">
-            {site.phone && <a href={`tel:${site.phone}`} className="block hover:text-white">{site.phone}</a>}
-            {site.email && <a href={`mailto:${site.email}`} className="block hover:text-white">{site.email}</a>}
-            {site.address && <p className="text-gray-400">{site.address}</p>}
-            {site.hours && <p className="text-gray-400">{site.hours}</p>}
-          </div>
+          {site.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={site.logoUrl} alt={site.name} className="h-10 w-auto brightness-0 invert" />
+          ) : (
+            <p className="font-display text-xl font-extrabold uppercase text-white">{site.name}</p>
+          )}
+          {site.tagline && <p className="mt-4 text-sm leading-relaxed text-slate-400">{site.tagline}</p>}
+          {socials.length > 0 && (
+            <div className="mt-5 flex gap-3">
+              {socials.map((s) => (
+                <a
+                  key={s.label}
+                  href={s.href!}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={s.label}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-white/15 text-sm font-bold text-white transition hover:bg-client hover:border-client"
+                >
+                  {s.glyph}
+                </a>
+              ))}
+            </div>
+          )}
         </div>
 
-        <div>
-          <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Company</p>
-          <ul className="space-y-2 text-sm">
-            <FooterLink href={base || "/"}>Home</FooterLink>
-            <FooterLink href={`${base}/about`}>About</FooterLink>
-            <FooterLink href={`${base}/past-work`}>Past Work</FooterLink>
-            <FooterLink href={`${base}/contact`}>Contact</FooterLink>
-          </ul>
-        </div>
+        <FooterCol title="Company">
+          <FooterLink href={base || "/"}>Home</FooterLink>
+          <FooterLink href={`${base}/about`}>About</FooterLink>
+          <FooterLink href={`${base}/past-work`}>Past Work</FooterLink>
+          <FooterLink href={`${base}/contact`}>Contact</FooterLink>
+        </FooterCol>
 
         {site.services.length > 0 && (
-          <div>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Services</p>
-            <ul className="space-y-2 text-sm">
-              {site.services.slice(0, 6).map((s) => (
-                <FooterLink key={s.slug} href={`${base}/services/${s.slug}`}>
-                  {s.name}
-                </FooterLink>
-              ))}
-            </ul>
-          </div>
+          <FooterCol title="Services">
+            {site.services.slice(0, 6).map((s) => (
+              <FooterLink key={s.slug} href={`${base}/services/${s.slug}`}>{s.name}</FooterLink>
+            ))}
+          </FooterCol>
         )}
 
-        {site.areas.length > 0 && (
-          <div>
-            <p className="mb-3 text-sm font-semibold uppercase tracking-wide text-white">Areas We Serve</p>
-            <ul className="space-y-2 text-sm">
-              {site.areas.slice(0, 6).map((a) => (
-                <FooterLink key={a.slug} href={`${base}/areas/${a.slug}`}>
-                  {a.name}
-                </FooterLink>
-              ))}
-            </ul>
-          </div>
-        )}
-      </div>
+        <div>
+          <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white/50">Get in touch</p>
+          <ul className="space-y-2 text-sm">
+            {site.phone && <li><a href={`tel:${site.phone}`} className="font-semibold text-white hover:text-client">{site.phone}</a></li>}
+            {site.email && <li><a href={`mailto:${site.email}`} className="hover:text-white">{site.email}</a></li>}
+            {site.address && <li className="text-slate-400">{site.address}</li>}
+            {site.hours && <li className="text-slate-400">{site.hours}</li>}
+          </ul>
+        </div>
+      </Container>
 
       <div className="border-t border-white/10">
-        <div className="mx-auto max-w-6xl px-4 py-4 text-center text-xs text-gray-500">
-          © {year} {site.name}. All rights reserved.
-        </div>
+        <Container className="flex flex-col items-center justify-between gap-2 py-5 text-xs text-slate-500 sm:flex-row">
+          <span>© {year} {site.name}. All rights reserved.</span>
+          {site.areas.length > 0 && (
+            <span className="text-slate-500">Serving {site.areas.slice(0, 4).map((a) => a.name).join(", ")}</span>
+          )}
+        </Container>
       </div>
     </footer>
+  );
+}
+
+function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <p className="mb-4 text-xs font-bold uppercase tracking-[0.2em] text-white/50">{title}</p>
+      <ul className="space-y-2 text-sm">{children}</ul>
+    </div>
   );
 }
 
 function FooterLink({ href, children }: { href: string; children: React.ReactNode }) {
   return (
     <li>
-      <Link href={href} className="text-gray-400 hover:text-white">
-        {children}
-      </Link>
+      <Link href={href} className="text-slate-400 transition hover:text-white">{children}</Link>
     </li>
   );
 }

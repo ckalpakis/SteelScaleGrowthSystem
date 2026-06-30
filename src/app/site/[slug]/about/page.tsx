@@ -1,60 +1,57 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSiteContent } from "@/lib/site";
-import { PageHero, BadgesRow } from "@/components/site/sections";
-import { Stars } from "@/components/site/Stars";
+import { Section, SectionHeading } from "@/components/site/ui";
+import { PageHero, StatStrip, TrustLogos, Testimonials, CTABand } from "@/components/site/sections";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: { slug: string };
-}): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const site = await getSiteContent(params.slug);
   if (!site) return { title: "Not found" };
   return {
     title: `About | ${site.name}`,
-    description:
-      site.aboutText?.slice(0, 155) ??
-      `Learn more about ${site.name}${site.primaryLocation ? ` in ${site.primaryLocation}` : ""}.`,
+    description: site.aboutText?.slice(0, 155) ?? `Learn more about ${site.name}${site.primaryLocation ? ` in ${site.primaryLocation}` : ""}.`,
   };
 }
 
 export default async function AboutPage({ params }: { params: { slug: string } }) {
   const site = await getSiteContent(params.slug);
   if (!site) notFound();
+  const photo = site.gallery[0]?.url ?? site.heroImageUrl;
 
   return (
     <>
-      <PageHero site={site} title={`About ${site.name}`} subtitle={site.tagline ?? undefined} />
+      <PageHero site={site} eyebrow={`About ${site.name}`} title={site.aboutHeadline ?? `About ${site.name}`} subtitle={site.tagline ?? undefined} />
 
-      <section className="mx-auto max-w-3xl px-4 py-16">
-        {site.aboutHeadline && (
-          <h2 className="text-3xl font-extrabold tracking-tight text-gray-900">{site.aboutHeadline}</h2>
-        )}
-        {site.aboutText && (
-          <p className="mt-5 whitespace-pre-wrap text-lg leading-relaxed text-gray-700">
-            {site.aboutText}
-          </p>
-        )}
-
-        {site.rating != null && (
-          <div className="mt-8 flex items-center gap-3 rounded-xl border border-gray-200 bg-gray-50 p-5">
-            <Stars value={site.rating} className="text-2xl" />
-            <div>
-              <p className="font-bold text-gray-900">{site.rating} out of 5</p>
-              {site.reviewCount != null && (
-                <p className="text-sm text-gray-500">Based on {site.reviewCount}+ reviews</p>
-              )}
-            </div>
+      <Section tone="white">
+        <div className="grid items-center gap-12 lg:grid-cols-2">
+          <div>
+            {site.aboutText && <p className="whitespace-pre-wrap text-lg leading-relaxed text-slate-600">{site.aboutText}</p>}
           </div>
-        )}
+          {photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo} alt={site.name} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-card" />
+          )}
+        </div>
+      </Section>
 
-        {site.badges.length > 0 && (
-          <div className="mt-10">
-            <BadgesRow badges={site.badges} />
+      {site.stats.length > 0 && (
+        <Section tone="navy" className="!py-16">
+          <StatStrip stats={site.stats} invert />
+        </Section>
+      )}
+
+      <TrustLogos badges={site.badges} />
+
+      {site.testimonials.length > 0 && (
+        <Section tone="light">
+          <SectionHeading eyebrow="Reviews" title="What Our Customers Say" />
+          <div className="mt-12">
+            <Testimonials items={site.testimonials} />
           </div>
-        )}
-      </section>
+        </Section>
+      )}
+
+      <CTABand site={site} />
     </>
   );
 }

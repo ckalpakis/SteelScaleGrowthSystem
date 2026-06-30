@@ -5,18 +5,14 @@ import { useState } from "react";
 interface Props {
   clientId: string;
   services: string[];
-  /** Where the lead was captured, stored on the lead for attribution. */
   source?: string;
-  /** "dark" sits on a dark hero card; "light" sits on a white section. */
+  /** "dark" sits on a navy/photo hero; "light" sits on a white surface. */
   theme?: "dark" | "light";
-  /** Heading + subheading shown above the fields. */
   title?: string;
   subtitle?: string;
 }
 
-// Reusable quote/contact form used in the hero and on the contact page.
-// Posts to /api/leads. Accent (button, focus ring) comes from the --brand
-// CSS variable set by the site layout.
+// Reusable quote/contact form. Posts to /api/leads. Accent from --brand.
 export function LeadForm({
   clientId,
   services,
@@ -69,25 +65,20 @@ export function LeadForm({
   }
 
   const dark = theme === "dark";
-  const labelClass = dark ? "text-gray-300" : "text-gray-600";
+  const labelClass = dark ? "text-white/60" : "text-slate-500";
   const fieldClass = [
-    "w-full rounded-lg border px-3 py-2.5 text-sm shadow-sm focus:outline-none focus:ring-2 ring-client",
+    "w-full rounded-xl border px-4 py-3 text-sm shadow-sm transition focus:outline-none focus:ring-2 ring-client",
     dark
-      ? "border-white/15 bg-white/10 text-white placeholder-gray-400"
-      : "border-gray-300 bg-white text-gray-900 placeholder-gray-400",
+      ? "border-white/15 bg-white/5 text-white placeholder-white/40"
+      : "border-slate-200 bg-white text-ink placeholder-slate-400",
   ].join(" ");
 
   if (status === "success") {
     return (
-      <div
-        className={`rounded-xl border p-6 text-center ${
-          dark ? "border-white/15 bg-white/5 text-white" : "border-green-200 bg-green-50"
-        }`}
-      >
-        <p className={`text-lg font-semibold ${dark ? "text-white" : "text-green-800"}`}>
-          Thanks — we got it!
-        </p>
-        <p className={`mt-1 text-sm ${dark ? "text-gray-300" : "text-green-700"}`}>
+      <div className={`rounded-2xl p-8 text-center ${dark ? "bg-white/5 text-white" : "bg-client-tint"}`}>
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-client text-xl text-white">✓</div>
+        <p className={`text-lg font-bold ${dark ? "text-white" : "text-ink"}`}>Thanks — we got it!</p>
+        <p className={`mt-1 text-sm ${dark ? "text-white/70" : "text-slate-600"}`}>
           We&apos;ll reach out shortly to schedule your free estimate.
         </p>
       </div>
@@ -97,15 +88,13 @@ export function LeadForm({
   return (
     <div>
       {title && (
-        <div className="mb-4 text-center">
-          <h3 className={`text-xl font-bold ${dark ? "text-white" : "text-gray-900"}`}>{title}</h3>
-          {subtitle && (
-            <p className={`mt-1 text-sm ${dark ? "text-gray-300" : "text-gray-500"}`}>{subtitle}</p>
-          )}
+        <div className="mb-5 text-center">
+          <h3 className={`font-display text-2xl font-extrabold ${dark ? "text-white" : "text-ink"}`}>{title}</h3>
+          {subtitle && <p className={`mt-1 text-sm ${dark ? "text-white/60" : "text-slate-500"}`}>{subtitle}</p>}
         </div>
       )}
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="grid gap-3 sm:grid-cols-2">
+      <form onSubmit={handleSubmit} className="space-y-3.5">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="First name" labelClass={labelClass}>
             <input name="first_name" required className={fieldClass} placeholder="Jane" />
           </Field>
@@ -113,7 +102,7 @@ export function LeadForm({
             <input name="last_name" className={fieldClass} placeholder="Smith" />
           </Field>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="Phone" labelClass={labelClass}>
             <input name="phone" className={fieldClass} placeholder="(412) 555-0123" />
           </Field>
@@ -121,7 +110,7 @@ export function LeadForm({
             <input name="email" type="email" className={fieldClass} placeholder="jane@example.com" />
           </Field>
         </div>
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3.5 sm:grid-cols-2">
           <Field label="Zip code" labelClass={labelClass}>
             <input name="zip" className={fieldClass} placeholder="15201" />
           </Field>
@@ -129,9 +118,7 @@ export function LeadForm({
             <select name="service_needed" className={fieldClass} defaultValue="">
               <option value="">Select a service</option>
               {services.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
+                <option key={s} value={s}>{s}</option>
               ))}
             </select>
           </Field>
@@ -145,32 +132,22 @@ export function LeadForm({
         <button
           type="submit"
           disabled={status === "loading"}
-          className="bg-client mt-1 inline-flex w-full items-center justify-center rounded-lg px-4 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:opacity-90 disabled:opacity-60"
+          className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-client px-4 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110 disabled:opacity-60"
         >
-          {status === "loading" ? "Sending..." : "Request Free Estimate"}
+          {status === "loading" ? "Sending..." : "Request My Free Estimate"}
         </button>
-        <p className={`text-center text-xs ${dark ? "text-gray-400" : "text-gray-400"}`}>
-          No spam. We&apos;ll only use your info to contact you about your project.
+        <p className={`text-center text-xs ${dark ? "text-white/40" : "text-slate-400"}`}>
+          No spam — we&apos;ll only contact you about your project.
         </p>
       </form>
     </div>
   );
 }
 
-function Field({
-  label,
-  labelClass,
-  children,
-}: {
-  label: string;
-  labelClass: string;
-  children: React.ReactNode;
-}) {
+function Field({ label, labelClass, children }: { label: string; labelClass: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className={`mb-1 block text-xs font-medium uppercase tracking-wide ${labelClass}`}>
-        {label}
-      </span>
+      <span className={`mb-1.5 block text-xs font-semibold uppercase tracking-wide ${labelClass}`}>{label}</span>
       {children}
     </label>
   );

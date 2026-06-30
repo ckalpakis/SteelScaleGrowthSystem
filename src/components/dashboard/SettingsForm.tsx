@@ -25,6 +25,11 @@ export function SettingsForm({
 
   const servicesJson = JSON.stringify(settings?.service_details ?? [], null, 2);
   const galleryJson = JSON.stringify(settings?.gallery ?? [], null, 2);
+  const statsJson = JSON.stringify(settings?.stats ?? [], null, 2);
+  const processJson = JSON.stringify(settings?.process_steps ?? [], null, 2);
+  const testimonialsJson = JSON.stringify(settings?.testimonials ?? [], null, 2);
+  const financingJson = JSON.stringify(settings?.financing ?? [], null, 2);
+  const faqsJson = JSON.stringify(settings?.faqs ?? [], null, 2);
 
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
@@ -133,6 +138,40 @@ export function SettingsForm({
           defaultValue={(settings?.badges ?? []).join("\n")}
           rows={3}
           hint="e.g. Licensed & Insured, BBB Accredited, GAF Certified"
+        />
+      </Section>
+
+      {/* Premium content sections */}
+      <Section title="Homepage sections (premium)">
+        <JsonField
+          label="Stats — JSON"
+          name="stats"
+          defaultValue={statsJson}
+          hint='Array of {"value","label"} — e.g. {"value":"5,000+","label":"Roofs Installed"}. Leave [] to auto-generate from your rating/reviews.'
+        />
+        <JsonField
+          label="Process steps — JSON"
+          name="process_steps"
+          defaultValue={processJson}
+          hint='Array of {"title","description"} shown as the timeline. Leave [] for a sensible default flow.'
+        />
+        <JsonField
+          label="Testimonials — JSON"
+          name="testimonials"
+          defaultValue={testimonialsJson}
+          hint='Array of {"quote","name","location","rating"}. Use real reviews. Leave [] to hide the section.'
+        />
+        <JsonField
+          label="Financing options — JSON"
+          name="financing"
+          defaultValue={financingJson}
+          hint='Array of {"title","description"}. Leave [] to hide the financing section.'
+        />
+        <JsonField
+          label="FAQs — JSON"
+          name="faqs"
+          defaultValue={faqsJson}
+          hint='Array of {"question","answer"}. Leave [] to hide the FAQ section.'
         />
       </Section>
 

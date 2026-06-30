@@ -61,9 +61,19 @@ export async function updateSettings(
 
   let service_details: unknown;
   let gallery: unknown;
+  let stats: unknown;
+  let process_steps: unknown;
+  let testimonials: unknown;
+  let financing: unknown;
+  let faqs: unknown;
   try {
     service_details = parseJsonArray(formData.get("service_details"), "Services");
     gallery = parseJsonArray(formData.get("gallery"), "Gallery");
+    stats = parseJsonArray(formData.get("stats"), "Stats");
+    process_steps = parseJsonArray(formData.get("process_steps"), "Process steps");
+    testimonials = parseJsonArray(formData.get("testimonials"), "Testimonials");
+    financing = parseJsonArray(formData.get("financing"), "Financing");
+    faqs = parseJsonArray(formData.get("faqs"), "FAQs");
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Invalid JSON." };
   }
@@ -100,6 +110,11 @@ export async function updateSettings(
     facebook_url: nullify(formData.get("facebook_url")),
     instagram_url: nullify(formData.get("instagram_url")),
     google_business_url: nullify(formData.get("google_business_url")),
+    stats,
+    process_steps,
+    testimonials,
+    financing,
+    faqs,
   };
 
   const supabase = createClient();

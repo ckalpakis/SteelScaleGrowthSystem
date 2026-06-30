@@ -52,6 +52,33 @@ export interface GalleryItem {
   caption?: string | null;
 }
 
+export interface Stat {
+  value: string; // e.g. "5,000+"
+  label: string; // e.g. "Roofs Installed"
+}
+
+export interface ProcessStep {
+  title: string;
+  description: string;
+}
+
+export interface Testimonial {
+  quote: string;
+  name: string;
+  location?: string | null;
+  rating?: number | null; // 0–5
+}
+
+export interface FinancingOption {
+  title: string;
+  description: string;
+}
+
+export interface Faq {
+  question: string;
+  answer: string;
+}
+
 // `client_settings` table — branding, contact, and website content
 // (1:1 with a client).
 export interface ClientSettings {
@@ -86,6 +113,12 @@ export interface ClientSettings {
   promo_text: string | null;
   address: string | null;
   hours: string | null;
+  // Premium content sections (migration 0005)
+  stats: Stat[] | null;
+  process_steps: ProcessStep[] | null;
+  testimonials: Testimonial[] | null;
+  financing: FinancingOption[] | null;
+  faqs: Faq[] | null;
   created_at: string;
   updated_at: string;
 }

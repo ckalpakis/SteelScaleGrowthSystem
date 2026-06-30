@@ -2,7 +2,17 @@ import { cache } from "react";
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { businessName } from "@/lib/types";
-import type { Client, ClientSettings, ServiceDetail, GalleryItem } from "@/lib/types";
+import type {
+  Client,
+  ClientSettings,
+  ServiceDetail,
+  GalleryItem,
+  Stat,
+  ProcessStep,
+  Testimonial,
+  FinancingOption,
+  Faq,
+} from "@/lib/types";
 import { hostnameFrom, classifyHost } from "@/lib/tenant";
 
 // =============================================================================
@@ -50,6 +60,11 @@ export interface SiteContent {
   promoText: string | null;
   address: string | null;
   hours: string | null;
+  stats: Stat[];
+  processSteps: ProcessStep[];
+  testimonials: Testimonial[];
+  financing: FinancingOption[];
+  faqs: Faq[];
 }
 
 // Fetch a client + settings by slug. Cached per-request so the layout and the
@@ -134,7 +149,42 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
     promoText: settings?.promo_text ?? null,
     address: settings?.address ?? null,
     hours: settings?.hours ?? null,
+    stats: normalizeStats(settings),
+    processSteps: normalizeProcess(settings),
+    testimonials: arr(settings?.testimonials),
+    financing: arr(settings?.financing),
+    faqs: arr(settings?.faqs),
   };
+}
+
+function arr<T>(v: T[] | null | undefined): T[] {
+  return Array.isArray(v) ? v : [];
+}
+
+// Stats: use provided stats, else derive a sensible set from rating/reviews.
+function normalizeStats(settings: ClientSettings | null): Stat[] {
+  const provided = settings?.stats;
+  if (Array.isArray(provided) && provided.length) return provided;
+
+  const fallback: Stat[] = [];
+  if (settings?.review_count) fallback.push({ value: `${settings.review_count}+`, label: "5-Star Reviews" });
+  if (settings?.rating) fallback.push({ value: `${settings.rating}★`, label: "Average Rating" });
+  fallback.push({ value: "100%", label: "Satisfaction Guarantee" });
+  fallback.push({ value: "Lifetime", label: "Workmanship Warranty" });
+  return fallback.slice(0, 4);
+}
+
+// Process: use provided steps, else a standard (non–company-specific) flow.
+function normalizeProcess(settings: ClientSettings | null): ProcessStep[] {
+  const provided = settings?.process_steps;
+  if (Array.isArray(provided) && provided.length) return provided;
+  return [
+    { title: "Call or Request a Quote", description: "Reach out and tell us what you need — it takes two minutes." },
+    { title: "Free Inspection", description: "We assess your property and explain exactly what's going on." },
+    { title: "Clear, Written Estimate", description: "Honest pricing with no surprises and no pressure." },
+    { title: "Expert Installation", description: "Our crews get to work with quality materials and clean job sites." },
+    { title: "Guaranteed Results", description: "We stand behind every job with a workmanship warranty." },
+  ];
 }
 
 // Prefer rich service_details; otherwise derive from the plain services list.
