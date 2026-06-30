@@ -128,9 +128,13 @@ export function StatStrip({ stats, invert = false }: { stats: Stat[]; invert?: b
 // ---------------------------------------------------------------------------
 export function ServicesShowcase({ services, base }: { services: ServiceDetail[]; base: string }) {
   return (
-    <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="flex flex-wrap justify-center gap-7">
       {services.map((s, i) => (
-        <Reveal key={s.slug} delay={i * 70}>
+        <Reveal
+          key={s.slug}
+          delay={i * 70}
+          className="w-full sm:w-[calc((100%-1.75rem)/2)] lg:w-[calc((100%-3.5rem)/3)]"
+        >
           <Link href={`${base}/services/${s.slug}`} className="group flex h-full flex-col rounded-2xl bg-white p-3 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-card-hover">
             <div className="overflow-hidden rounded-xl">
               {s.image_url ? (
@@ -276,9 +280,9 @@ export function ReviewsSplit({ site }: { site: SiteContent }) {
 export function Testimonials({ items }: { items: Testimonial[] }) {
   if (!items.length) return null;
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="flex flex-wrap justify-center gap-6">
       {items.map((t, i) => (
-        <Reveal key={i} delay={i * 90}>
+        <Reveal key={i} delay={i * 90} className="w-full md:w-[calc((100%-3rem)/3)]">
           <figure className="flex h-full flex-col rounded-2xl bg-white p-7 shadow-card">
             <Stars value={t.rating ?? 5} className="text-lg" />
             <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-slate-700">“{t.quote}”</blockquote>
@@ -360,9 +364,9 @@ export function PortfolioMasonry({ items }: { items: GalleryItem[] }) {
 export function FinancingCards({ items }: { items: FinancingOption[] }) {
   if (!items.length) return null;
   return (
-    <div className="grid gap-6 md:grid-cols-3">
+    <div className="flex flex-wrap justify-center gap-6">
       {items.map((f, i) => (
-        <Reveal key={i} delay={i * 80}>
+        <Reveal key={i} delay={i * 80} className="w-full md:w-[calc((100%-3rem)/3)]">
           <div className="flex h-full flex-col rounded-2xl bg-white p-8 text-center shadow-card hover-lift">
             <span className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-client-tint text-2xl font-extrabold text-client">$</span>
             <h3 className="font-display text-lg font-extrabold uppercase text-ink">{f.title}</h3>
