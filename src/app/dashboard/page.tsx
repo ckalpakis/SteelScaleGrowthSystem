@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { requireClient } from "@/lib/auth";
+import { redirect } from "next/navigation";
+import { requireClient, isAgencyAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LeadCard } from "@/components/dashboard/LeadCard";
 import { NotLinked } from "@/components/dashboard/NotLinked";
@@ -7,8 +8,11 @@ import { PIPELINE_STAGES, type Lead } from "@/lib/types";
 
 // Overview — at-a-glance pipeline counts and the most recent leads.
 export default async function DashboardPage() {
-  const { client, settings } = await requireClient();
-  if (!client) return <NotLinked />;
+  const { email, client, settings } = await requireClient();
+  if (!client) {
+    if (isAgencyAdmin(email)) redirect("/dashboard/clients");
+    return <NotLinked />;
+  }
 
   const supabase = createClient();
   const { data: leads } = await supabase

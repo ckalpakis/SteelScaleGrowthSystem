@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { requireClient } from "@/lib/auth";
+import { requireClient, isAgencyAdmin } from "@/lib/auth";
 import { businessName } from "@/lib/types";
 
 export default async function DashboardLayout({
@@ -8,7 +8,8 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const { email, client, settings } = await requireClient();
-  const name = client ? businessName(client, settings) : "Dashboard";
+  const admin = isAgencyAdmin(email);
+  const name = client ? businessName(client, settings) : admin ? "Agency Admin" : "Dashboard";
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -19,9 +20,14 @@ export default async function DashboardLayout({
               {name}
             </Link>
             <nav className="flex items-center gap-1 text-sm">
-              <NavLink href="/dashboard">Overview</NavLink>
-              <NavLink href="/dashboard/leads">Leads</NavLink>
-              <NavLink href="/dashboard/settings">Settings</NavLink>
+              {client && (
+                <>
+                  <NavLink href="/dashboard">Overview</NavLink>
+                  <NavLink href="/dashboard/leads">Leads</NavLink>
+                  <NavLink href="/dashboard/settings">Settings</NavLink>
+                </>
+              )}
+              {admin && <NavLink href="/dashboard/clients">Clients</NavLink>}
               {client && (
                 <NavLink href={`/site/${client.slug}`} external>
                   View site ↗

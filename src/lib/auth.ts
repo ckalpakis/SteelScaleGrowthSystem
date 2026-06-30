@@ -2,6 +2,27 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Client, ClientSettings } from "@/lib/types";
 
+// Agency super-admins are identified by email via the AGENCY_ADMIN_EMAILS env
+// var (comma-separated). They can create/manage every client.
+export function isAgencyAdmin(email: string | null | undefined): boolean {
+  const admins = (process.env.AGENCY_ADMIN_EMAILS ?? "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean);
+  return Boolean(email) && admins.includes(String(email).toLowerCase());
+}
+
+// Guard for agency-admin-only pages and actions.
+export async function requireAgencyAdmin(): Promise<{ userId: string; email: string }> {
+  const supabase = createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
+  if (!isAgencyAdmin(user.email)) redirect("/dashboard");
+  return { userId: user.id, email: user.email ?? "" };
+}
+
 // Resolves the signed-in user and the client (tenant) they belong to, along
 // with that client's settings. Redirects to /login if unauthenticated.
 // `client` is null if the profile isn't linked to a tenant yet (the UI shows

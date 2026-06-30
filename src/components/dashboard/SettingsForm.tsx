@@ -4,19 +4,23 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { Button, Card, CardBody, Input, Label, Textarea } from "@/components/ui";
 import { ImageUploader, ImageUrlHelper } from "@/components/dashboard/ImageUploader";
-import { updateSettings, type SettingsState } from "@/app/dashboard/actions";
+import type { SettingsState } from "@/app/dashboard/actions";
 import type { ClientSettings } from "@/lib/types";
 
 const initialState: SettingsState = { ok: false };
 
+type SettingsAction = (state: SettingsState, formData: FormData) => Promise<SettingsState>;
+
 export function SettingsForm({
   settings,
   clientName,
+  action,
 }: {
   settings: ClientSettings | null;
   clientName: string;
+  action: SettingsAction;
 }) {
-  const [state, formAction] = useFormState(updateSettings, initialState);
+  const [state, formAction] = useFormState(action, initialState);
 
   // Images are controlled so the uploader can update them; they post via their
   // own named inputs inside <ImageUploader>.
