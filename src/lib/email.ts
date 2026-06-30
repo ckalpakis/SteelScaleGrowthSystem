@@ -13,6 +13,8 @@ export async function sendNewLeadEmail(
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.LEAD_NOTIFICATION_FROM;
   const to = settings?.email;
+  // Steel Scale's own inbox, silently copied on every client's leads.
+  const agencyBcc = process.env.AGENCY_NOTIFICATION_EMAIL;
 
   if (!apiKey || !from) {
     console.warn("[email] RESEND_API_KEY / LEAD_NOTIFICATION_FROM not set — skipping notification");
@@ -29,6 +31,7 @@ export async function sendNewLeadEmail(
     await resend.emails.send({
       from,
       to,
+      ...(agencyBcc ? { bcc: agencyBcc } : {}),
       subject: `New lead: ${lead.name}`,
       html: renderLeadEmail(businessName(client, settings), lead),
     });
