@@ -3,6 +3,7 @@ import { Container, Section, SectionHeading, Button, cn } from "./ui";
 import { Reveal } from "./Reveal";
 import { Stars } from "./Stars";
 import { Marquee } from "./Marquee";
+import { ReviewsCarousel } from "./ReviewsCarousel";
 import type { SiteContent, SiteArea } from "@/lib/site";
 import type {
   GalleryItem,
@@ -255,22 +256,8 @@ export function ReviewsSplit({ site }: { site: SiteContent }) {
         </h2>
         <p className="mt-4 text-slate-600">Homeowners across {site.primaryLocation ?? "the area"} consistently rate {site.name} 5 stars for our workmanship, communication, and respect for their home.</p>
       </div>
-      <div className="grid gap-6 sm:grid-cols-2 lg:col-span-2">
-        {site.testimonials.slice(0, 4).map((t, i) => (
-          <Reveal key={i} delay={i * 80}>
-            <figure className="flex h-full flex-col rounded-2xl bg-white p-7 shadow-card">
-              <Stars value={t.rating ?? 5} className="text-lg" />
-              <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-slate-700">“{t.quote}”</blockquote>
-              <figcaption className="mt-6 flex items-center gap-3 border-t border-slate-100 pt-5">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-client-tint font-display text-lg font-extrabold text-client">{t.name.charAt(0)}</span>
-                <div>
-                  <div className="font-semibold text-ink">{t.name}</div>
-                  {t.location && <div className="text-xs text-slate-500">{t.location}</div>}
-                </div>
-              </figcaption>
-            </figure>
-          </Reveal>
-        ))}
+      <div className="lg:col-span-2">
+        <ReviewsCarousel items={site.testimonials} />
       </div>
     </div>
   );
