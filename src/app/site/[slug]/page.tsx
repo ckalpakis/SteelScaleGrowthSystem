@@ -106,9 +106,26 @@ export default async function HomePage({ params }: { params: { slug: string } })
         </Section>
       )}
 
+      {/* -------------------------------------------------------------- About */}
+      {(site.aboutText || site.gallery.length > 0) && (
+        <Section tone="light">
+          <AboutSplit site={site} />
+        </Section>
+      )}
+
+      {/* ----------------------------------------------------------- Reviews */}
+      {site.testimonials.length > 0 && (
+        <Section tone="white">
+          <SectionHeading eyebrow="Reviews" title="Real Reviews From Real Neighbors" />
+          <div className="mt-12">
+            <Testimonials items={site.testimonials} />
+          </div>
+        </Section>
+      )}
+
       {/* ----------------------------------------------------------- Services */}
       {site.services.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading
             eyebrow="What we do"
             title="Full-Service Roofing & Exteriors"
@@ -117,13 +134,6 @@ export default async function HomePage({ params }: { params: { slug: string } })
           <div className="mt-12">
             <ServicesShowcase services={site.services} base={base} />
           </div>
-        </Section>
-      )}
-
-      {/* -------------------------------------------------------------- About */}
-      {(site.aboutText || site.gallery.length > 0) && (
-        <Section tone="light">
-          <AboutSplit site={site} />
         </Section>
       )}
 
@@ -150,19 +160,9 @@ export default async function HomePage({ params }: { params: { slug: string } })
         </Section>
       )}
 
-      {/* ----------------------------------------------------------- Reviews */}
-      {site.testimonials.length > 0 && (
-        <Section tone="white">
-          <SectionHeading eyebrow="Reviews" title="Real Reviews From Real Neighbors" />
-          <div className="mt-12">
-            <Testimonials items={site.testimonials} />
-          </div>
-        </Section>
-      )}
-
       {/* ----------------------------------------------------------- Financing */}
       {site.financing.length > 0 && (
-        <Section tone="light">
+        <Section tone="white">
           <SectionHeading eyebrow="Financing" title="Affordable Options That Fit Your Budget" />
           <div className="mt-12">
             <FinancingCards items={site.financing} />
@@ -172,7 +172,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* -------------------------------------------------------------- Areas */}
       {site.areas.length > 0 && (
-        <Section tone="white">
+        <Section tone="light">
           <SectionHeading
             eyebrow="Where we work"
             title="Proudly Serving Your Area"
@@ -186,7 +186,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
 
       {/* --------------------------------------------------------------- FAQ */}
       {site.faqs.length > 0 && (
-        <Section tone="light">
+        <Section tone="white">
           <SectionHeading eyebrow="Questions" title="Frequently Asked Questions" />
           <div className="mt-12">
             <FaqAccordion faqs={site.faqs} />
