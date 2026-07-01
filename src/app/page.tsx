@@ -58,12 +58,20 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Wordmark />
-          <Link
-            href="/login"
-            className="rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-brand-dark"
-          >
-            Client Login
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/site/demo"
+              className="rounded-lg px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-100"
+            >
+              View Demo
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-brand-dark"
+            >
+              Client Login
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -85,17 +93,17 @@ export default function Home() {
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-4">
             <Link
-              href="/login"
+              href="/site/demo"
               className="rounded-xl bg-brand px-7 py-4 text-base font-bold uppercase tracking-wide text-white shadow-card-hover transition hover:-translate-y-0.5 hover:bg-brand-dark"
+            >
+              View Demo Site
+            </Link>
+            <Link
+              href="/login"
+              className="rounded-xl border-2 border-white/30 px-7 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
             >
               Client Login
             </Link>
-            <a
-              href="#features"
-              className="rounded-xl border-2 border-white/30 px-7 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
-            >
-              What&apos;s Included
-            </a>
           </div>
         </div>
       </section>
