@@ -28,6 +28,7 @@ export function SettingsForm({
   // Images are controlled so the uploader can update them; they post via their
   // own named inputs inside <ImageUploader>.
   const [logoUrl, setLogoUrl] = useState(settings?.logo_url ?? "");
+  const [faviconUrl, setFaviconUrl] = useState(settings?.favicon_url ?? "");
   const [heroUrl, setHeroUrl] = useState(settings?.hero_image_url ?? "");
 
   const servicesJson = JSON.stringify(settings?.service_details ?? [], null, 2);
@@ -65,6 +66,12 @@ export function SettingsForm({
       {/* Branding & hero */}
       <Section title="Branding & hero">
         <ImageUploader name="logo_url" label="Logo" kind="logo" value={logoUrl} onChange={setLogoUrl} clientId={clientId} />
+        <div>
+          <ImageUploader name="favicon_url" label="Favicon (browser tab icon)" kind="favicon" value={faviconUrl} onChange={setFaviconUrl} clientId={clientId} />
+          <p className="mt-1 text-xs text-gray-400">
+            Shown in the browser tab and bookmarks. Use a square image (a .png, .ico, or .svg at 32×32 or larger).
+          </p>
+        </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Brand color (accent)</Label>

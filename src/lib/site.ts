@@ -44,6 +44,7 @@ export interface SiteContent {
   phone: string | null;
   email: string | null;
   logoUrl: string | null;
+  faviconUrl: string | null;
   tagline: string | null;
   primaryLocation: string | null;
   heroImageUrl: string | null;
@@ -145,6 +146,7 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
     phone: settings?.phone ?? null,
     email: settings?.email ?? null,
     logoUrl: settings?.logo_url ?? null,
+    faviconUrl: settings?.favicon_url ?? null,
     tagline: settings?.tagline ?? null,
     primaryLocation,
     heroImageUrl: settings?.hero_image_url ?? null,

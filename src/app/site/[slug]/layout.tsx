@@ -1,7 +1,17 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getSiteContent, localBusinessJsonLd, hexToRgbChannels } from "@/lib/site";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
+
+// Per-client favicon for the whole tenant site. getSiteContent is request-
+// cached, so this doesn't add a second fetch. Pages under this layout keep
+// their own title/description; icons are inherited from here.
+export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
+  const site = await getSiteContent(params.slug);
+  if (!site?.faviconUrl) return {};
+  return { icons: { icon: site.faviconUrl, shortcut: site.faviconUrl, apple: site.faviconUrl } };
+}
 
 // Shared chrome for a tenant's entire website. Sets the brand accent via the
 // --brand CSS variable (consumed by .bg-client / .text-client / .ring-client)
