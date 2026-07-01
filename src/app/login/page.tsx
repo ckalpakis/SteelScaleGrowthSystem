@@ -38,7 +38,7 @@ function LoginForm() {
       <div className="w-full max-w-sm">
         <div className="mb-6 text-center">
           <p className="text-sm font-semibold uppercase tracking-widest text-brand">
-            Steel City Growth System
+            Steel Scale Systems
           </p>
           <h1 className="mt-1 text-2xl font-bold text-gray-900">Client Login</h1>
         </div>
