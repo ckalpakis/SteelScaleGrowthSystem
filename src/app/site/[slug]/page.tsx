@@ -50,9 +50,9 @@ export default async function HomePage({ params }: { params: { slug: string } })
         <Container className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
           <div className="text-white">
             {site.rating != null && (
-              <div className="inline-flex items-center gap-2 rounded-lg bg-white/10 px-3 py-2 text-sm backdrop-blur">
-                <Stars value={site.rating} className="text-base" />
-                <span className="font-semibold text-white">
+              <div className="inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded-xl bg-white/10 px-5 py-3 backdrop-blur">
+                <Stars value={site.rating} className="text-2xl lg:text-3xl" />
+                <span className="text-2xl font-bold leading-tight text-white sm:text-3xl lg:text-4xl">
                   Trusted by {site.reviewCount ? `${site.reviewCount}+ ` : ""}homeowners{site.primaryLocation ? ` in ${site.primaryLocation}` : ""}
                 </span>
               </div>
