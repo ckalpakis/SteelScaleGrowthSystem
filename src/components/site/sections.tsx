@@ -250,18 +250,24 @@ const FEATURE_ICONS = [
   ),
 ];
 
+const DEFAULT_VALUE_PROPS = [
+  "Fast, Same-Day Estimates",
+  "Owner-Led, Community-Focused",
+  "Local Experts, Never Outsourced",
+  "Flexible Financing Options",
+  "Licensed, Insured & Warrantied",
+  "5-Star Customer Ratings",
+];
+
 export function WhyChooseSplit({ site }: { site: SiteContent }) {
   const photo = site.gallery[1]?.url ?? site.gallery[0]?.url ?? site.heroImageUrl;
-  const props = site.valueProps.length
-    ? site.valueProps
-    : [
-        "Fast, Same-Day Estimates",
-        "Owner-Led, Community-Focused",
-        "Local Experts, Never Outsourced",
-        "Flexible Financing Options",
-        "Licensed, Insured & Warrantied",
-        "5-Star Customer Ratings",
-      ];
+
+  // Always show a full set (6+). Pad with defaults if the client set fewer.
+  const provided = site.valueProps;
+  const props =
+    provided.length >= 6
+      ? provided
+      : [...provided, ...DEFAULT_VALUE_PROPS.filter((d) => !provided.includes(d))].slice(0, 6);
 
   return (
     <div className="grid items-stretch gap-12 lg:grid-cols-2">
@@ -277,16 +283,16 @@ export function WhyChooseSplit({ site }: { site: SiteContent }) {
             backed by industry-leading standards and the kind of personal service you only get from a local
             business you can trust.
           </p>
-          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
             {props.map((p, i) => {
               const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
               return (
-                <div key={p} className="flex overflow-hidden rounded-xl shadow-card">
-                  <div className="flex w-16 shrink-0 items-center justify-center bg-client-tint text-client">
-                    {Icon("h-6 w-6")}
+                <div key={p} className="flex min-h-[92px] overflow-hidden rounded-2xl shadow-card">
+                  <div className="flex w-24 shrink-0 items-center justify-center bg-client-tint text-client">
+                    {Icon("h-9 w-9")}
                   </div>
-                  <div className="flex flex-1 items-center bg-ink px-4 py-3">
-                    <span className="text-sm font-bold leading-tight text-white">{p}</span>
+                  <div className="flex flex-1 items-center bg-ink px-5 py-5">
+                    <span className="text-base font-bold leading-snug text-white">{p}</span>
                   </div>
                 </div>
               );
