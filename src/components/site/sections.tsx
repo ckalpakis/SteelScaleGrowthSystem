@@ -201,18 +201,16 @@ export function AboutSplit({ site, invert = false }: { site: SiteContent; invert
               {site.reviewCount != null && <p className="mt-1 text-xs text-slate-500">{site.reviewCount}+ verified reviews</p>}
             </div>
           )}
+          {site.logoUrl && (
+            <div className="absolute -bottom-8 -left-6 rounded-2xl bg-white p-4 shadow-card-hover sm:-left-8 sm:p-5">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={site.logoUrl} alt={site.name} className="h-28 w-auto object-contain sm:h-32 lg:h-40" />
+            </div>
+          )}
         </div>
       </Reveal>
       <Reveal delay={120}>
         <div>
-          {site.logoUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={site.logoUrl}
-              alt={site.name}
-              className={cn("mb-5 h-12 w-auto object-contain", invert && "brightness-0 invert")}
-            />
-          )}
           <p className="eyebrow">About {site.name}</p>
           <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
             {site.aboutHeadline ?? "Meet the team that puts people first"}
