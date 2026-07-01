@@ -52,9 +52,10 @@ export function PageHero({
       <section className="relative isolate overflow-hidden bg-ink text-white">
         {site.heroImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={site.heroImageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-25" />
+          <img src={site.heroImageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
         )}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/95 to-ink/70" />
+        {/* Match the home hero: full-opacity photo with a neutral black gradient. */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
         <Container className="pb-14 pt-16 md:pb-16">
           {eyebrow && <p className="eyebrow text-white/70">{eyebrow}</p>}
           <h1 className="mt-3 max-w-3xl font-display text-4xl font-extrabold uppercase leading-[1.05] sm:text-5xl">{title}</h1>
