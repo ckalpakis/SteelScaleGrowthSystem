@@ -26,7 +26,7 @@ const config: Config = {
         },
       },
       maxWidth: {
-        content: "1280px",
+        content: "1536px",
       },
       borderRadius: {
         xl: "12px",
