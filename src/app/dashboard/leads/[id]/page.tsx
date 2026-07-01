@@ -2,10 +2,10 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requireClient } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
-import { Badge, Button, Card, CardBody, Textarea } from "@/components/ui";
+import { Badge, Button, Card, CardBody, Input, Textarea } from "@/components/ui";
 import { StatusSelect } from "@/components/dashboard/StatusSelect";
 import { ReviewRequestButton } from "@/components/dashboard/ReviewRequestButton";
-import { addNote, deleteNote } from "@/app/dashboard/actions";
+import { addNote, deleteNote, updateLeadValue } from "@/app/dashboard/actions";
 import { stageFor, type Lead, type LeadNote } from "@/lib/types";
 import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
 import { businessName } from "@/lib/types";
@@ -41,6 +41,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
   // Bind server actions to this lead.
   const addNoteAction = addNote.bind(null, lead.id);
+  const updateValueAction = updateLeadValue.bind(null, lead.id);
 
   return (
     <div>
@@ -122,6 +123,30 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
         {/* Actions sidebar */}
         <div className="space-y-6">
+          <Card>
+            <CardBody>
+              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">
+                Estimate value
+              </h2>
+              <form action={updateValueAction} className="flex items-center gap-2">
+                <div className="relative flex-1">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-sm text-gray-400">$</span>
+                  <Input
+                    name="estimate_value"
+                    inputMode="decimal"
+                    defaultValue={lead.estimate_value != null ? String(lead.estimate_value) : ""}
+                    placeholder="0"
+                    className="pl-7"
+                  />
+                </div>
+                <Button type="submit" variant="secondary">Save</Button>
+              </form>
+              <p className="mt-2 text-xs text-gray-400">
+                The estimated job value. Feeds won revenue and pipeline value on your dashboard.
+              </p>
+            </CardBody>
+          </Card>
+
           <Card>
             <CardBody>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">

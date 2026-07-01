@@ -3,6 +3,7 @@ import { StatusSelect } from "./StatusSelect";
 import { ReviewRequestButton } from "./ReviewRequestButton";
 import type { Client, ClientSettings, Lead } from "@/lib/types";
 import { businessName } from "@/lib/types";
+import { formatMoney } from "@/lib/analytics";
 import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
 
 // A single lead card. Used on the grouped board and the overview. Shows the
@@ -38,9 +39,16 @@ export function LeadCard({
         <span className="shrink-0 text-xs text-gray-400">{formatDate(lead.created_at)}</span>
       </div>
 
-      {lead.service_needed && (
-        <p className="mt-1 text-sm font-medium text-brand">{lead.service_needed}</p>
-      )}
+      <div className="mt-1 flex flex-wrap items-center gap-2">
+        {lead.service_needed && (
+          <span className="text-sm font-medium text-brand">{lead.service_needed}</span>
+        )}
+        {lead.estimate_value != null && (
+          <span className="inline-flex items-center rounded-full bg-green-50 px-2 py-0.5 text-xs font-semibold text-green-700">
+            {formatMoney(lead.estimate_value)}
+          </span>
+        )}
+      </div>
 
       <div className="mt-2 space-y-0.5 text-sm text-gray-600">
         {lead.phone && (

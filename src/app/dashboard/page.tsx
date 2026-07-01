@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { LeadCard } from "@/components/dashboard/LeadCard";
 import { NotLinked } from "@/components/dashboard/NotLinked";
 import { LeadsLineChart, StageDonut, SourceBars } from "@/components/dashboard/Charts";
-import { computeAnalytics, RANGE_OPTIONS, type RangeDays } from "@/lib/analytics";
+import { computeAnalytics, formatMoney, RANGE_OPTIONS, type RangeDays } from "@/lib/analytics";
 import { type Lead } from "@/lib/types";
 
 // Overview — GoHighLevel-style analytics: KPI cards, a leads-over-time line
@@ -57,17 +57,35 @@ export default async function DashboardPage({
         </div>
       </div>
 
+      {/* Needs-response banner */}
+      {a.needsResponse > 0 && (
+        <Link
+          href="/dashboard/leads"
+          className="flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 transition hover:bg-amber-100"
+        >
+          <span className="font-medium">
+            {a.needsResponse} new lead{a.needsResponse === 1 ? "" : "s"} awaiting your reply — respond fast to win more jobs.
+          </span>
+          <span className="shrink-0 font-semibold">View →</span>
+        </Link>
+      )}
+
       {/* KPI cards */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <Kpi label={`Total Leads · ${rangeLabel}`} value={a.totalLeads.value} changePct={a.totalLeads.changePct} />
-        <Kpi label={`Jobs Won · ${rangeLabel}`} value={a.won.value} changePct={a.won.changePct} positiveIsGood />
-        <Kpi label="Conversion Rate" value={`${a.conversionRate}%`} sub={`${a.won.value} won of ${a.totalLeads.value}`} />
         <Kpi
-          label="Needs Response"
-          value={a.needsResponse}
-          sub={a.needsResponse > 0 ? "New leads awaiting reply" : "You're all caught up"}
-          alert={a.needsResponse > 0}
+          label={`Won Revenue · ${rangeLabel}`}
+          value={formatMoney(a.wonRevenue.value)}
+          changePct={a.wonRevenue.changePct}
+          positiveIsGood
+          sub={`${a.won.value} job${a.won.value === 1 ? "" : "s"} won`}
         />
+        <Kpi
+          label="Pipeline Value"
+          value={formatMoney(a.pipelineValue)}
+          sub={`${a.openPipeline} open lead${a.openPipeline === 1 ? "" : "s"}`}
+        />
+        <Kpi label="Conversion Rate" value={`${a.conversionRate}%`} sub={`${a.won.value} won of ${a.totalLeads.value}`} />
       </div>
 
       {/* Line graph + pipeline donut */}

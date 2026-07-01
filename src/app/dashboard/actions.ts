@@ -23,6 +23,22 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
   revalidatePath(`/dashboard/leads/${leadId}`);
 }
 
+export async function updateLeadValue(leadId: string, formData: FormData) {
+  const raw = String(formData.get("estimate_value") ?? "").replace(/[$,\s]/g, "").trim();
+  const parsed = raw === "" ? null : Number(raw);
+  if (parsed !== null && (!Number.isFinite(parsed) || parsed < 0)) {
+    throw new Error("Enter a valid dollar amount.");
+  }
+
+  const supabase = createClient();
+  const { error } = await supabase.from("leads").update({ estimate_value: parsed }).eq("id", leadId);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/dashboard");
+  revalidatePath("/dashboard/leads");
+  revalidatePath(`/dashboard/leads/${leadId}`);
+}
+
 export async function addNote(leadId: string, formData: FormData) {
   const note = String(formData.get("note") ?? "").trim();
   if (!note) return;

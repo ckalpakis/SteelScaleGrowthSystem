@@ -40,6 +40,10 @@ export interface Analytics {
   won: KpiDelta;
   /** Won ÷ total leads in range, as a 0–100 number. */
   conversionRate: number;
+  /** Sum of estimate_value for leads won in range (dollars), with delta. */
+  wonRevenue: KpiDelta;
+  /** Sum of estimate_value for still-open leads, all-time (dollars). */
+  pipelineValue: number;
   /** Leads currently sitting in "new" (need a first response), all-time. */
   needsResponse: number;
   /** Active pipeline: leads not yet won or lost, all-time. */
@@ -112,6 +116,12 @@ export function computeAnalytics(leads: Lead[], rangeDays: RangeDays, now: Date 
   const wonInRange = inRange.filter((l) => l.status === "won").length;
   const wonInPrev = inPrev.filter((l) => l.status === "won").length;
 
+  const val = (l: Lead) => (typeof l.estimate_value === "number" ? l.estimate_value : 0);
+  const wonRevenueRange = inRange.filter((l) => l.status === "won").reduce((s, l) => s + val(l), 0);
+  const wonRevenuePrev = inPrev.filter((l) => l.status === "won").reduce((s, l) => s + val(l), 0);
+  const isOpen = (l: Lead) => l.status === "new" || l.status === "contacted" || l.status === "estimate_scheduled";
+  const pipelineValue = leads.filter(isOpen).reduce((s, l) => s + val(l), 0);
+
   const stageDistribution = PIPELINE_STAGES.map((s) => ({
     status: s.value,
     label: s.label,
@@ -134,13 +144,24 @@ export function computeAnalytics(leads: Lead[], rangeDays: RangeDays, now: Date 
     totalLeads: { value: inRange.length, changePct: pctChange(inRange.length, inPrev.length) },
     won: { value: wonInRange, changePct: pctChange(wonInRange, wonInPrev) },
     conversionRate: inRange.length ? Math.round((wonInRange / inRange.length) * 100) : 0,
+    wonRevenue: { value: wonRevenueRange, changePct: pctChange(wonRevenueRange, wonRevenuePrev) },
+    pipelineValue,
     needsResponse: leads.filter((l) => l.status === "new").length,
-    openPipeline: leads.filter((l) => l.status === "new" || l.status === "contacted" || l.status === "estimate_scheduled").length,
+    openPipeline: leads.filter(isOpen).length,
     series: buildSeries(leads, rangeDays, now),
     stageDistribution,
     sources,
     totalAllTime: leads.length,
   };
+}
+
+// Compact money formatting for KPIs: $1,250 or $12.4k for large sums.
+export function formatMoney(n: number): string {
+  if (!n) return "$0";
+  if (Math.abs(n) >= 10000) {
+    return `$${(n / 1000).toLocaleString("en-US", { maximumFractionDigits: 1 })}k`;
+  }
+  return `$${Math.round(n).toLocaleString("en-US")}`;
 }
 
 function prettySource(source: string | null): string {

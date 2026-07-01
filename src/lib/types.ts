@@ -146,6 +146,8 @@ export interface Lead {
   message: string | null;
   source: string | null;
   status: LeadStatus;
+  /** Estimated job value in dollars, set by the client (migration 0010). */
+  estimate_value: number | null;
   created_at: string;
   updated_at: string;
 }
