@@ -13,7 +13,7 @@ export function SiteFooter({ site }: { site: SiteContent }) {
   ].filter((s) => s.href);
 
   return (
-    <footer className="bg-ink text-slate-300">
+    <footer className="section-dark-texture bg-ink text-slate-300">
       <Container className="grid gap-10 py-16 sm:grid-cols-2 lg:grid-cols-4">
         <div>
           {site.logoUrl ? (

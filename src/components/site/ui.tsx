@@ -17,7 +17,7 @@ type SectionTone = "white" | "light" | "navy" | "tint";
 const toneClass: Record<SectionTone, string> = {
   white: "bg-white text-ink",
   light: "bg-slate-50 text-ink",
-  navy: "bg-ink text-white",
+  navy: "bg-ink text-white section-dark-texture",
   tint: "bg-client-tint text-ink",
 };
 
