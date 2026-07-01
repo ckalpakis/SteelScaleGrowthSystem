@@ -397,10 +397,18 @@ export function ProcessSplit({ site }: { site: SiteContent }) {
   return (
     <div className="grid items-center gap-12 lg:grid-cols-2">
       <Reveal>
-        {photo && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt={site.name} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-card" />
-        )}
+        <div className="relative">
+          {photo && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={photo} alt={site.name} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-card" />
+          )}
+          {site.logoUrl && (
+            <div className="absolute -bottom-5 -left-4 rounded-2xl bg-white p-3 shadow-card-hover sm:-left-5 sm:p-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={site.logoUrl} alt={site.name} className="h-14 w-auto object-contain sm:h-16 lg:h-20" />
+            </div>
+          )}
+        </div>
       </Reveal>
       <Reveal delay={120}>
         <div>
