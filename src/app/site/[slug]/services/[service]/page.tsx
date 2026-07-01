@@ -38,23 +38,27 @@ export default async function ServicePage({ params }: { params: { slug: string; 
         subtitle={site.tagline ?? `Professional ${service.name.toLowerCase()}${loc} you can trust.`}
       />
 
-      {/* Intro + form */}
+      {/* Large service image beside the quote form */}
       <Section tone="white">
-        <div className="grid gap-12 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            {service.image_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={service.image_url} alt={service.name} className="mb-8 aspect-[16/9] w-full rounded-2xl object-cover shadow-card" />
-            )}
-            <h2 className="font-display text-3xl font-extrabold uppercase text-ink">{service.name}{loc}</h2>
-            <p className="mt-5 whitespace-pre-wrap text-lg leading-relaxed text-slate-600">{service.description}</p>
-            <div className="mt-7"><Button href="#quote">Get a Free Quote</Button></div>
-          </div>
-          <aside id="quote" className="scroll-mt-28 lg:sticky lg:top-28 lg:self-start">
+        <div className="grid gap-10 lg:grid-cols-2 lg:items-stretch">
+          {service.image_url && (
+            <div className="lg:h-full">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={service.image_url} alt={service.name} className="h-64 w-full rounded-2xl object-cover shadow-card sm:h-96 lg:h-full" />
+            </div>
+          )}
+          <aside id="quote" className="scroll-mt-28">
             <div className="rounded-2xl bg-white p-7 shadow-card-hover">
               <LeadForm clientId={site.clientId} services={site.services.map((s) => s.name)} source={`service-${service.slug}`} theme="light" title={`Get a ${service.name} Quote`} subtitle="Free, no-obligation estimate." />
             </div>
           </aside>
+        </div>
+
+        {/* Description */}
+        <div className="mt-14 max-w-3xl">
+          <h2 className="font-display text-3xl font-extrabold uppercase text-ink">{service.name}{loc}</h2>
+          <p className="mt-5 whitespace-pre-wrap text-lg leading-relaxed text-slate-600">{service.description}</p>
+          <div className="mt-7"><Button href="#quote">Get a Free Quote</Button></div>
         </div>
       </Section>
 
