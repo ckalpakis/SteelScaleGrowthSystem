@@ -93,14 +93,14 @@ export function CertStrip({ logos = [], badges = [] }: { logos?: BadgeLogo[]; ba
   if (logos.length) {
     return (
       <div className="border-b border-slate-100 bg-white">
-        <Container className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 py-7">
+        <Container className="flex flex-wrap items-center justify-center gap-x-10 gap-y-6 py-8 sm:justify-between sm:gap-x-8">
           {logos.map((l, i) => (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               key={`${l.url}-${i}`}
               src={l.url}
               alt={l.label ?? "Certification"}
-              className="h-12 w-auto object-contain sm:h-14"
+              className="h-16 w-auto object-contain sm:h-20 lg:h-24"
             />
           ))}
         </Container>
