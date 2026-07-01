@@ -67,6 +67,7 @@ export function buildClientSettings(formData: FormData, clientId: string) {
     gallery: parseJsonArray(formData.get("gallery"), "Gallery"),
     value_props: lines(formData.get("value_props")),
     badges: lines(formData.get("badges")),
+    badge_logos: parseJsonArray(formData.get("badge_logos"), "Badge logos"),
     about_headline: nullify(formData.get("about_headline")),
     about_text: nullify(formData.get("about_text")),
     rating: toNum(formData.get("rating")),

@@ -7,6 +7,7 @@ import type {
   ClientSettings,
   ServiceDetail,
   GalleryItem,
+  BadgeLogo,
   Stat,
   ProcessStep,
   Testimonial,
@@ -53,6 +54,7 @@ export interface SiteContent {
   gallery: GalleryItem[];
   valueProps: string[];
   badges: string[];
+  badgeLogos: BadgeLogo[];
   aboutHeadline: string | null;
   aboutText: string | null;
   rating: number | null;
@@ -151,6 +153,7 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
     gallery: Array.isArray(settings?.gallery) ? settings!.gallery : [],
     valueProps: settings?.value_props ?? [],
     badges: settings?.badges ?? [],
+    badgeLogos: Array.isArray(settings?.badge_logos) ? settings!.badge_logos : [],
     aboutHeadline: settings?.about_headline ?? null,
     aboutText: settings?.about_text ?? null,
     rating: settings?.rating ?? null,

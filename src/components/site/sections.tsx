@@ -7,6 +7,7 @@ import { ReviewsCarousel } from "./ReviewsCarousel";
 import type { SiteContent, SiteArea } from "@/lib/site";
 import type {
   GalleryItem,
+  BadgeLogo,
   ServiceDetail,
   Stat,
   ProcessStep,
@@ -78,7 +79,7 @@ export function PageHero({
           </div>
         </Container>
       </section>
-      <CertStrip badges={site.badges} />
+      <CertStrip logos={site.badgeLogos} badges={site.badges} />
       <Marquee text={site.name} />
     </>
   );
@@ -87,7 +88,26 @@ export function PageHero({
 // ---------------------------------------------------------------------------
 // Certification / trust seals strip.
 // ---------------------------------------------------------------------------
-export function CertStrip({ badges }: { badges: string[] }) {
+export function CertStrip({ logos = [], badges = [] }: { logos?: BadgeLogo[]; badges?: string[] }) {
+  // Prefer real logo images when provided.
+  if (logos.length) {
+    return (
+      <div className="border-b border-slate-100 bg-white">
+        <Container className="flex flex-wrap items-center justify-center gap-x-10 gap-y-5 py-7">
+          {logos.map((l, i) => (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              key={`${l.url}-${i}`}
+              src={l.url}
+              alt={l.label ?? "Certification"}
+              className="h-12 w-auto object-contain sm:h-14"
+            />
+          ))}
+        </Container>
+      </div>
+    );
+  }
+
   if (!badges.length) return null;
   return (
     <div className="border-b border-slate-100 bg-white">

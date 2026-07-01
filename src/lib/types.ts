@@ -52,6 +52,11 @@ export interface GalleryItem {
   caption?: string | null;
 }
 
+export interface BadgeLogo {
+  url: string;
+  label?: string | null;
+}
+
 export interface Stat {
   value: string; // e.g. "5,000+"
   label: string; // e.g. "Roofs Installed"
@@ -104,6 +109,7 @@ export interface ClientSettings {
   gallery: GalleryItem[] | null;
   value_props: string[] | null;
   badges: string[] | null;
+  badge_logos: BadgeLogo[] | null;
   about_headline: string | null;
   about_text: string | null;
   rating: number | null;

@@ -91,7 +91,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
         </Container>
       </section>
 
-      <CertStrip badges={site.badges} />
+      <CertStrip logos={site.badgeLogos} badges={site.badges} />
       <Marquee text={site.name} />
 
       {/* Stats (navy) */}

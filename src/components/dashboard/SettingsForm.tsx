@@ -37,6 +37,7 @@ export function SettingsForm({
   const testimonialsJson = JSON.stringify(settings?.testimonials ?? [], null, 2);
   const financingJson = JSON.stringify(settings?.financing ?? [], null, 2);
   const faqsJson = JSON.stringify(settings?.faqs ?? [], null, 2);
+  const badgeLogosJson = JSON.stringify(settings?.badge_logos ?? [], null, 2);
 
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
@@ -154,12 +155,19 @@ export function SettingsForm({
           hint="Shown in the trust strip and on service pages. 3 works best."
         />
         <TextareaField
-          label="Trust badges (one per line)"
+          label="Trust badges — text (one per line)"
           name="badges"
           defaultValue={(settings?.badges ?? []).join("\n")}
           rows={3}
-          hint="e.g. Licensed & Insured, BBB Accredited, GAF Certified"
+          hint="Shown as seal icons if no logo images are set below. e.g. Licensed & Insured, BBB Accredited, GAF Certified"
         />
+        <JsonField
+          label="Trust badge logos — JSON (images)"
+          name="badge_logos"
+          defaultValue={badgeLogosJson}
+          hint='Array of {"url","label"}. When set, real logo images replace the text badges. Use the uploader below to get URLs.'
+        />
+        <ImageUrlHelper kind="badge" label="Upload a certification logo → copy its URL into the JSON above" clientId={clientId} />
       </Section>
 
       {/* Premium content sections */}
