@@ -103,10 +103,10 @@ export function SiteHeader({ site }: { site: SiteContent }) {
             </Link>
           </nav>
 
-          {/* Mobile: phone (left) — logo (centered/absolute) — hamburger (right) */}
-          <a href={callHref} className="inline-flex items-center gap-1.5 text-sm font-bold text-ink lg:hidden">
-            <PhoneIcon className="h-5 w-5 text-client" />
-            {site.phone && <span className="whitespace-nowrap">{site.phone}</span>}
+          {/* Mobile: call button (left) — logo (centered/absolute) — hamburger (right) */}
+          <a href={callHref} className="inline-flex items-center gap-1.5 rounded-lg bg-client px-3 py-2 text-sm font-bold uppercase tracking-wide text-white shadow-card lg:hidden">
+            <PhoneIcon className="h-4 w-4" />
+            Call
           </a>
           <div className="flex-1 lg:hidden" aria-hidden />
           <button onClick={() => setOpen((v) => !v)} aria-label="Toggle menu" className="rounded-md p-2 text-ink lg:hidden">
