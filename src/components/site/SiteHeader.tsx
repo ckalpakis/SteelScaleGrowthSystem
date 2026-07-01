@@ -134,7 +134,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
         <div
           className="bg-white px-12 pb-7 pt-2"
           style={{
-            clipPath: "polygon(12% 0, 88% 0, 100% 100%, 0 100%)",
+            clipPath: "polygon(0 0, 100% 0, 88% 100%, 12% 100%)",
             filter: "drop-shadow(0 12px 16px rgba(16,24,40,0.18))",
           }}
         >
