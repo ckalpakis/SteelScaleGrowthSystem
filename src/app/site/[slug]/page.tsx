@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { getSiteContent } from "@/lib/site";
 import { LeadForm } from "@/components/site/LeadForm";
 import { Reveal } from "@/components/site/Reveal";
-import { Section, SectionHeading, Container, Button } from "@/components/site/ui";
+import { Section, SectionHeading, Container, Button, highlight } from "@/components/site/ui";
 import { Stars } from "@/components/site/Stars";
 import { Marquee } from "@/components/site/Marquee";
 import { FaqAccordion } from "@/components/site/Faq";
@@ -113,7 +113,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
       {/* Portfolio (white) */}
       {site.gallery.length > 0 && (
         <Section tone="white">
-          <SectionHeading eyebrow="Our work" title={<>See The Difference In Every <span className="text-client">Shingle</span></>} />
+          <SectionHeading eyebrow="Our work" title={highlight(site.workHeading)} />
           <div className="mt-12"><PortfolioMasonry items={site.gallery.slice(0, 6)} /></div>
           <div className="mt-10 text-center"><Button href={`${base}/past-work`} variant="dark">View All Projects</Button></div>
         </Section>
@@ -122,7 +122,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
       {/* Services (navy) */}
       {site.services.length > 0 && (
         <Section tone="navy">
-          <SectionHeading invert eyebrow="What we do" title={<><span className="text-client">Full-Service</span> Roofing & Exterior Solutions</>} subtitle="We specialize in protecting what matters most — your home." />
+          <SectionHeading invert eyebrow="What we do" title={highlight(site.servicesHeading)} subtitle={site.servicesSubheading ?? undefined} />
           <div className="mt-12"><ServicesShowcase services={site.services} base={base} /></div>
         </Section>
       )}

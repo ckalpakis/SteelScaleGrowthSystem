@@ -8,6 +8,21 @@ export function cn(...c: (string | false | null | undefined)[]) {
   return c.filter(Boolean).join(" ");
 }
 
+// Render a heading string where any *asterisk-wrapped* portion is shown in the
+// brand accent color: "Every *Shingle*" → Every <span class="text-client">Shingle</span>.
+// Lets the same template serve any niche without hardcoding roofing words.
+export function highlight(text: string): React.ReactNode {
+  return text.split(/\*([^*]+)\*/g).map((part, i) =>
+    i % 2 === 1 ? (
+      <span key={i} className="text-client">
+        {part}
+      </span>
+    ) : (
+      part
+    )
+  );
+}
+
 export function Container({ className, children }: { className?: string; children: React.ReactNode }) {
   return <div className={cn("container-x", className)}>{children}</div>;
 }

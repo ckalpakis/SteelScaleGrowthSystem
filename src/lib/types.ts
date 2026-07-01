@@ -100,6 +100,11 @@ export interface ClientSettings {
   service_area: string | null;
   hero_headline: string | null;
   hero_subheadline: string | null;
+  // Customizable homepage section headings (migration 0008). Wrap a word in
+  // *asterisks* to accent it in the brand color.
+  work_heading: string | null;
+  services_heading: string | null;
+  services_subheading: string | null;
   // Website content (migration 0002)
   tagline: string | null;
   primary_location: string | null;

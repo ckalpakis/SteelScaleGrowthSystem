@@ -49,6 +49,10 @@ export interface SiteContent {
   heroImageUrl: string | null;
   heroHeadline: string;
   heroSubheadline: string | null;
+  /** Homepage section headings. `*word*` marks the brand-accent portion. */
+  workHeading: string;
+  servicesHeading: string;
+  servicesSubheading: string | null;
   services: ServiceDetail[];
   areas: SiteArea[];
   gallery: GalleryItem[];
@@ -148,6 +152,11 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
       settings?.hero_headline ??
       (primaryLocation ? `${name} in ${primaryLocation}` : name),
     heroSubheadline: settings?.hero_subheadline ?? null,
+    workHeading: settings?.work_heading?.trim() || "See The Difference In Every *Shingle*",
+    servicesHeading: settings?.services_heading?.trim() || "*Full-Service* Roofing & Exterior Solutions",
+    servicesSubheading:
+      settings?.services_subheading?.trim() ||
+      "We specialize in protecting what matters most — your home.",
     services: normalizeServices(settings),
     areas: normalizeAreas(settings),
     gallery: Array.isArray(settings?.gallery) ? settings!.gallery : [],

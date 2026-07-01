@@ -99,6 +99,34 @@ export function SettingsForm({
         <Field label="Promo text (optional nav offer)" name="promo_text" defaultValue={settings?.promo_text} placeholder="Free Inspection This Month" />
       </Section>
 
+      {/* Homepage section headings — makes the template niche-agnostic */}
+      <Section title="Homepage headings">
+        <p className="text-xs text-gray-400">
+          Wrap a word in *asterisks* to accent it in your brand color, e.g.{" "}
+          <code className="rounded bg-gray-100 px-1">Every *Shingle*</code>. Customize these to fit any niche
+          (roofing, HVAC, paving, landscaping, etc.).
+        </p>
+        <Field
+          label="Our Work heading"
+          name="work_heading"
+          defaultValue={settings?.work_heading}
+          placeholder="See The Difference In Every *Shingle*"
+        />
+        <Field
+          label="Services heading"
+          name="services_heading"
+          defaultValue={settings?.services_heading}
+          placeholder="*Full-Service* Roofing & Exterior Solutions"
+        />
+        <TextareaField
+          label="Services subheading"
+          name="services_subheading"
+          defaultValue={settings?.services_subheading}
+          rows={2}
+          hint="The supporting line under the services heading."
+        />
+      </Section>
+
       {/* Services */}
       <Section title="Services">
         <TextareaField
