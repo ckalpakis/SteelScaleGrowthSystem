@@ -15,7 +15,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-white text-ink antialiased;
+    @apply overflow-x-hidden bg-white text-ink antialiased;
     font-family: var(--font-sans);
   }
   h1,
