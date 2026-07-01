@@ -188,23 +188,31 @@ function normalizeProcess(settings: ClientSettings | null): ProcessStep[] {
 }
 
 // Prefer rich service_details; otherwise derive from the plain services list.
+// Each service gets a photo: its own image_url, else a gallery image (cycled so
+// services differ), else the hero image.
 function normalizeServices(settings: ClientSettings | null): ServiceDetail[] {
+  const gallery = Array.isArray(settings?.gallery) ? settings!.gallery : [];
+  const fallbackImages = gallery.map((g) => g.url).filter(Boolean);
+  const hero = settings?.hero_image_url ?? null;
+  const fallbackFor = (i: number): string | null =>
+    fallbackImages.length ? fallbackImages[i % fallbackImages.length] : hero;
+
   const details = settings?.service_details;
   if (Array.isArray(details) && details.length > 0) {
-    return details.map((d) => ({
+    return details.map((d, i) => ({
       slug: d.slug || slugify(d.name),
       name: d.name,
       description: d.description ?? "",
-      image_url: d.image_url ?? null,
+      image_url: d.image_url ?? fallbackFor(i),
     }));
   }
   const plain = settings?.services ?? [];
   const location = settings?.primary_location ?? settings?.service_area ?? "your area";
-  return plain.map((name) => ({
+  return plain.map((name, i) => ({
     slug: slugify(name),
     name,
     description: `Professional ${name.toLowerCase()} services in ${location}. Quality workmanship, honest pricing, and free estimates.`,
-    image_url: null,
+    image_url: fallbackFor(i),
   }));
 }
 
