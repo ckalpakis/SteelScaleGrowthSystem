@@ -403,9 +403,9 @@ export function ProcessSplit({ site }: { site: SiteContent }) {
             <img src={photo} alt={site.name} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-card" />
           )}
           {site.logoUrl && (
-            <div className="absolute -bottom-5 -left-4 rounded-2xl bg-white p-3 shadow-card-hover sm:-left-5 sm:p-4">
+            <div className="absolute -bottom-8 -left-6 rounded-2xl bg-white p-4 shadow-card-hover sm:-left-8 sm:p-5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={site.logoUrl} alt={site.name} className="h-14 w-auto object-contain sm:h-16 lg:h-20" />
+              <img src={site.logoUrl} alt={site.name} className="h-28 w-auto object-contain sm:h-32 lg:h-40" />
             </div>
           )}
         </div>
