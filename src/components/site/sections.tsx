@@ -214,7 +214,7 @@ export function AboutSplit({ site, invert = false }: { site: SiteContent; invert
             />
           )}
           <p className="eyebrow">About {site.name}</p>
-          <h2 className={cn("mt-3 font-display text-4xl font-extrabold uppercase leading-tight sm:text-5xl", invert ? "text-white" : "text-ink")}>
+          <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
             {site.aboutHeadline ?? "Meet the team that puts people first"}
           </h2>
           {site.aboutText && <p className={cn("mt-5 text-lg leading-relaxed", invert ? "text-white/75" : "text-slate-600")}>{site.aboutText}</p>}
@@ -301,7 +301,7 @@ export function WhyChooseSplit({ site }: { site: SiteContent }) {
     <div className="grid items-stretch gap-12 lg:grid-cols-2">
       <Reveal>
         <div>
-          <h2 className="font-display text-4xl font-extrabold uppercase leading-[1.1] sm:text-5xl">
+          <h2 className="font-display text-5xl font-extrabold uppercase leading-[1.1] sm:text-6xl">
             <span className="text-ink">Why More Homeowners</span>
             <br />
             <span className="text-client">Choose {site.name}</span>
@@ -351,7 +351,7 @@ export function ReviewsSplit({ site, invert = false }: { site: SiteContent; inve
     <div className="grid gap-10 lg:grid-cols-3">
       <div className="lg:col-span-1">
         <p className="eyebrow">Reviews</p>
-        <h2 className={cn("mt-3 font-display text-4xl font-extrabold uppercase leading-tight sm:text-5xl", invert ? "text-white" : "text-ink")}>
+        <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
           Real Reviews From Real <span className="text-client">Neighbors</span>
         </h2>
         <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Homeowners across {site.primaryLocation ?? "the area"} consistently rate {site.name} 5 stars for our workmanship, communication, and respect for their home.</p>
@@ -413,7 +413,7 @@ export function ProcessSplit({ site }: { site: SiteContent }) {
       <Reveal delay={120}>
         <div>
           <p className="eyebrow">How it works</p>
-          <h2 className="mt-3 font-display text-4xl font-extrabold uppercase leading-tight text-ink sm:text-5xl">
+          <h2 className="mt-3 font-display text-5xl font-extrabold uppercase leading-tight text-ink sm:text-6xl">
             Our Process: <span className="text-client">Simple, Fast & Stress-Free</span>
           </h2>
           <ol className="mt-7 space-y-3">
@@ -494,7 +494,7 @@ export function AreasSplit({ site, invert = false }: { site: SiteContent; invert
     <div className="grid items-start gap-12 lg:grid-cols-2">
       <div>
         <p className="eyebrow">Where we work</p>
-        <h2 className={cn("mt-3 font-display text-4xl font-extrabold uppercase leading-tight sm:text-5xl", invert ? "text-white" : "text-ink")}>
+        <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
           Proudly Serving <span className="text-client">{site.primaryLocation ?? "Your Area"}</span>
         </h2>
         <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Local, reliable service for the communities we call home.</p>
@@ -523,7 +523,7 @@ export function CTABand({ site }: { site: SiteContent }) {
         <img src={site.logoUrl} alt={site.name} className="mx-auto mb-6 h-14 w-auto brightness-0 invert" />
       )}
       <p className="eyebrow">Ready to get started?</p>
-      <h2 className="mx-auto mt-3 max-w-3xl font-display text-4xl font-extrabold uppercase text-white sm:text-5xl">Let&apos;s Talk About Your Project</h2>
+      <h2 className="mx-auto mt-3 max-w-3xl font-display text-5xl font-extrabold uppercase text-white sm:text-6xl">Let&apos;s Talk About Your Project</h2>
       <p className="mx-auto mt-3 max-w-xl text-white/70">Free estimates, honest pricing, and workmanship you can trust.</p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         {site.phone && (

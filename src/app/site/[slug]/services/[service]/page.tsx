@@ -56,7 +56,7 @@ export default async function ServicePage({ params }: { params: { slug: string; 
 
         {/* Description */}
         <div className="mt-14 max-w-3xl">
-          <h2 className="font-display text-4xl font-extrabold uppercase text-ink sm:text-5xl">{service.name}{loc}</h2>
+          <h2 className="font-display text-5xl font-extrabold uppercase text-ink sm:text-6xl">{service.name}{loc}</h2>
           <p className="mt-5 whitespace-pre-wrap text-lg leading-relaxed text-slate-600">{service.description}</p>
           <div className="mt-7"><Button href="#quote">Get a Free Quote</Button></div>
         </div>
