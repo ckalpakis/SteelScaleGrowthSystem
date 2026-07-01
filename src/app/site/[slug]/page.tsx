@@ -44,9 +44,10 @@ export default async function HomePage({ params }: { params: { slug: string } })
       <section className="relative isolate overflow-hidden bg-ink">
         {site.heroImageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={site.heroImageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover opacity-35" />
+          <img src={site.heroImageUrl} alt="" className="absolute inset-0 -z-10 h-full w-full object-cover" />
         )}
-        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-ink via-ink/95 to-ink/60" />
+        {/* Neutral gradient (no blue) — keeps the headline readable while the photo shows through */}
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/75 via-black/40 to-transparent" />
         <Container className="grid items-center gap-12 py-14 lg:grid-cols-[1.1fr_0.9fr] lg:py-20">
           <div className="text-white">
             {site.rating != null && (
