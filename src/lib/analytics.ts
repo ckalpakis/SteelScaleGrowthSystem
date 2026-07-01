@@ -26,6 +26,8 @@ export interface TimePoint {
   label: string;
   leads: number;
   won: number;
+  /** Won revenue (sum of estimate_value for leads won in this bucket). */
+  revenue: number;
 }
 
 export interface KpiDelta {
@@ -81,7 +83,7 @@ function buildSeries(leads: Lead[], rangeDays: RangeDays, now: Date): TimePoint[
   for (let i = buckets - 1; i >= 0; i--) {
     const d = new Date(anchor);
     d.setDate(anchor.getDate() - i * bucketDays);
-    const p: TimePoint = { key: dateKey(d), label: monthFmt.format(d), leads: 0, won: 0 };
+    const p: TimePoint = { key: dateKey(d), label: monthFmt.format(d), leads: 0, won: 0, revenue: 0 };
     points.push(p);
     // Map every day in this bucket to the bucket start so lookups are O(1).
     for (let j = 0; j < bucketDays; j++) {
@@ -96,7 +98,10 @@ function buildSeries(leads: Lead[], rangeDays: RangeDays, now: Date): TimePoint[
     const p = index.get(dateKey(created));
     if (!p) continue;
     p.leads += 1;
-    if (lead.status === "won") p.won += 1;
+    if (lead.status === "won") {
+      p.won += 1;
+      p.revenue += typeof lead.estimate_value === "number" ? lead.estimate_value : 0;
+    }
   }
   return points;
 }

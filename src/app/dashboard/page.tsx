@@ -90,7 +90,7 @@ export default async function DashboardPage({
 
       {/* Line graph + pipeline donut */}
       <div className="grid gap-4 lg:grid-cols-3">
-        <Panel title="Leads Over Time" className="lg:col-span-2" legend={<LineLegend />}>
+        <Panel title="Leads Over Time" className="lg:col-span-2">
           <LeadsLineChart series={a.series} />
         </Panel>
         <Panel title="Pipeline Distribution">
@@ -231,18 +231,5 @@ function Panel({
       </div>
       {children}
     </section>
-  );
-}
-
-function LineLegend() {
-  return (
-    <div className="flex items-center gap-4 text-xs text-gray-500">
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-2 w-2 rounded-full" style={{ background: "#2563eb" }} /> Leads
-      </span>
-      <span className="flex items-center gap-1.5">
-        <span className="inline-block h-2 w-4 rounded-full" style={{ background: "#16a34a" }} /> Won
-      </span>
-    </div>
   );
 }

@@ -35,6 +35,7 @@ export function LeadForm({
     const last = String(fd.get("last_name") ?? "").trim();
     const zip = String(fd.get("zip") ?? "").trim();
     const details = String(fd.get("message") ?? "").trim();
+    const budget = String(fd.get("estimate_value") ?? "").trim();
 
     const payload = {
       client_id: clientId,
@@ -42,6 +43,7 @@ export function LeadForm({
       phone: fd.get("phone"),
       email: fd.get("email"),
       service_needed: fd.get("service_needed"),
+      estimate_value: budget || null,
       message: zip ? `ZIP: ${zip}${details ? `\n\n${details}` : ""}` : details,
       source,
     };
@@ -123,6 +125,16 @@ export function LeadForm({
             </select>
           </Field>
         </div>
+        <Field label="Project budget (optional)" labelClass={labelClass}>
+          <select name="estimate_value" className={fieldClass} defaultValue="">
+            <option value="">Not sure yet</option>
+            <option value="1000">Under $1,000</option>
+            <option value="3000">$1,000 – $5,000</option>
+            <option value="7500">$5,000 – $10,000</option>
+            <option value="17500">$10,000 – $25,000</option>
+            <option value="30000">$25,000+</option>
+          </select>
+        </Field>
         <Field label="How can we help?" labelClass={labelClass}>
           <textarea name="message" rows={3} className={fieldClass} placeholder="Tell us about your project..." />
         </Field>
