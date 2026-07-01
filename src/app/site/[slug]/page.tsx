@@ -105,9 +105,9 @@ export default async function HomePage({ params }: { params: { slug: string } })
         <Section tone="white"><AboutSplit site={site} /></Section>
       )}
 
-      {/* Reviews (light) */}
+      {/* Reviews (navy) */}
       {site.testimonials.length > 0 && (
-        <Section tone="light"><ReviewsSplit site={site} /></Section>
+        <Section tone="navy"><ReviewsSplit site={site} invert /></Section>
       )}
 
       {/* Portfolio (white) */}

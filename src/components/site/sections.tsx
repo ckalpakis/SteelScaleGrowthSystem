@@ -337,16 +337,16 @@ export function WhyChooseSplit({ site }: { site: SiteContent }) {
 // ---------------------------------------------------------------------------
 // Reviews split — heading/intro + review cards.
 // ---------------------------------------------------------------------------
-export function ReviewsSplit({ site }: { site: SiteContent }) {
+export function ReviewsSplit({ site, invert = false }: { site: SiteContent; invert?: boolean }) {
   if (!site.testimonials.length) return null;
   return (
     <div className="grid gap-10 lg:grid-cols-3">
       <div className="lg:col-span-1">
         <p className="eyebrow">Reviews</p>
-        <h2 className="mt-3 font-display text-3xl font-extrabold uppercase leading-tight text-ink sm:text-4xl">
+        <h2 className={cn("mt-3 font-display text-3xl font-extrabold uppercase leading-tight sm:text-4xl", invert ? "text-white" : "text-ink")}>
           Real Reviews From Real <span className="text-client">Neighbors</span>
         </h2>
-        <p className="mt-4 text-slate-600">Homeowners across {site.primaryLocation ?? "the area"} consistently rate {site.name} 5 stars for our workmanship, communication, and respect for their home.</p>
+        <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Homeowners across {site.primaryLocation ?? "the area"} consistently rate {site.name} 5 stars for our workmanship, communication, and respect for their home.</p>
       </div>
       <div className="lg:col-span-2">
         <ReviewsCarousel items={site.testimonials} />
