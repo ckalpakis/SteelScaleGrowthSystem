@@ -1,6 +1,7 @@
 import { Resend } from "resend";
 import type { Client, ClientSettings, Lead } from "./types";
 import { businessName } from "./types";
+import { formatMoney } from "./analytics";
 
 // Sends a "new lead" notification to the business. Fails soft: if Resend isn't
 // configured or the send errors, we log and continue — a missed email should
@@ -47,6 +48,7 @@ function renderLeadEmail(business: string, lead: Lead) {
     ["Phone", lead.phone],
     ["Email", lead.email],
     ["Service", lead.service_needed],
+    ["Budget", lead.estimate_value != null ? formatMoney(lead.estimate_value) : null],
     ["Source", lead.source],
     ["Message", lead.message],
   ]
@@ -64,7 +66,7 @@ function renderLeadEmail(business: string, lead: Lead) {
     <h2 style="color:#111827">New lead for ${escapeHtml(business)}</h2>
     <p style="color:#6b7280">A new lead just came in through your website.</p>
     <table style="border-collapse:collapse;background:#f9fafb;border-radius:8px;width:100%">${rows}</table>
-    <p style="color:#9ca3af;font-size:12px;margin-top:24px">Sent by Steel City Growth System</p>
+    <p style="color:#9ca3af;font-size:12px;margin-top:24px">Sent by Steel Scale Systems</p>
   </div>`;
 }
 
