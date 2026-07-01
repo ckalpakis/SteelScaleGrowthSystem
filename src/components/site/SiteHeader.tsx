@@ -12,7 +12,6 @@ function PhoneIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-
 function MailIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
@@ -21,48 +20,59 @@ function MailIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+function FacebookIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M13.5 21v-8H16l.5-3h-3V8.2c0-.86.28-1.45 1.5-1.45H17V4.1C16.66 4.05 15.8 4 14.86 4 12.7 4 11 5.3 11 7.9V10H8.5v3H11v8h2.5z" />
+    </svg>
+  );
+}
 
-// Solid sticky header: thin dark utility bar + white nav with a brand CTA and
-// Services/Areas dropdowns (BlueBuilt pattern).
+// Header: brand-color utility bar + white nav, with the logo centered in a
+// white badge that bridges both bars; nav links split left / right.
 export function SiteHeader({ site }: { site: SiteContent }) {
   const [open, setOpen] = useState(false);
   const base = site.base;
   const home = base || "/";
+  const callHref = site.phone ? `tel:${site.phone}` : `${base}/contact`;
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Utility bar — centered, brand-color, taller */}
+      {/* Utility bar */}
       <div className="bg-client text-white">
-        <Container className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 py-3 text-sm font-medium">
-          <span className="hidden font-semibold sm:inline">Need roofing help? Call us now!</span>
-          {site.phone && (
-            <a href={`tel:${site.phone}`} className="inline-flex items-center gap-2 font-semibold hover:text-white/85">
-              <PhoneIcon className="h-4 w-4" />
-              {site.phone}
-            </a>
-          )}
-          {site.email && (
-            <a href={`mailto:${site.email}`} className="hidden items-center gap-2 hover:text-white/85 sm:inline-flex">
-              <MailIcon className="h-4 w-4" />
-              {site.email}
-            </a>
-          )}
+        <Container className="flex items-center justify-between gap-4 py-2 text-xs sm:text-sm">
+          <div className="flex items-center gap-2 font-semibold">
+            {site.phone ? (
+              <a href={callHref} className="inline-flex items-center gap-2 hover:text-white/85">
+                <PhoneIcon className="h-4 w-4" />
+                <span className="hidden md:inline">Need roofing help? Call us now!</span>
+                <span>{site.phone}</span>
+              </a>
+            ) : (
+              <span>Trusted local roofing &amp; exteriors</span>
+            )}
+          </div>
+          <div className="flex items-center gap-4">
+            {site.email && (
+              <a href={`mailto:${site.email}`} className="hidden items-center gap-2 hover:text-white/85 sm:inline-flex">
+                <MailIcon className="h-4 w-4" />
+                {site.email}
+              </a>
+            )}
+            {site.facebookUrl && (
+              <a href={site.facebookUrl} target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-white/85">
+                <FacebookIcon className="h-4 w-4" />
+              </a>
+            )}
+          </div>
         </Container>
       </div>
 
-      {/* Primary nav */}
+      {/* Nav */}
       <div className="border-b border-slate-100 bg-white shadow-card">
-        <Container className="flex items-center justify-between py-3">
-          <Link href={home} className="flex items-center gap-2">
-            {site.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={site.logoUrl} alt={site.name} className="h-11 w-auto" />
-            ) : (
-              <span className="font-display text-xl font-extrabold uppercase tracking-tight text-ink">{site.name}</span>
-            )}
-          </Link>
-
-          <nav className="hidden items-center gap-1 lg:flex">
+        <Container className="flex items-center py-3">
+          {/* Left links (desktop) */}
+          <nav className="hidden flex-1 items-center gap-1 lg:flex">
             <NavLink href={home}>Home</NavLink>
             <Dropdown label="Services" href={`${base}/services`}>
               <DropItem href={`${base}/services`}>All Services</DropItem>
@@ -78,21 +88,28 @@ export function SiteHeader({ site }: { site: SiteContent }) {
                 ))}
               </Dropdown>
             )}
-            <NavLink href={`${base}/past-work`}>Project Portfolio</NavLink>
-            <NavLink href={`${base}/about`}>About Us</NavLink>
-            <NavLink href={`${base}/contact`}>Contact</NavLink>
+            <NavLink href={`${base}/past-work`}>Past Work</NavLink>
           </nav>
 
-          <div className="flex items-center gap-3">
-            <Link href={`${base}/contact`} className="hidden rounded-lg bg-client px-5 py-3 text-sm font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110 sm:inline-flex">
-              Get Your Quote
+          {/* Reserved center space for the logo (desktop) */}
+          <div className="hidden shrink-0 lg:block lg:w-48" aria-hidden />
+
+          {/* Right links + CTA (desktop) */}
+          <nav className="hidden flex-1 items-center justify-end gap-1 lg:flex">
+            <NavLink href={`${base}/about`}>About</NavLink>
+            <NavLink href={`${base}/contact`}>Contact</NavLink>
+            <Link href={callHref} className="ml-2 rounded-lg bg-client px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110">
+              Call Us Now
             </Link>
-            <button onClick={() => setOpen((v) => !v)} aria-label="Toggle menu" className="rounded-md p-2 text-ink lg:hidden">
-              <span className="block h-0.5 w-6 bg-current" />
-              <span className="mt-1.5 block h-0.5 w-6 bg-current" />
-              <span className="mt-1.5 block h-0.5 w-6 bg-current" />
-            </button>
-          </div>
+          </nav>
+
+          {/* Mobile: hamburger + balance spacer (logo is centered/absolute) */}
+          <button onClick={() => setOpen((v) => !v)} aria-label="Toggle menu" className="rounded-md p-2 text-ink lg:hidden">
+            <span className="block h-0.5 w-6 bg-current" />
+            <span className="mt-1.5 block h-0.5 w-6 bg-current" />
+            <span className="mt-1.5 block h-0.5 w-6 bg-current" />
+          </button>
+          <div className="flex-1 lg:hidden" aria-hidden />
         </Container>
 
         {open && (
@@ -101,14 +118,28 @@ export function SiteHeader({ site }: { site: SiteContent }) {
               <MobileLink href={home} onClick={() => setOpen(false)}>Home</MobileLink>
               <MobileLink href={`${base}/services`} onClick={() => setOpen(false)}>Services</MobileLink>
               {site.areas.length > 0 && <MobileLink href={`${base}/areas`} onClick={() => setOpen(false)}>Areas</MobileLink>}
-              <MobileLink href={`${base}/past-work`} onClick={() => setOpen(false)}>Project Portfolio</MobileLink>
-              <MobileLink href={`${base}/about`} onClick={() => setOpen(false)}>About Us</MobileLink>
+              <MobileLink href={`${base}/past-work`} onClick={() => setOpen(false)}>Past Work</MobileLink>
+              <MobileLink href={`${base}/about`} onClick={() => setOpen(false)}>About</MobileLink>
               <MobileLink href={`${base}/contact`} onClick={() => setOpen(false)}>Contact</MobileLink>
-              <Link href={`${base}/contact`} onClick={() => setOpen(false)} className="mt-2 rounded-lg bg-client px-4 py-3 text-center text-sm font-bold uppercase tracking-wide text-white">Get Your Quote</Link>
+              <Link href={callHref} onClick={() => setOpen(false)} className="mt-2 rounded-lg bg-client px-4 py-3 text-center text-sm font-bold uppercase tracking-wide text-white">
+                Call Us Now
+              </Link>
             </Container>
           </div>
         )}
       </div>
+
+      {/* Centered logo badge — bridges the utility bar and the nav */}
+      <Link href={home} className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
+        <div className="rounded-b-2xl bg-white px-6 pb-3 pt-1.5 shadow-card">
+          {site.logoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={site.logoUrl} alt={site.name} className="h-11 w-auto object-contain sm:h-14 lg:h-16" />
+          ) : (
+            <span className="font-display text-lg font-extrabold uppercase tracking-tight text-ink sm:text-xl">{site.name}</span>
+          )}
+        </div>
+      </Link>
     </header>
   );
 }
@@ -123,7 +154,7 @@ function Dropdown({ label, href, children }: { label: string; href: string; chil
       <Link href={href} className="flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-semibold text-ink/80 transition hover:text-client">
         {label}<span className="text-[10px]">▾</span>
       </Link>
-      <div className="invisible absolute left-0 top-full z-10 min-w-[15rem] translate-y-1 rounded-2xl border border-slate-100 bg-white p-2 opacity-0 shadow-card-hover transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+      <div className="invisible absolute left-0 top-full z-30 min-w-[15rem] translate-y-1 rounded-2xl border border-slate-100 bg-white p-2 opacity-0 shadow-card-hover transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
         {children}
       </div>
     </div>
