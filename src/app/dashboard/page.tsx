@@ -4,15 +4,24 @@ import { requireClient, isAgencyAdmin } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LeadCard } from "@/components/dashboard/LeadCard";
 import { NotLinked } from "@/components/dashboard/NotLinked";
-import { PIPELINE_STAGES, type Lead } from "@/lib/types";
+import { LeadsLineChart, StageDonut, SourceBars } from "@/components/dashboard/Charts";
+import { computeAnalytics, RANGE_OPTIONS, type RangeDays } from "@/lib/analytics";
+import { type Lead } from "@/lib/types";
 
-// Overview — at-a-glance pipeline counts and the most recent leads.
-export default async function DashboardPage() {
+// Overview — GoHighLevel-style analytics: KPI cards, a leads-over-time line
+// graph, pipeline distribution, lead sources, and the most recent leads.
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: { range?: string };
+}) {
   const { email, client, settings } = await requireClient();
   if (!client) {
     if (isAgencyAdmin(email)) redirect("/dashboard/clients");
     return <NotLinked />;
   }
+
+  const range = parseRange(searchParams.range);
 
   const supabase = createClient();
   const { data: leads } = await supabase
@@ -23,76 +32,199 @@ export default async function DashboardPage() {
     .returns<Lead[]>();
 
   const rows = leads ?? [];
-  const counts = countByStatus(rows);
+  const a = computeAnalytics(rows, range);
   const recent = rows.slice(0, 6);
+  const rangeLabel = range === 7 ? "7 days" : range === 90 ? "90 days" : "30 days";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
+      {/* Header + range selector */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome back</h1>
-          <p className="text-sm text-gray-500">Here&apos;s how your leads are doing.</p>
+          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <p className="text-sm text-gray-500">Your lead performance over the last {rangeLabel}.</p>
         </div>
-        {!settings?.google_review_link && (
-          <Link
-            href="/dashboard/settings"
-            className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
-          >
-            Finish setup in Settings →
-          </Link>
-        )}
+        <div className="flex items-center gap-3">
+          {!settings?.google_review_link && (
+            <Link
+              href="/dashboard/settings"
+              className="rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm font-medium text-amber-800 hover:bg-amber-100"
+            >
+              Finish setup →
+            </Link>
+          )}
+          <RangeSelector active={range} />
+        </div>
       </div>
 
-      {/* Pipeline summary */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {PIPELINE_STAGES.map((stage) => (
-          <Link
-            key={stage.value}
-            href="/dashboard/leads"
-            className="rounded-xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md"
-          >
-            <div className="flex items-center gap-2">
-              <span className={`h-2.5 w-2.5 rounded-full ${stage.dotClass}`} />
-              <span className="text-xs font-medium text-gray-500">{stage.label}</span>
+      {/* KPI cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <Kpi label={`Total Leads · ${rangeLabel}`} value={a.totalLeads.value} changePct={a.totalLeads.changePct} />
+        <Kpi label={`Jobs Won · ${rangeLabel}`} value={a.won.value} changePct={a.won.changePct} positiveIsGood />
+        <Kpi label="Conversion Rate" value={`${a.conversionRate}%`} sub={`${a.won.value} won of ${a.totalLeads.value}`} />
+        <Kpi
+          label="Needs Response"
+          value={a.needsResponse}
+          sub={a.needsResponse > 0 ? "New leads awaiting reply" : "You're all caught up"}
+          alert={a.needsResponse > 0}
+        />
+      </div>
+
+      {/* Line graph + pipeline donut */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Panel title="Leads Over Time" className="lg:col-span-2" legend={<LineLegend />}>
+          <LeadsLineChart series={a.series} />
+        </Panel>
+        <Panel title="Pipeline Distribution">
+          <StageDonut data={a.stageDistribution} total={a.totalAllTime} />
+        </Panel>
+      </div>
+
+      {/* Sources + recent leads */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <Panel title="Lead Sources">
+          <SourceBars data={a.sources} />
+        </Panel>
+        <Panel
+          title="Recent Leads"
+          className="lg:col-span-2"
+          action={
+            <Link href="/dashboard/leads" className="text-sm font-medium text-brand hover:underline">
+              View all
+            </Link>
+          }
+        >
+          {recent.length === 0 ? (
+            <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center text-sm text-gray-500">
+              No leads yet. Share your{" "}
+              <Link href={`/site/${client.slug}`} target="_blank" className="font-medium text-brand underline">
+                website
+              </Link>{" "}
+              to start capturing them.
             </div>
-            <p className="mt-2 text-2xl font-bold text-gray-900">
-              {counts[stage.value] ?? 0}
-            </p>
-          </Link>
-        ))}
-      </div>
-
-      {/* Recent leads */}
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-gray-900">Recent leads</h2>
-          <Link href="/dashboard/leads" className="text-sm font-medium text-brand hover:underline">
-            View all
-          </Link>
-        </div>
-
-        {recent.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500">
-            No leads yet. Share your{" "}
-            <Link href={`/site/${client.slug}`} target="_blank" className="font-medium text-brand underline">
-              website
-            </Link>{" "}
-            to start capturing them.
-          </div>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {recent.map((lead) => (
-              <LeadCard key={lead.id} lead={lead} client={client} settings={settings} />
-            ))}
-          </div>
-        )}
+          ) : (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {recent.map((lead) => (
+                <LeadCard key={lead.id} lead={lead} client={client} settings={settings} />
+              ))}
+            </div>
+          )}
+        </Panel>
       </div>
     </div>
   );
 }
 
-function countByStatus(rows: Lead[]): Record<string, number> {
-  const counts: Record<string, number> = {};
-  for (const r of rows) counts[r.status] = (counts[r.status] ?? 0) + 1;
-  return counts;
+function parseRange(raw: string | undefined): RangeDays {
+  const n = Number(raw);
+  return (RANGE_OPTIONS as readonly number[]).includes(n) ? (n as RangeDays) : 30;
+}
+
+function RangeSelector({ active }: { active: RangeDays }) {
+  return (
+    <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
+      {RANGE_OPTIONS.map((r) => (
+        <Link
+          key={r}
+          href={`/dashboard?range=${r}`}
+          scroll={false}
+          className={
+            "rounded-md px-3 py-1.5 text-sm font-medium transition " +
+            (r === active ? "bg-brand text-white shadow-sm" : "text-gray-600 hover:bg-gray-100")
+          }
+        >
+          {r}d
+        </Link>
+      ))}
+    </div>
+  );
+}
+
+function Kpi({
+  label,
+  value,
+  changePct,
+  sub,
+  alert,
+  positiveIsGood,
+}: {
+  label: string;
+  value: string | number;
+  changePct?: number | null;
+  sub?: string;
+  alert?: boolean;
+  positiveIsGood?: boolean;
+}) {
+  return (
+    <div
+      className={
+        "rounded-xl border bg-white p-5 shadow-sm " + (alert ? "border-amber-300 bg-amber-50/60" : "border-gray-200")
+      }
+    >
+      <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
+      <div className="mt-2 flex items-end justify-between gap-2">
+        <span className="text-3xl font-bold text-gray-900">{value}</span>
+        {changePct !== undefined && <Delta changePct={changePct} positiveIsGood={positiveIsGood} />}
+      </div>
+      {sub && <p className={"mt-1 text-xs " + (alert ? "text-amber-700" : "text-gray-400")}>{sub}</p>}
+    </div>
+  );
+}
+
+function Delta({ changePct, positiveIsGood = true }: { changePct: number | null; positiveIsGood?: boolean }) {
+  if (changePct === null) {
+    return <span className="rounded-full bg-blue-50 px-2 py-0.5 text-xs font-semibold text-blue-600">New</span>;
+  }
+  if (changePct === 0) {
+    return <span className="text-xs font-semibold text-gray-400">—</span>;
+  }
+  const up = changePct > 0;
+  const good = up === positiveIsGood;
+  return (
+    <span
+      className={
+        "inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-semibold " +
+        (good ? "bg-green-50 text-green-600" : "bg-red-50 text-red-600")
+      }
+    >
+      {up ? "↑" : "↓"} {Math.abs(changePct)}%
+    </span>
+  );
+}
+
+function Panel({
+  title,
+  children,
+  className,
+  action,
+  legend,
+}: {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+  action?: React.ReactNode;
+  legend?: React.ReactNode;
+}) {
+  return (
+    <section className={"rounded-xl border border-gray-200 bg-white p-5 shadow-sm " + (className ?? "")}>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
+        {legend ?? action}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function LineLegend() {
+  return (
+    <div className="flex items-center gap-4 text-xs text-gray-500">
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block h-2 w-2 rounded-full" style={{ background: "#2563eb" }} /> Leads
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="inline-block h-2 w-4 rounded-full" style={{ background: "#16a34a" }} /> Won
+      </span>
+    </div>
+  );
 }
