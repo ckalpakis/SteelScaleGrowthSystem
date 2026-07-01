@@ -210,32 +210,98 @@ export function AboutSplit({ site, invert = false }: { site: SiteContent; invert
 // ---------------------------------------------------------------------------
 // Why choose us — feature list + photo.
 // ---------------------------------------------------------------------------
+// Rotating set of feature icons (matches the varied icons in the reference).
+const FEATURE_ICONS = [
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <circle cx="12" cy="12" r="8.5" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M12 7.5V12l3 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  ),
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <circle cx="9" cy="9" r="3" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M3.5 19a5.5 5.5 0 0 1 11 0M16 7a3 3 0 0 1 0 5.5M15 19a5.5 5.5 0 0 0-2-4.3" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  ),
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <path d="M12 21s6-5.3 6-10a6 6 0 1 0-12 0c0 4.7 6 10 6 10z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <circle cx="12" cy="11" r="2.2" stroke="currentColor" strokeWidth="1.7" />
+    </svg>
+  ),
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <path d="M3 15c2-1 4-1 6 0M9 12h6a2 2 0 0 1 0 4H10l-4 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="16" cy="7" r="3" stroke="currentColor" strokeWidth="1.7" />
+      <path d="M16 6v2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  ),
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <path d="M4 4h7l9 9-7 7-9-9V4z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      <circle cx="8" cy="8" r="1.4" fill="currentColor" />
+    </svg>
+  ),
+  (c: string) => (
+    <svg viewBox="0 0 24 24" fill="none" className={c} aria-hidden>
+      <path d="m12 4 2.2 4.5 5 .7-3.6 3.5.9 5-4.5-2.4L7.5 17.7l.9-5L4.8 9.2l5-.7L12 4z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    </svg>
+  ),
+];
+
 export function WhyChooseSplit({ site }: { site: SiteContent }) {
   const photo = site.gallery[1]?.url ?? site.gallery[0]?.url ?? site.heroImageUrl;
-  const props = site.valueProps.length ? site.valueProps : ["Free, same-day estimates", "Local, owner-led crews", "Licensed, insured & warrantied", "Flexible financing options"];
+  const props = site.valueProps.length
+    ? site.valueProps
+    : [
+        "Fast, Same-Day Estimates",
+        "Owner-Led, Community-Focused",
+        "Local Experts, Never Outsourced",
+        "Flexible Financing Options",
+        "Licensed, Insured & Warrantied",
+        "5-Star Customer Ratings",
+      ];
+
   return (
-    <div className="grid items-center gap-12 lg:grid-cols-2">
+    <div className="grid items-stretch gap-12 lg:grid-cols-2">
       <Reveal>
         <div>
-          <p className="eyebrow">Why choose us</p>
-          <h2 className="mt-3 font-display text-3xl font-extrabold uppercase leading-tight text-ink sm:text-4xl">
-            Why More Homeowners Choose <span className="text-client">{site.name}</span>
+          <h2 className="font-display text-3xl font-extrabold uppercase leading-[1.1] sm:text-4xl">
+            <span className="text-ink">Why More Homeowners</span>
+            <br />
+            <span className="text-client">Choose {site.name}</span>
           </h2>
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
-            {props.map((p) => (
-              <div key={p} className="flex items-start gap-3">
-                <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-client-tint text-client"><ShieldIcon className="h-5 w-5" /></span>
-                <span className="text-[15px] font-medium leading-snug text-slate-700">{p}</span>
-              </div>
-            ))}
+          <p className="mt-5 max-w-md leading-relaxed text-slate-600">
+            Not all roofing companies are created equal. {site.name} goes above and beyond — professional work
+            backed by industry-leading standards and the kind of personal service you only get from a local
+            business you can trust.
+          </p>
+          <div className="mt-8 grid gap-4 sm:grid-cols-2">
+            {props.map((p, i) => {
+              const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length];
+              return (
+                <div key={p} className="flex overflow-hidden rounded-xl shadow-card">
+                  <div className="flex w-16 shrink-0 items-center justify-center bg-client-tint text-client">
+                    {Icon("h-6 w-6")}
+                  </div>
+                  <div className="flex flex-1 items-center bg-ink px-4 py-3">
+                    <span className="text-sm font-bold leading-tight text-white">{p}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
-          <div className="mt-9"><Button href={`${site.base}/contact`}>Get a Free Quote</Button></div>
         </div>
       </Reveal>
       <Reveal delay={120}>
         {photo && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={photo} alt={site.name} className="aspect-[4/3] w-full rounded-2xl object-cover shadow-card" />
+          <img
+            src={photo}
+            alt={site.name}
+            className="h-64 w-full rounded-2xl object-cover shadow-card sm:h-96 lg:h-full"
+          />
         )}
       </Reveal>
     </div>
