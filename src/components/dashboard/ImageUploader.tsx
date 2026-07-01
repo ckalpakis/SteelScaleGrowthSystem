@@ -11,12 +11,15 @@ export function ImageUploader({
   kind,
   value,
   onChange,
+  clientId,
 }: {
   name?: string;
   label: string;
   kind: string;
   value: string;
   onChange: (url: string) => void;
+  /** When set (agency admin editing a client), upload targets that client. */
+  clientId?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -31,6 +34,7 @@ export function ImageUploader({
     const fd = new FormData();
     fd.append("file", file);
     fd.append("kind", kind);
+    if (clientId) fd.append("client_id", clientId);
 
     try {
       const res = await fetch("/api/upload", { method: "POST", body: fd });
@@ -105,7 +109,7 @@ export function ImageUploader({
 
 // Upload helper that doesn't bind to a form field — it just gives you a URL to
 // copy and paste (used for gallery / service JSON).
-export function ImageUrlHelper({ kind, label }: { kind: string; label: string }) {
+export function ImageUrlHelper({ kind, label, clientId }: { kind: string; label: string; clientId?: string }) {
   const [url, setUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
@@ -118,7 +122,7 @@ export function ImageUrlHelper({ kind, label }: { kind: string; label: string })
 
   return (
     <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-3">
-      <ImageUploader name={undefined} label={label} kind={kind} value={url} onChange={setUrl} />
+      <ImageUploader name={undefined} label={label} kind={kind} value={url} onChange={setUrl} clientId={clientId} />
       {url && (
         <button
           type="button"

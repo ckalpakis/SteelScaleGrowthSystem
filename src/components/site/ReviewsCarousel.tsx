@@ -39,12 +39,12 @@ export function ReviewsCarousel({ items }: { items: Testimonial[] }) {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="flex snap-x snap-mandatory gap-6 overflow-x-auto pb-2 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-2 sm:gap-6 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {items.map((t, i) => (
           <figure
             key={i}
-            className="flex w-full shrink-0 snap-start flex-col rounded-2xl bg-white p-7 shadow-card sm:w-[calc(50%-0.75rem)]"
+            className="flex w-full shrink-0 snap-start flex-col rounded-2xl bg-white p-6 shadow-card sm:p-7 lg:w-[calc(50%-0.75rem)]"
           >
             <Stars value={t.rating ?? 5} className="text-lg" />
             <blockquote className="mt-4 flex-1 text-[15px] leading-relaxed text-slate-700">“{t.quote}”</blockquote>

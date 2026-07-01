@@ -15,10 +15,13 @@ export function SettingsForm({
   settings,
   clientName,
   action,
+  clientId,
 }: {
   settings: ClientSettings | null;
   clientName: string;
   action: SettingsAction;
+  /** Set when an agency admin edits a client, so image uploads target it. */
+  clientId?: string;
 }) {
   const [state, formAction] = useFormState(action, initialState);
 
@@ -60,7 +63,7 @@ export function SettingsForm({
 
       {/* Branding & hero */}
       <Section title="Branding & hero">
-        <ImageUploader name="logo_url" label="Logo" kind="logo" value={logoUrl} onChange={setLogoUrl} />
+        <ImageUploader name="logo_url" label="Logo" kind="logo" value={logoUrl} onChange={setLogoUrl} clientId={clientId} />
         <div>
           <Label>Brand color</Label>
           <div className="flex items-center gap-3">
@@ -73,7 +76,7 @@ export function SettingsForm({
             <span className="text-sm text-gray-500">{settings?.brand_color ?? "#1e3a8a"}</span>
           </div>
         </div>
-        <ImageUploader name="hero_image_url" label="Hero background image" kind="hero" value={heroUrl} onChange={setHeroUrl} />
+        <ImageUploader name="hero_image_url" label="Hero background image" kind="hero" value={heroUrl} onChange={setHeroUrl} clientId={clientId} />
         <Field label="Tagline (hero eyebrow)" name="tagline" defaultValue={settings?.tagline} placeholder="Pittsburgh's Trusted Roofers" />
         <Field label="Primary location (for SEO)" name="primary_location" defaultValue={settings?.primary_location} placeholder="Pittsburgh, PA" />
         <Field label="Hero headline" name="hero_headline" defaultValue={settings?.hero_headline} placeholder="#1 Roofing Contractor in Pittsburgh, PA" />
@@ -96,7 +99,7 @@ export function SettingsForm({
           defaultValue={servicesJson}
           hint='Array of {"slug","name","description","image_url"}. The slug becomes /services/<slug>.'
         />
-        <ImageUrlHelper kind="service" label="Upload a service photo → copy its URL into the JSON above" />
+        <ImageUrlHelper kind="service" label="Upload a service photo → copy its URL into the JSON above" clientId={clientId} />
       </Section>
 
       {/* Service areas */}
@@ -124,7 +127,7 @@ export function SettingsForm({
           defaultValue={galleryJson}
           hint='Array of {"url","caption"}. Use real job photos, not stock.'
         />
-        <ImageUrlHelper kind="gallery" label="Upload a job photo → copy its URL into the JSON above" />
+        <ImageUrlHelper kind="gallery" label="Upload a job photo → copy its URL into the JSON above" clientId={clientId} />
       </Section>
 
       {/* Trust */}

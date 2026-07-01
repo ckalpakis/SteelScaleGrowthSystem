@@ -93,7 +93,7 @@ export default async function ClientEditPage({ params }: { params: { id: string 
 
       {/* Full website content editor */}
       <div className="border-t border-gray-200 pt-6">
-        <SettingsForm settings={settings} clientName={client.name} action={settingsAction} />
+        <SettingsForm settings={settings} clientName={client.name} action={settingsAction} clientId={client.id} />
       </div>
     </div>
   );
