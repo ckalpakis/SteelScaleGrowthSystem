@@ -8,18 +8,18 @@ export function FaqAccordion({ faqs }: { faqs: Faq[] }) {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <div className="mx-auto max-w-3xl divide-y divide-slate-200">
+    <div className="mx-auto max-w-5xl divide-y divide-slate-200">
       {faqs.map((f, i) => {
         const isOpen = open === i;
         return (
           <div key={i} className="py-2">
             <button
               onClick={() => setOpen(isOpen ? null : i)}
-              className="flex w-full items-center justify-between gap-4 py-5 text-left"
+              className="flex w-full items-center justify-between gap-5 py-7 text-left"
             >
-              <span className="text-lg font-semibold text-ink">{f.question}</span>
+              <span className="text-xl font-bold text-ink sm:text-2xl">{f.question}</span>
               <span
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-slate-200 text-client transition-transform duration-300 ${
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-slate-200 text-2xl text-client transition-transform duration-300 ${
                   isOpen ? "rotate-45" : ""
                 }`}
               >
@@ -32,7 +32,7 @@ export function FaqAccordion({ faqs }: { faqs: Faq[] }) {
               }`}
             >
               <div className="overflow-hidden">
-                <p className="pb-5 pr-12 leading-relaxed text-slate-600">{f.answer}</p>
+                <p className="pb-7 pr-14 text-lg leading-relaxed text-slate-600 sm:text-xl">{f.answer}</p>
               </div>
             </div>
           </div>

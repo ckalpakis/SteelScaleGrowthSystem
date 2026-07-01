@@ -17,7 +17,6 @@ import {
   ReviewsSplit,
   ProcessSplit,
   PortfolioMasonry,
-  FinancingCards,
   AreasSplit,
   CTABand,
 } from "@/components/site/sections";
@@ -134,14 +133,6 @@ export default async function HomePage({ params }: { params: { slug: string } })
       {/* Process (light) */}
       {site.processSteps.length > 0 && (
         <Section tone="light"><ProcessSplit site={site} /></Section>
-      )}
-
-      {/* Financing (white) */}
-      {site.financing.length > 0 && (
-        <Section tone="white">
-          <SectionHeading eyebrow="Financing" title={<>Affordable Options That Fit Your <span className="text-client">Budget</span></>} />
-          <div className="mt-12"><FinancingCards items={site.financing} /></div>
-        </Section>
       )}
 
       {/* Areas (navy) */}
