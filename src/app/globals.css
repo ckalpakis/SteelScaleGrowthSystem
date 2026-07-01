@@ -51,8 +51,9 @@
   }
 
   /* Editorial helpers */
+  /* Small section labels ("How it works", "Where we work", etc.) are hidden. */
   .eyebrow {
-    @apply text-xs font-bold uppercase tracking-[0.2em] text-client;
+    display: none;
   }
   .section {
     @apply py-20 md:py-28;
