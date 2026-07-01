@@ -92,13 +92,13 @@ export function SiteHeader({ site }: { site: SiteContent }) {
           </nav>
 
           {/* Reserved center space for the logo (desktop) */}
-          <div className="hidden shrink-0 lg:block lg:w-48" aria-hidden />
+          <div className="hidden shrink-0 lg:block lg:w-56 xl:w-64" aria-hidden />
 
           {/* Right links + CTA (desktop) */}
           <nav className="hidden flex-1 items-center justify-end gap-1 lg:flex">
             <NavLink href={`${base}/about`}>About</NavLink>
             <NavLink href={`${base}/contact`}>Contact</NavLink>
-            <Link href={callHref} className="ml-2 rounded-lg bg-client px-5 py-2.5 text-sm font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110">
+            <Link href={callHref} className="ml-2 rounded-lg bg-client px-6 py-3 text-base font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110 xl:text-lg">
               Call Us Now
             </Link>
           </nav>
@@ -129,14 +129,14 @@ export function SiteHeader({ site }: { site: SiteContent }) {
         )}
       </div>
 
-      {/* Centered logo badge — bridges the utility bar and the nav */}
+      {/* Centered logo badge — bigger, hangs down over the nav */}
       <Link href={home} className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
-        <div className="rounded-b-2xl bg-white px-6 pb-3 pt-1.5 shadow-card">
+        <div className="rounded-b-2xl bg-white px-8 pb-5 pt-1.5 shadow-card-hover">
           {site.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={site.logoUrl} alt={site.name} className="h-11 w-auto object-contain sm:h-14 lg:h-16" />
+            <img src={site.logoUrl} alt={site.name} className="h-16 w-auto object-contain sm:h-24 lg:h-28" />
           ) : (
-            <span className="font-display text-lg font-extrabold uppercase tracking-tight text-ink sm:text-xl">{site.name}</span>
+            <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink sm:text-3xl">{site.name}</span>
           )}
         </div>
       </Link>
@@ -145,14 +145,14 @@ export function SiteHeader({ site }: { site: SiteContent }) {
 }
 
 function NavLink({ href, children }: { href: string; children: React.ReactNode }) {
-  return <Link href={href} className="rounded-lg px-3.5 py-2 text-sm font-semibold text-ink/80 transition hover:text-client">{children}</Link>;
+  return <Link href={href} className="rounded-lg px-3.5 py-2 text-lg font-semibold text-ink/80 transition hover:text-client xl:text-xl">{children}</Link>;
 }
 
 function Dropdown({ label, href, children }: { label: string; href: string; children: React.ReactNode }) {
   return (
     <div className="group relative">
-      <Link href={href} className="flex items-center gap-1 rounded-lg px-3.5 py-2 text-sm font-semibold text-ink/80 transition hover:text-client">
-        {label}<span className="text-[10px]">▾</span>
+      <Link href={href} className="flex items-center gap-1 rounded-lg px-3.5 py-2 text-lg font-semibold text-ink/80 transition hover:text-client xl:text-xl">
+        {label}<span className="text-xs">▾</span>
       </Link>
       <div className="invisible absolute left-0 top-full z-30 min-w-[15rem] translate-y-1 rounded-2xl border border-slate-100 bg-white p-2 opacity-0 shadow-card-hover transition-all group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
         {children}
@@ -166,5 +166,5 @@ function DropItem({ href, children }: { href: string; children: React.ReactNode 
 }
 
 function MobileLink({ href, onClick, children }: { href: string; onClick: () => void; children: React.ReactNode }) {
-  return <Link href={href} onClick={onClick} className="rounded-lg px-2 py-2.5 font-semibold text-ink/80 hover:bg-slate-50">{children}</Link>;
+  return <Link href={href} onClick={onClick} className="rounded-lg px-2 py-3 text-lg font-semibold text-ink/80 hover:bg-slate-50">{children}</Link>;
 }
