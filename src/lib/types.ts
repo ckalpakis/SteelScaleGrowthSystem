@@ -89,6 +89,7 @@ export interface ClientSettings {
   email: string | null;
   logo_url: string | null;
   brand_color: string | null;
+  secondary_color: string | null;
   google_review_link: string | null;
   services: string[] | null;
   service_area: string | null;

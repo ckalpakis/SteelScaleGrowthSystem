@@ -64,16 +64,30 @@ export function SettingsForm({
       {/* Branding & hero */}
       <Section title="Branding & hero">
         <ImageUploader name="logo_url" label="Logo" kind="logo" value={logoUrl} onChange={setLogoUrl} clientId={clientId} />
-        <div>
-          <Label>Brand color</Label>
-          <div className="flex items-center gap-3">
-            <input
-              type="color"
-              name="brand_color"
-              defaultValue={settings?.brand_color ?? "#1e3a8a"}
-              className="h-10 w-16 cursor-pointer rounded border border-gray-300"
-            />
-            <span className="text-sm text-gray-500">{settings?.brand_color ?? "#1e3a8a"}</span>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Brand color (accent)</Label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                name="brand_color"
+                defaultValue={settings?.brand_color ?? "#1e3a8a"}
+                className="h-10 w-16 cursor-pointer rounded border border-gray-300"
+              />
+              <span className="text-sm text-gray-500">{settings?.brand_color ?? "#1e3a8a"}</span>
+            </div>
+          </div>
+          <div>
+            <Label>Secondary color (dark sections)</Label>
+            <div className="flex items-center gap-3">
+              <input
+                type="color"
+                name="secondary_color"
+                defaultValue={settings?.secondary_color ?? "#0c2340"}
+                className="h-10 w-16 cursor-pointer rounded border border-gray-300"
+              />
+              <span className="text-sm text-gray-500">{settings?.secondary_color ?? "#0c2340"}</span>
+            </div>
           </div>
         </div>
         <ImageUploader name="hero_image_url" label="Hero background image" kind="hero" value={heroUrl} onChange={setHeroUrl} clientId={clientId} />

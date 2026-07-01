@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getSiteContent, localBusinessJsonLd } from "@/lib/site";
+import { getSiteContent, localBusinessJsonLd, hexToRgbChannels } from "@/lib/site";
 import { SiteHeader } from "@/components/site/SiteHeader";
 import { SiteFooter } from "@/components/site/SiteFooter";
 
@@ -18,9 +18,13 @@ export default async function SiteLayout({
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const jsonLd = localBusinessJsonLd(site, `${baseUrl}/site/${site.slug}`);
+  const inkChannels = hexToRgbChannels(site.ink) ?? "12 35 64";
 
   return (
-    <div style={{ ["--brand" as string]: site.brand }} className="flex min-h-screen flex-col bg-white">
+    <div
+      style={{ ["--brand" as string]: site.brand, ["--ink" as string]: inkChannels }}
+      className="flex min-h-screen flex-col bg-white"
+    >
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger

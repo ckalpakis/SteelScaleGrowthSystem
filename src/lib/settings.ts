@@ -53,6 +53,7 @@ export function buildClientSettings(formData: FormData, clientId: string) {
     hours: nullify(formData.get("hours")),
     logo_url: nullify(formData.get("logo_url")),
     brand_color: nullify(formData.get("brand_color")) ?? "#1e3a8a",
+    secondary_color: nullify(formData.get("secondary_color")) ?? "#0c2340",
     hero_image_url: nullify(formData.get("hero_image_url")),
     tagline: nullify(formData.get("tagline")),
     primary_location: nullify(formData.get("primary_location")),

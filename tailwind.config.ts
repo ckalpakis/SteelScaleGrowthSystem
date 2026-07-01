@@ -18,11 +18,12 @@ const config: Config = {
           DEFAULT: "#1e3a8a",
           dark: "#172554",
         },
-        // Deep navy used for dark emphasis bands across the template.
+        // Secondary dark color — driven by the --ink CSS variable so each
+        // client can customize it (defaults to a deep navy).
         ink: {
-          DEFAULT: "#0c2340",
-          800: "#102a4c",
-          700: "#173461",
+          DEFAULT: "rgb(var(--ink) / <alpha-value>)",
+          800: "rgb(var(--ink-800, var(--ink)) / <alpha-value>)",
+          700: "rgb(var(--ink-700, var(--ink)) / <alpha-value>)",
         },
       },
       maxWidth: {

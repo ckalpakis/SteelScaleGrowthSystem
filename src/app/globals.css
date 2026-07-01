@@ -4,6 +4,8 @@
 
 :root {
   --brand: #1e3a8a;
+  /* Secondary dark color as space-separated RGB channels (default deep navy). */
+  --ink: 12 35 64;
   --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-display: "Archivo", var(--font-sans);
 }

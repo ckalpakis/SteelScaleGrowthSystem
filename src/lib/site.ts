@@ -35,6 +35,10 @@ export interface SiteContent {
    */
   base: string;
   name: string;
+  /** Accent (brand) color hex. */
+  // (declared below as `brand`)
+  /** Secondary dark color hex, used for dark bands / footer / headings. */
+  ink: string;
   brand: string;
   phone: string | null;
   email: string | null;
@@ -113,6 +117,14 @@ export function slugify(input: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
+// "#0c2340" -> "12 35 64" (space-separated RGB channels for Tailwind's
+// rgb(var(--ink) / <alpha-value>) so opacity modifiers keep working).
+export function hexToRgbChannels(hex: string | null | undefined): string | null {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec((hex ?? "").trim());
+  if (!m) return null;
+  return `${parseInt(m[1], 16)} ${parseInt(m[2], 16)} ${parseInt(m[3], 16)}`;
+}
+
 function normalizeSiteContent(client: Client, settings: ClientSettings | null): SiteContent {
   const name = businessName(client, settings);
   const primaryLocation = settings?.primary_location ?? settings?.service_area ?? null;
@@ -122,6 +134,7 @@ function normalizeSiteContent(client: Client, settings: ClientSettings | null): 
     slug: client.slug,
     base: `/site/${client.slug}`,
     name,
+    ink: settings?.secondary_color ?? "#0c2340",
     brand: settings?.brand_color ?? "#1e3a8a",
     phone: settings?.phone ?? null,
     email: settings?.email ?? null,
