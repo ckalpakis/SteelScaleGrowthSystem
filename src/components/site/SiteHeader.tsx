@@ -136,7 +136,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
       {/* Centered logo badge — flared banner shape (angled sides), hangs over nav */}
       <Link href={home} className="absolute left-1/2 top-0 z-20 -translate-x-1/2">
         <div
-          className="bg-white px-12 pb-7 pt-2"
+          className="bg-white px-6 pb-3 pt-1.5 sm:px-12 sm:pb-7 sm:pt-2"
           style={{
             clipPath: "polygon(0 0, 100% 0, 88% 100%, 12% 100%)",
             filter: "drop-shadow(0 12px 16px rgba(16,24,40,0.18))",
@@ -144,9 +144,9 @@ export function SiteHeader({ site }: { site: SiteContent }) {
         >
           {site.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={site.logoUrl} alt={site.name} className="h-14 w-auto object-contain sm:h-24 lg:h-28" />
+            <img src={site.logoUrl} alt={site.name} className="h-9 w-auto object-contain sm:h-24 lg:h-28" />
           ) : (
-            <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink sm:text-3xl">{site.name}</span>
+            <span className="font-display text-lg font-extrabold uppercase tracking-tight text-ink sm:text-3xl">{site.name}</span>
           )}
         </div>
       </Link>
