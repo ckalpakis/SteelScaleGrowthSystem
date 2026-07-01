@@ -29,7 +29,7 @@ export default async function AreasPage({ params }: { params: { slug: string } }
         <p className="mx-auto mb-10 max-w-2xl text-center text-lg text-slate-600">
           Click your town to learn more about {site.name} in your area.
         </p>
-        <AreasGrid areas={site.areas} base={site.base} />
+        <AreasGrid areas={site.areas} base={site.base} center />
       </Section>
       <CTABand site={site} />
     </>

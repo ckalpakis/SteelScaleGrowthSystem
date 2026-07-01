@@ -32,6 +32,14 @@ function ShieldIcon({ className = "" }: { className?: string }) {
   );
 }
 
+function PinIcon({ className = "" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M12 2a7 7 0 0 0-7 7c0 5.1 6.2 12.3 6.46 12.6a.7.7 0 0 0 1.08 0C12.8 21.3 19 14.1 19 9a7 7 0 0 0-7-7zm0 9.6A2.6 2.6 0 1 1 12 6.4a2.6 2.6 0 0 1 0 5.2z" />
+    </svg>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Inner-page hero: full-width photo + overlay + trust badges, then the
 // certification strip and the scrolling brand marquee (BlueBuilt pattern).
@@ -475,12 +483,17 @@ export function FinancingCards({ items }: { items: FinancingOption[] }) {
 // ---------------------------------------------------------------------------
 // Areas — split (heading + map) / grid.
 // ---------------------------------------------------------------------------
-export function AreasGrid({ areas, base }: { areas: SiteArea[]; base: string }) {
+export function AreasGrid({ areas, base, center = false }: { areas: SiteArea[]; base: string; center?: boolean }) {
   return (
-    <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+    <div className={cn("flex flex-wrap gap-3", center && "justify-center")}>
       {areas.map((a) => (
-        <Link key={a.slug} href={`${base}/areas/${a.slug}`} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 transition hover:border-client hover:text-client hover:shadow-card">
-          {a.name}
+        <Link
+          key={a.slug}
+          href={`${base}/areas/${a.slug}`}
+          className="group inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-client hover:text-client hover:shadow-card"
+        >
+          <PinIcon className="h-4 w-4 shrink-0 text-client" />
+          <span className="whitespace-nowrap">{a.name}</span>
         </Link>
       ))}
     </div>
@@ -490,23 +503,33 @@ export function AreasGrid({ areas, base }: { areas: SiteArea[]; base: string }) 
 export function AreasSplit({ site, invert = false }: { site: SiteContent; invert?: boolean }) {
   const mapSrc = site.address ? `https://www.google.com/maps?q=${encodeURIComponent(site.address)}&output=embed` : null;
   return (
-    <div className="grid items-start gap-12 lg:grid-cols-2">
-      <div>
+    <div className={cn("grid items-stretch gap-10 lg:gap-14", mapSrc && "lg:grid-cols-2")}>
+      <div className="flex flex-col">
         <p className="eyebrow">Where we work</p>
         <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
           Proudly Serving <span className="text-client">{site.primaryLocation ?? "Your Area"}</span>
         </h2>
-        <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Local, reliable service for the communities we call home.</p>
-        {mapSrc && (
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/10 shadow-card">
-            <iframe title="Service area map" src={mapSrc} className="h-64 w-full" loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-          </div>
-        )}
+        <p className={cn("mt-4 max-w-md", invert ? "text-white/70" : "text-slate-600")}>
+          Local, reliable service for the communities we call home.
+        </p>
+        <div className="mt-8">
+          <AreasGrid areas={site.areas} base={site.base} />
+        </div>
+        <div className="mt-8">
+          <Button href={`${site.base}/areas`} variant={invert ? "white" : "dark"}>Explore All Service Areas</Button>
+        </div>
       </div>
-      <div>
-        <AreasGrid areas={site.areas} base={site.base} />
-        <div className="mt-7"><Button href={`${site.base}/areas`} variant={invert ? "white" : "dark"}>Explore All Service Areas</Button></div>
-      </div>
+      {mapSrc && (
+        <div className="min-h-[340px] overflow-hidden rounded-2xl border border-white/10 shadow-card-hover">
+          <iframe
+            title="Service area map"
+            src={mapSrc}
+            className="h-full min-h-[340px] w-full"
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+      )}
     </div>
   );
 }
