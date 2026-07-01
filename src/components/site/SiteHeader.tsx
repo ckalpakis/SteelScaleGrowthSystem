@@ -38,8 +38,8 @@ export function SiteHeader({ site }: { site: SiteContent }) {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Utility bar */}
-      <div className="bg-client text-white">
+      {/* Utility bar (desktop; on mobile the phone lives in the nav row) */}
+      <div className="hidden bg-client text-white lg:block">
         <Container className="flex items-center justify-between gap-4 py-2 text-xs sm:text-sm">
           <div className="flex items-center gap-2 font-semibold">
             {site.phone ? (
@@ -103,13 +103,17 @@ export function SiteHeader({ site }: { site: SiteContent }) {
             </Link>
           </nav>
 
-          {/* Mobile: hamburger + balance spacer (logo is centered/absolute) */}
+          {/* Mobile: phone (left) — logo (centered/absolute) — hamburger (right) */}
+          <a href={callHref} className="inline-flex items-center gap-1.5 text-sm font-bold text-ink lg:hidden">
+            <PhoneIcon className="h-5 w-5 text-client" />
+            {site.phone && <span className="whitespace-nowrap">{site.phone}</span>}
+          </a>
+          <div className="flex-1 lg:hidden" aria-hidden />
           <button onClick={() => setOpen((v) => !v)} aria-label="Toggle menu" className="rounded-md p-2 text-ink lg:hidden">
             <span className="block h-0.5 w-6 bg-current" />
             <span className="mt-1.5 block h-0.5 w-6 bg-current" />
             <span className="mt-1.5 block h-0.5 w-6 bg-current" />
           </button>
-          <div className="flex-1 lg:hidden" aria-hidden />
         </Container>
 
         {open && (
@@ -140,7 +144,7 @@ export function SiteHeader({ site }: { site: SiteContent }) {
         >
           {site.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={site.logoUrl} alt={site.name} className="h-16 w-auto object-contain sm:h-24 lg:h-28" />
+            <img src={site.logoUrl} alt={site.name} className="h-14 w-auto object-contain sm:h-24 lg:h-28" />
           ) : (
             <span className="font-display text-2xl font-extrabold uppercase tracking-tight text-ink sm:text-3xl">{site.name}</span>
           )}
