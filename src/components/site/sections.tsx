@@ -299,7 +299,7 @@ export function WhyChooseSplit({ site }: { site: SiteContent }) {
     <div className="grid items-stretch gap-12 lg:grid-cols-2">
       <Reveal>
         <div>
-          <h2 className="font-display text-5xl font-extrabold uppercase leading-[1.1] sm:text-6xl">
+          <h2 className="font-display text-3xl font-extrabold uppercase leading-[1.1] break-words sm:text-5xl lg:text-6xl">
             <span className="text-ink">Why More Homeowners</span>
             <br />
             <span className="text-client">Choose {site.name}</span>
@@ -349,7 +349,7 @@ export function ReviewsSplit({ site, invert = false }: { site: SiteContent; inve
     <div className="grid gap-10 lg:grid-cols-3">
       <div className="lg:col-span-1">
         <p className="eyebrow">Reviews</p>
-        <h2 className={cn("mt-3 font-display text-5xl font-extrabold uppercase leading-tight sm:text-6xl", invert ? "text-white" : "text-ink")}>
+        <h2 className={cn("mt-3 font-display text-3xl font-extrabold uppercase leading-tight break-words sm:text-5xl lg:text-6xl", invert ? "text-white" : "text-ink")}>
           Real Reviews From Real <span className="text-client">Neighbors</span>
         </h2>
         <p className={cn("mt-4", invert ? "text-white/70" : "text-slate-600")}>Homeowners across {site.primaryLocation ?? "the area"} consistently rate {site.name} 5 stars for our workmanship, communication, and respect for their home.</p>
