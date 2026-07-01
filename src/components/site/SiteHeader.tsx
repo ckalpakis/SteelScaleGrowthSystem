@@ -2,9 +2,25 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Container, cn } from "./ui";
-import { Stars } from "./Stars";
+import { Container } from "./ui";
 import type { SiteContent } from "@/lib/site";
+
+function PhoneIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden>
+      <path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.3.2 2.5.57 3.6a1 1 0 0 1-.25 1l-2.2 2.2z" />
+    </svg>
+  );
+}
+
+function MailIcon({ className }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+      <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.8" />
+      <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 // Solid sticky header: thin dark utility bar + white nav with a brand CTA and
 // Services/Areas dropdowns (BlueBuilt pattern).
@@ -15,27 +31,22 @@ export function SiteHeader({ site }: { site: SiteContent }) {
 
   return (
     <header className="sticky top-0 z-50">
-      {/* Utility bar */}
-      <div className="bg-ink text-white">
-        <Container className="flex items-center justify-between py-1.5 text-xs">
-          <div className="flex items-center gap-2 font-semibold">
-            {site.phone ? (
-              <a href={`tel:${site.phone}`} className="hover:text-white/80">
-                Need roofing help? Call us now! <span className="text-client">{site.phone}</span>
-              </a>
-            ) : (
-              <span>Trusted local roofing & exteriors</span>
-            )}
-          </div>
-          <div className="hidden items-center gap-5 sm:flex">
-            {site.email && <a href={`mailto:${site.email}`} className="text-white/80 hover:text-white">{site.email}</a>}
-            {site.rating != null && (
-              <span className="flex items-center gap-1.5">
-                <Stars value={site.rating} className="text-sm" />
-                <span className="font-semibold">{site.rating}</span>
-              </span>
-            )}
-          </div>
+      {/* Utility bar — centered, brand-color, taller */}
+      <div className="bg-client text-white">
+        <Container className="flex flex-wrap items-center justify-center gap-x-6 gap-y-1 py-3 text-sm font-medium">
+          <span className="hidden font-semibold sm:inline">Need roofing help? Call us now!</span>
+          {site.phone && (
+            <a href={`tel:${site.phone}`} className="inline-flex items-center gap-2 font-semibold hover:text-white/85">
+              <PhoneIcon className="h-4 w-4" />
+              {site.phone}
+            </a>
+          )}
+          {site.email && (
+            <a href={`mailto:${site.email}`} className="hidden items-center gap-2 hover:text-white/85 sm:inline-flex">
+              <MailIcon className="h-4 w-4" />
+              {site.email}
+            </a>
+          )}
         </Container>
       </div>
 
