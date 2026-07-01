@@ -63,7 +63,7 @@ export function SectionHeading({
       {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
       <h2
         className={cn(
-          "mt-3 text-3xl font-extrabold leading-[1.1] sm:text-4xl md:text-[2.6rem]",
+          "mt-3 text-4xl font-extrabold leading-[1.05] sm:text-5xl md:text-[3.25rem]",
           invert ? "text-white" : "text-ink"
         )}
       >

@@ -46,7 +46,7 @@ export default async function AreaPage({ params }: { params: { slug: string; are
       <Section tone="white">
         <div className="grid gap-12 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <h2 className="text-3xl font-extrabold text-ink">Serving {area.name} and the surrounding area</h2>
+            <h2 className="text-4xl font-extrabold text-ink sm:text-5xl">Serving {area.name} and the surrounding area</h2>
             <p className="mt-5 text-lg leading-relaxed text-slate-600">
               {site.name} is proud to serve homeowners and businesses in {area.name}.
               {site.tagline ? ` ${site.tagline}.` : ""} Whether you need a quick repair or a full project, our local
