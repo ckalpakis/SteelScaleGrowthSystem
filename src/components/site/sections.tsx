@@ -80,7 +80,7 @@ export function PageHero({
         </Container>
       </section>
       <CertStrip logos={site.badgeLogos} badges={site.badges} />
-      <Marquee text={site.name} />
+      <Marquee text={site.name} logoUrl={site.logoUrl} />
     </>
   );
 }
@@ -205,6 +205,14 @@ export function AboutSplit({ site, invert = false }: { site: SiteContent; invert
       </Reveal>
       <Reveal delay={120}>
         <div>
+          {site.logoUrl && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={site.logoUrl}
+              alt={site.name}
+              className={cn("mb-5 h-12 w-auto object-contain", invert && "brightness-0 invert")}
+            />
+          )}
           <p className="eyebrow">About {site.name}</p>
           <h2 className={cn("mt-3 font-display text-3xl font-extrabold uppercase leading-tight sm:text-4xl", invert ? "text-white" : "text-ink")}>
             {site.aboutHeadline ?? "Meet the team that puts people first"}
@@ -502,6 +510,10 @@ export function AreasSplit({ site, invert = false }: { site: SiteContent; invert
 export function CTABand({ site }: { site: SiteContent }) {
   return (
     <Section tone="navy" className="text-center">
+      {site.logoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={site.logoUrl} alt={site.name} className="mx-auto mb-6 h-14 w-auto brightness-0 invert" />
+      )}
       <p className="eyebrow">Ready to get started?</p>
       <h2 className="mx-auto mt-3 max-w-2xl font-display text-3xl font-extrabold uppercase text-white sm:text-4xl">Let&apos;s Talk About Your Project</h2>
       <p className="mx-auto mt-3 max-w-xl text-white/70">Free estimates, honest pricing, and workmanship you can trust.</p>
