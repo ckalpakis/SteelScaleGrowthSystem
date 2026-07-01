@@ -75,7 +75,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Button href="#quote" size="lg">Get a Free Estimate</Button>
               {site.phone && (
-                <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/25 px-7 py-4 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-white/10">Call {site.phone}</a>
+                <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 px-10 py-5 text-lg font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10">Call {site.phone}</a>
               )}
             </div>
           </div>

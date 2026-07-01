@@ -72,7 +72,7 @@ export function PageHero({
           <div className="mt-8 flex flex-wrap gap-3">
             <Button href={`${site.base}/contact`} size="lg">Get a Free Quote</Button>
             {site.phone && (
-              <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/25 px-7 py-4 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-white/10">
+              <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 px-10 py-5 text-lg font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10">
                 Call {site.phone}
               </a>
             )}
@@ -170,7 +170,7 @@ export function ServicesShowcase({ services, base }: { services: ServiceDetail[]
             <div className="flex flex-1 flex-col px-4 pb-5 pt-6">
               <h3 className="font-display text-xl font-extrabold uppercase tracking-tight text-client">{s.name}</h3>
               <p className="mt-3 flex-1 text-[15px] leading-relaxed text-slate-600">{s.description}</p>
-              <span className="mt-6 inline-flex items-center justify-center self-center rounded-lg bg-ink px-5 py-3 text-xs font-bold uppercase tracking-wide text-white transition group-hover:bg-client">See {s.name}</span>
+              <span className="mt-6 inline-flex items-center justify-center self-center rounded-lg bg-ink px-6 py-3.5 text-sm font-bold uppercase tracking-wide text-white shadow-card transition group-hover:bg-client">See {s.name}</span>
             </div>
           </Link>
         </Reveal>
@@ -525,7 +525,7 @@ export function CTABand({ site }: { site: SiteContent }) {
       <p className="mx-auto mt-3 max-w-xl text-white/70">Free estimates, honest pricing, and workmanship you can trust.</p>
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
         {site.phone && (
-          <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/25 px-7 py-4 text-sm font-semibold uppercase tracking-wide text-white transition hover:bg-white/10">Call {site.phone}</a>
+          <a href={`tel:${site.phone}`} className="inline-flex items-center justify-center rounded-xl border-2 border-white/40 px-10 py-5 text-lg font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10">Call {site.phone}</a>
         )}
         <Button href={`${site.base}/contact`} variant="white" size="lg">Get a Free Quote</Button>
       </div>

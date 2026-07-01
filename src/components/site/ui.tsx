@@ -97,14 +97,14 @@ export function Button({
   external,
 }: ButtonProps) {
   const base =
-    "inline-flex items-center justify-center gap-2 rounded-xl font-semibold uppercase tracking-wide transition duration-200 active:scale-[0.98]";
-  const sizes = { md: "px-5 py-3 text-sm", lg: "px-7 py-4 text-sm" };
+    "inline-flex items-center justify-center gap-2 rounded-xl font-bold uppercase tracking-wide transition duration-200 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]";
+  const sizes = { md: "px-7 py-4 text-base", lg: "px-10 py-5 text-lg" };
   const variants = {
-    primary: "bg-client text-white shadow-card hover:shadow-card-hover hover:brightness-110",
-    secondary: "border-2 border-ink/15 bg-white text-ink hover:border-ink/30",
+    primary: "bg-client text-white shadow-card-hover hover:shadow-float hover:brightness-110",
+    secondary: "border-2 border-ink/20 bg-white text-ink shadow-card hover:border-ink/40 hover:shadow-card-hover",
     ghost: "text-ink hover:bg-slate-100",
-    white: "bg-white text-ink shadow-card hover:shadow-card-hover",
-    dark: "bg-ink text-white shadow-card hover:bg-client",
+    white: "bg-white text-ink shadow-card-hover hover:shadow-float",
+    dark: "bg-ink text-white shadow-card-hover hover:bg-client hover:shadow-float",
   };
   return (
     <Link

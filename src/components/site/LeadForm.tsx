@@ -132,7 +132,7 @@ export function LeadForm({
         <button
           type="submit"
           disabled={status === "loading"}
-          className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-client px-4 py-4 text-sm font-bold uppercase tracking-wide text-white shadow-card transition hover:brightness-110 disabled:opacity-60"
+          className="mt-1 inline-flex w-full items-center justify-center rounded-xl bg-client px-4 py-5 text-lg font-bold uppercase tracking-wide text-white shadow-card-hover transition hover:-translate-y-0.5 hover:brightness-110 disabled:opacity-60"
         >
           {status === "loading" ? "Sending..." : "Request My Free Estimate"}
         </button>
