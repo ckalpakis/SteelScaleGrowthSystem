@@ -9,6 +9,12 @@ import type { SettingsState } from "@/app/dashboard/actions";
 
 // All actions here are agency-admin only and use the service-role client.
 
+// Clamp a form value to a valid tier (1–3); defaults to Tier 1.
+function parseTier(v: FormDataEntryValue | null): number {
+  const n = parseInt(String(v ?? "1"), 10);
+  return n === 2 || n === 3 ? n : 1;
+}
+
 // Create a new client (tenant) + settings, and optionally its login, in one go.
 export async function createClientAction(_prev: SettingsState, formData: FormData): Promise<SettingsState> {
   await requireAgencyAdmin();
@@ -21,11 +27,12 @@ export async function createClientAction(_prev: SettingsState, formData: FormDat
   if (!slug) return { ok: false, error: "Could not derive a valid slug." };
 
   const domain = String(formData.get("domain") ?? "").trim() || null;
+  const tier = parseTier(formData.get("tier"));
 
   // 1) Create the client row.
   const { data: client, error: clientError } = await admin
     .from("clients")
-    .insert({ name, slug, domain })
+    .insert({ name, slug, domain, tier })
     .select("id")
     .single<{ id: string }>();
   if (clientError || !client) {
@@ -98,8 +105,9 @@ export async function updateClientCore(formData: FormData) {
   const clientId = String(formData.get("client_id") ?? "");
   const slug = slugify(String(formData.get("slug") ?? ""));
   const domain = String(formData.get("domain") ?? "").trim() || null;
+  const tier = parseTier(formData.get("tier"));
   if (clientId && slug) {
-    await admin.from("clients").update({ slug, domain }).eq("id", clientId);
+    await admin.from("clients").update({ slug, domain, tier }).eq("id", clientId);
     revalidatePath(`/dashboard/clients/${clientId}`);
   }
   redirect(`/dashboard/clients/${clientId}`);

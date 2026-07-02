@@ -8,7 +8,7 @@ import { ReviewRequestButton } from "@/components/dashboard/ReviewRequestButton"
 import { addNote, deleteNote, updateLeadValue, sendReviewRequestNow } from "@/app/dashboard/actions";
 import { stageFor, type Lead, type LeadNote } from "@/lib/types";
 import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
-import { businessName } from "@/lib/types";
+import { businessName, hasReviewAutomation } from "@/lib/types";
 
 export default async function LeadDetailPage({ params }: { params: { id: string } }) {
   const { client, settings } = await requireClient();
@@ -159,7 +159,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                 emailHref={emailHref}
                 hasReviewLink={Boolean(settings?.google_review_link)}
               />
-              {settings?.google_review_link && (
+              {hasReviewAutomation(client) && settings?.google_review_link && (
                 <div className="mt-4 border-t border-gray-100 pt-4">
                   {lead.review_requested_at ? (
                     <p className="text-xs text-gray-500">

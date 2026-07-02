@@ -39,7 +39,8 @@ export async function GET(request: Request) {
 
   for (const settings of settingsRows) {
     const client = clientMap.get(settings.client_id);
-    if (!client || !settings.google_review_link) continue;
+    // Automated review requests are a Tier 2+ feature.
+    if (!client || client.tier < 2 || !settings.google_review_link) continue;
 
     const delayDays = settings.auto_review_delay_days ?? 3;
     const cutoff = new Date(now - delayDays * 86_400_000).toISOString();

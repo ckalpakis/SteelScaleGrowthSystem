@@ -55,6 +55,20 @@ export function NewClientForm() {
               <Input id="domain" name="domain" placeholder="threeriversroofing.com" />
             </div>
           </div>
+          <div className="max-w-xs">
+            <Label htmlFor="tier">Plan tier</Label>
+            <select
+              id="tier"
+              name="tier"
+              defaultValue="1"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200"
+            >
+              <option value="1">Tier 1 — Starter</option>
+              <option value="2">Tier 2 — Growth</option>
+              <option value="3">Tier 3 — Pro</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-400">Tier 2+ unlocks automated review requests.</p>
+          </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="primary_location">Primary location (SEO)</Label>

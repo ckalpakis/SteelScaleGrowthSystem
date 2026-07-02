@@ -2,7 +2,7 @@ import Link from "next/link";
 import { requireClient } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 import { LeadCard } from "@/components/dashboard/LeadCard";
-import { PIPELINE_STAGES, type Lead } from "@/lib/types";
+import { PIPELINE_STAGES, hasReviewAutomation, type Lead } from "@/lib/types";
 import { NotLinked } from "@/components/dashboard/NotLinked";
 import { ReviewBlastButton } from "@/components/dashboard/ReviewBlastButton";
 
@@ -31,7 +31,7 @@ export default async function LeadsPage() {
         </div>
         {rows.length > 0 && (
           <div className="flex flex-wrap items-center gap-3">
-            <ReviewBlastButton />
+            {hasReviewAutomation(client) && <ReviewBlastButton />}
             <a
               href="/dashboard/leads/export"
               className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50"

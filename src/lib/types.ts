@@ -35,9 +35,22 @@ export interface Client {
   name: string;
   slug: string;
   domain: string | null;
+  /** Plan tier (1=Starter, 2=Growth, 3=Pro). Agency-admin controlled. */
+  tier: number;
   created_at: string;
   updated_at: string;
 }
+
+// Feature entitlement: automated email/SMS review requests are a Tier 2+ perk.
+export function hasReviewAutomation(client: Client | null | undefined): boolean {
+  return (client?.tier ?? 1) >= 2;
+}
+
+export const TIER_LABELS: Record<number, string> = {
+  1: "Tier 1 — Starter",
+  2: "Tier 2 — Growth",
+  3: "Tier 3 — Pro",
+};
 
 // Structured content stored as jsonb on client_settings.
 export interface ServiceDetail {

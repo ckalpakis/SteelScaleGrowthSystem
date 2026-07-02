@@ -16,12 +16,15 @@ export function SettingsForm({
   clientName,
   action,
   clientId,
+  reviewAutomation = false,
 }: {
   settings: ClientSettings | null;
   clientName: string;
   action: SettingsAction;
   /** Set when an agency admin edits a client, so image uploads target it. */
   clientId?: string;
+  /** Tier 2+ clients see the automated review-request controls. */
+  reviewAutomation?: boolean;
 }) {
   const [state, formAction] = useFormState(action, initialState);
 
@@ -257,7 +260,8 @@ export function SettingsForm({
         <Field label="Google Business URL" name="google_business_url" defaultValue={settings?.google_business_url} />
       </Section>
 
-      {/* Review automation */}
+      {/* Review automation — Tier 2+ only */}
+      {reviewAutomation && (
       <Section title="Automated review requests">
         <label className="flex items-start gap-3">
           <input
@@ -292,6 +296,7 @@ export function SettingsForm({
           hint="Placeholders: {{name}} = customer first name, {{business}} = your business, {{link}} = your Google review link. Leave blank to use a proven default."
         />
       </Section>
+      )}
 
       {/* Status + save */}
       <div className="sticky bottom-0 flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur">

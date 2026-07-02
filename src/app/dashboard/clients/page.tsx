@@ -9,9 +9,9 @@ export default async function ClientsPage() {
 
   const { data: clients } = await admin
     .from("clients")
-    .select("id, name, slug, domain, created_at")
+    .select("id, name, slug, domain, tier, created_at")
     .order("created_at", { ascending: false })
-    .returns<{ id: string; name: string; slug: string; domain: string | null; created_at: string }[]>();
+    .returns<{ id: string; name: string; slug: string; domain: string | null; tier: number; created_at: string }[]>();
 
   const { data: leads } = await admin.from("leads").select("client_id").returns<{ client_id: string }[]>();
   const leadCounts: Record<string, number> = {};
@@ -59,9 +59,24 @@ export default async function ClientsPage() {
               {rows.map((c) => (
                 <tr key={c.id} className="hover:bg-gray-50">
                   <td className="px-5 py-3">
-                    <Link href={`/dashboard/clients/${c.id}`} className="font-medium text-gray-900 hover:text-brand">
-                      {c.name}
-                    </Link>
+                    <div className="flex items-center gap-2">
+                      <Link href={`/dashboard/clients/${c.id}`} className="font-medium text-gray-900 hover:text-brand">
+                        {c.name}
+                      </Link>
+                      <span
+                        className={
+                          "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-semibold " +
+                          (c.tier >= 3
+                            ? "bg-purple-100 text-purple-700"
+                            : c.tier === 2
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-gray-100 text-gray-600")
+                        }
+                        title={c.tier >= 2 ? "Automated review requests enabled" : "No automated review requests"}
+                      >
+                        Tier {c.tier}
+                      </span>
+                    </div>
                     <div className="text-xs text-gray-400">/{c.slug}</div>
                   </td>
                   <td className="hidden px-5 py-3 text-gray-500 sm:table-cell">{c.domain ?? `…/site/${c.slug}`}</td>

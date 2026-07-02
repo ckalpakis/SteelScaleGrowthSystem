@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireClient } from "@/lib/auth";
 import type { Lead, LeadStatus } from "@/lib/types";
-import { PIPELINE_STAGES } from "@/lib/types";
+import { PIPELINE_STAGES, hasReviewAutomation } from "@/lib/types";
 import { buildClientSettings } from "@/lib/settings";
 import { sendReviewRequest } from "@/lib/reviewRequests";
 
@@ -31,6 +31,7 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
 export async function sendReviewRequestNow(leadId: string) {
   const { client, settings } = await requireClient();
   if (!client) throw new Error("Your account isn't linked to a client.");
+  if (!hasReviewAutomation(client)) throw new Error("Review requests aren't included in your plan.");
   const supabase = createClient();
   const { data: lead } = await supabase.from("leads").select("*").eq("id", leadId).single<Lead>();
   if (!lead) throw new Error("Lead not found.");
@@ -49,6 +50,9 @@ export async function sendReviewBlast(
 ): Promise<ReviewBlastState> {
   const { client, settings } = await requireClient();
   if (!client) return { error: "Your account isn't linked to a client." };
+  if (!hasReviewAutomation(client)) {
+    return { error: "Review requests aren't included in your plan." };
+  }
   if (!settings?.google_review_link) {
     return { error: "Add your Google review link in Settings first." };
   }
