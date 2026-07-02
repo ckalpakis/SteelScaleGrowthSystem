@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/BrandLogo";
 
 // =============================================================================
 // Steel Scale Systems — product marketing / landing page.
@@ -45,6 +46,16 @@ const FEATURES = [
   },
 ];
 
+const REVIEWS = [
+  { quote: "Started getting leads through the site in the first week. Everything's in one place now.", name: "Matt — Tegrity Renovations" },
+  { quote: "Looks better than companies 10x our size, and the lead tracking is a game changer.", name: "Owner — My Pittsburgh Roofing" },
+];
+
+const WORK = [
+  { src: "https://steelscale.xyz/assets/lavish.png", name: "Lavish" },
+  { src: "https://steelscale.xyz/assets/marvesta.png", name: "Marvesta" },
+];
+
 const STEPS = [
   { n: "01", title: "We build your site", body: "Your branded website and CRM are set up and launched on your domain — no tech work on your end." },
   { n: "02", title: "You capture leads", body: "Visitors request quotes and you're notified instantly, with every lead organized automatically." },
@@ -55,13 +66,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-white text-ink">
       {/* ---------------------------------------------------------------- Nav */}
-      <header className="sticky top-0 z-50 border-b border-slate-100 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Wordmark />
+      <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/90 backdrop-blur">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+          <BrandLogo />
           <div className="flex items-center gap-2">
             <Link
               href="/site/demo"
-              className="rounded-lg px-4 py-2.5 text-sm font-bold text-gray-700 transition hover:bg-gray-100"
+              className="rounded-lg px-4 py-2.5 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
             >
               View Demo
             </Link>
@@ -78,32 +89,68 @@ export default function Home() {
       {/* --------------------------------------------------------------- Hero */}
       <section className="relative overflow-hidden bg-ink text-white">
         <div className="pointer-events-none absolute inset-0" style={heroGlow} />
-        <div className="relative mx-auto max-w-6xl px-6 py-24 sm:py-32">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/60">
-            Steel Scale Systems
-          </p>
-          <h1 className="mt-5 max-w-3xl font-display text-4xl font-extrabold leading-[1.05] sm:text-6xl">
-            Websites &amp; CRM that turn local clicks into{" "}
-            <span className="text-blue-400">paying customers</span>.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-white/70">
-            We build local service businesses a branded, high-converting website with lead capture,
-            a simple CRM pipeline, instant lead alerts, and automated review requests — everything you
-            need to grow, in one system.
-          </p>
-          <div className="mt-9 flex flex-wrap items-center gap-4">
-            <Link
-              href="/site/demo"
-              className="rounded-xl bg-brand px-7 py-4 text-base font-bold uppercase tracking-wide text-white shadow-card-hover transition hover:-translate-y-0.5 hover:bg-brand-dark"
-            >
-              View Demo Site
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-xl border-2 border-white/30 px-7 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
-            >
-              Client Login
-            </Link>
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-6 py-20 lg:grid-cols-2 lg:py-28">
+          {/* Left: copy + social proof + CTAs */}
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.25em] text-white/60">
+              Steel Scale Systems
+            </p>
+            <h1 className="mt-5 font-display text-4xl font-extrabold leading-[1.05] sm:text-5xl xl:text-6xl">
+              Websites &amp; CRM that turn local clicks into{" "}
+              <span className="text-blue-400">paying customers</span>.
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
+              We build local service businesses a branded, high-converting website with lead capture,
+              a simple CRM pipeline, instant lead alerts, and automated review requests — everything you
+              need to grow, in one system.
+            </p>
+
+            {/* 5-star social proof */}
+            <div className="mt-8 rounded-2xl border border-white/10 bg-white/5 p-5">
+              <div className="flex items-center gap-3">
+                <Stars5 />
+                <span className="text-sm font-bold text-white">5.0</span>
+                <span className="text-sm text-white/60">from the businesses we build for</span>
+              </div>
+              <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                {REVIEWS.map((r) => (
+                  <figure key={r.name}>
+                    <blockquote className="text-sm leading-relaxed text-white/85">“{r.quote}”</blockquote>
+                    <figcaption className="mt-1.5 text-xs font-semibold text-white/50">{r.name}</figcaption>
+                  </figure>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-8 flex flex-wrap items-center gap-4">
+              <Link
+                href="/site/demo"
+                className="rounded-xl bg-brand px-7 py-4 text-base font-bold uppercase tracking-wide text-white shadow-card-hover transition hover:-translate-y-0.5 hover:bg-brand-dark"
+              >
+                View Demo Site
+              </Link>
+              <Link
+                href="/login"
+                className="rounded-xl border-2 border-white/30 px-7 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
+              >
+                Client Login
+              </Link>
+            </div>
+          </div>
+
+          {/* Right: explainer video */}
+          <div className="relative">
+            <div className="overflow-hidden rounded-2xl border border-white/10 shadow-float">
+              <video
+                className="block w-full bg-black"
+                controls
+                playsInline
+                preload="metadata"
+              >
+                <source src="/hero-demo.mp4" type="video/mp4" />
+                Your browser doesn&apos;t support embedded video.
+              </video>
+            </div>
           </div>
         </div>
       </section>
@@ -135,8 +182,39 @@ export default function Home() {
         </div>
       </section>
 
-      {/* -------------------------------------------------------- How it works */}
+      {/* --------------------------------------------------------- Recent work */}
       <section className="bg-slate-50 py-24">
+        <div className="mx-auto max-w-6xl px-6">
+          <div className="max-w-2xl">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand">Recent work</p>
+            <h2 className="mt-3 font-display text-3xl font-extrabold sm:text-5xl">Sites we&apos;ve built for local businesses</h2>
+            <p className="mt-4 text-lg text-slate-600">
+              Real, branded websites built to convert — each one paired with the same lead dashboard.
+            </p>
+          </div>
+          <div className="mt-14 grid gap-8 md:grid-cols-2">
+            {WORK.map((w) => (
+              <figure
+                key={w.name}
+                className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-card transition hover:-translate-y-1 hover:shadow-card-hover"
+              >
+                {/* browser chrome */}
+                <div className="flex items-center gap-1.5 border-b border-slate-100 bg-slate-50 px-4 py-3">
+                  <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-slate-300" />
+                  <span className="ml-3 text-xs font-medium text-slate-400">{w.name}</span>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={w.src} alt={`${w.name} website built by Steel Scale`} className="w-full" loading="lazy" />
+              </figure>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* -------------------------------------------------------- How it works */}
+      <section className="py-24">
         <div className="mx-auto max-w-6xl px-6">
           <div className="max-w-2xl">
             <p className="text-sm font-bold uppercase tracking-[0.2em] text-brand">How it works</p>
@@ -181,11 +259,11 @@ export default function Home() {
       </section>
 
       {/* ------------------------------------------------------------ Footer */}
-      <footer className="border-t border-slate-100 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 text-sm text-slate-500 sm:flex-row">
-          <Wordmark />
+      <footer className="bg-ink">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-white/10 px-6 py-8 text-sm text-white/50 sm:flex-row">
+          <BrandLogo className="h-8 w-auto" />
           <p>© {new Date().getFullYear()} Steel Scale Systems. All rights reserved.</p>
-          <Link href="/login" className="font-semibold text-ink hover:text-brand">
+          <Link href="/login" className="font-semibold text-white hover:text-brand">
             Client Login
           </Link>
         </div>
@@ -200,16 +278,13 @@ const heroGlow: React.CSSProperties = {
     "radial-gradient(600px circle at 15% 0%, rgba(37,99,235,0.35), transparent 60%), radial-gradient(700px circle at 90% 100%, rgba(37,99,235,0.20), transparent 55%)",
 };
 
-function Wordmark() {
+function Stars5() {
   return (
-    <Link href="/" className="flex items-center gap-2.5">
-      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand font-display text-lg font-black text-white">
-        S
-      </span>
-      <span className="font-display text-lg font-extrabold uppercase tracking-tight text-ink">
-        Steel Scale <span className="text-brand">Systems</span>
-      </span>
-    </Link>
+    <span className="flex items-center gap-0.5 text-amber-400">
+      {Array.from({ length: 5 }).map((_, i) => (
+        <StarIcon key={i} className="h-5 w-5" />
+      ))}
+    </span>
   );
 }
 
@@ -254,9 +329,9 @@ function NoteIcon() {
     </svg>
   );
 }
-function StarIcon() {
+function StarIcon({ className = "h-6 w-6" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
+    <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7L12 2z" />
     </svg>
   );
