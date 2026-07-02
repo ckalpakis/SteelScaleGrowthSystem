@@ -11,13 +11,18 @@ export function BrandLogo({ className = "h-10 w-auto" }: { className?: string })
   return (
     <Link href="/" className="flex items-center gap-2.5" aria-label="Steel Scale">
       {ok ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
-          src="https://steelscale.xyz/assets/logo.png"
-          alt="Steel Scale"
-          className={className}
-          onError={() => setOk(false)}
-        />
+        <>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://steelscale.xyz/assets/logo.png"
+            alt="Steel Scale"
+            className={className}
+            onError={() => setOk(false)}
+          />
+          <span className="hidden font-display text-lg font-extrabold uppercase tracking-tight text-white sm:inline">
+            Steel Scale <span className="text-brand">Systems</span>
+          </span>
+        </>
       ) : (
         <>
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand font-display text-lg font-black text-white">

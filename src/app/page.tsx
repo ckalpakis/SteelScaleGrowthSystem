@@ -54,6 +54,9 @@ const REVIEWS = [
 const WORK = [
   { src: "https://steelscale.xyz/assets/lavish.png", name: "Lavish" },
   { src: "https://steelscale.xyz/assets/marvesta.png", name: "Marvesta" },
+  { src: "https://isszfhlfulnqqlbjmwng.supabase.co/storage/v1/object/public/client-media/demo.webp", name: "Steel City Roofing" },
+  { src: "https://isszfhlfulnqqlbjmwng.supabase.co/storage/v1/object/public/client-media/demo2.webp", name: "MY Pittsburgh Roofing" },
+  { src: "https://isszfhlfulnqqlbjmwng.supabase.co/storage/v1/object/public/client-media/tegrity.webp", name: "Tegrity Renovations" },
 ];
 
 const STEPS = [
