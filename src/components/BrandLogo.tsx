@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 
-// Steel Scale wordmark for the marketing site. Renders the logo image at
-// /steel-scale-logo.png; if that file isn't present yet it gracefully falls
-// back to a text wordmark so the nav never shows a broken image.
+// Steel Scale wordmark for the marketing site. Renders the hosted logo image;
+// if it fails to load it gracefully falls back to a text wordmark so the nav
+// never shows a broken image.
 export function BrandLogo({ className = "h-10 w-auto" }: { className?: string }) {
   const [ok, setOk] = useState(true);
   return (
@@ -13,7 +13,7 @@ export function BrandLogo({ className = "h-10 w-auto" }: { className?: string })
       {ok ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src="/steel-scale-logo.png"
+          src="https://steelscale.xyz/assets/logo.png"
           alt="Steel Scale"
           className={className}
           onError={() => setOk(false)}
