@@ -10,10 +10,21 @@ export function buildReviewMessage(
 ): string {
   const business = businessName(client, settings);
   const customerName = lead?.name?.trim() || "there";
+  const firstName = customerName.split(/\s+/)[0] || "there";
   const link = settings?.google_review_link ?? "";
 
+  // If the client wrote a custom message, fill in its placeholders.
+  const custom = settings?.review_request_message?.trim();
+  if (custom) {
+    return custom
+      .replace(/\{\{\s*name\s*\}\}/gi, firstName)
+      .replace(/\{\{\s*business\s*\}\}/gi, business)
+      .replace(/\{\{\s*link\s*\}\}/gi, link)
+      .trim();
+  }
+
   return (
-    `Hi ${customerName}, thank you for choosing ${business}. ` +
+    `Hi ${firstName}, thank you for choosing ${business}. ` +
     `If you were happy with the work, would you mind leaving us a quick Google review? ` +
     `It really helps our local business: ${link}`
   );

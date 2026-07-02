@@ -3,9 +3,10 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { requireClient } from "@/lib/auth";
-import type { LeadStatus } from "@/lib/types";
+import type { Lead, LeadStatus } from "@/lib/types";
 import { PIPELINE_STAGES } from "@/lib/types";
 import { buildClientSettings } from "@/lib/settings";
+import { sendReviewRequest } from "@/lib/reviewRequests";
 
 // All mutations run through RLS using the signed-in user's session, so a user
 // can only ever touch their own client's data.
@@ -15,12 +16,61 @@ export async function updateLeadStatus(leadId: string, status: LeadStatus) {
     throw new Error("Invalid status");
   }
   const supabase = createClient();
-  const { error } = await supabase.from("leads").update({ status }).eq("id", leadId);
+  // Stamp won_at when a job is marked won — it starts the review-request clock.
+  const patch: { status: LeadStatus; won_at?: string } =
+    status === "won" ? { status, won_at: new Date().toISOString() } : { status };
+  const { error } = await supabase.from("leads").update(patch).eq("id", leadId);
   if (error) throw new Error(error.message);
 
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/leads");
   revalidatePath(`/dashboard/leads/${leadId}`);
+}
+
+// Manually send a review request to one past customer, now (email + SMS).
+export async function sendReviewRequestNow(leadId: string) {
+  const { client, settings } = await requireClient();
+  if (!client) throw new Error("Your account isn't linked to a client.");
+  const supabase = createClient();
+  const { data: lead } = await supabase.from("leads").select("*").eq("id", leadId).single<Lead>();
+  if (!lead) throw new Error("Lead not found.");
+
+  await sendReviewRequest(supabase, client, settings, lead);
+  revalidatePath(`/dashboard/leads/${leadId}`);
+  revalidatePath("/dashboard/leads");
+}
+
+export type ReviewBlastState = { count?: number; error?: string };
+
+// Bulk: send a review request to every won customer who hasn't been asked yet.
+export async function sendReviewBlast(
+  _prev: ReviewBlastState,
+  _formData: FormData
+): Promise<ReviewBlastState> {
+  const { client, settings } = await requireClient();
+  if (!client) return { error: "Your account isn't linked to a client." };
+  if (!settings?.google_review_link) {
+    return { error: "Add your Google review link in Settings first." };
+  }
+
+  const supabase = createClient();
+  const { data: leads } = await supabase
+    .from("leads")
+    .select("*")
+    .eq("client_id", client.id)
+    .eq("status", "won")
+    .is("review_requested_at", null)
+    .returns<Lead[]>();
+
+  let count = 0;
+  for (const lead of leads ?? []) {
+    const res = await sendReviewRequest(supabase, client, settings, lead);
+    if (res.sent) count++;
+  }
+
+  revalidatePath("/dashboard/leads");
+  revalidatePath("/dashboard");
+  return { count };
 }
 
 export async function updateLeadValue(leadId: string, formData: FormData) {

@@ -2,6 +2,56 @@ import { Resend } from "resend";
 import type { Client, ClientSettings, Lead } from "./types";
 import { businessName } from "./types";
 import { formatMoney } from "./analytics";
+import { buildReviewMessage } from "./review";
+
+// Sends a Google review request to a past customer. Fails soft. Returns true
+// only if the email was actually sent.
+export async function sendReviewRequestEmail(
+  client: Client,
+  settings: ClientSettings | null,
+  lead: Lead
+): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.LEAD_NOTIFICATION_FROM;
+  if (!apiKey || !from) {
+    console.warn("[email] Resend not configured — skipping review request");
+    return false;
+  }
+  if (!lead.email) return false;
+
+  const resend = new Resend(apiKey);
+  const business = businessName(client, settings);
+  const message = buildReviewMessage(client, settings, lead);
+  const link = settings?.google_review_link ?? "";
+
+  try {
+    await resend.emails.send({
+      from,
+      to: lead.email,
+      // Reply-to the client so the customer can reach the actual business.
+      ...(settings?.email ? { replyTo: settings.email } : {}),
+      subject: `Quick favor — a review for ${business}?`,
+      html: renderReviewEmail(business, message, link),
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] failed to send review request", err);
+    return false;
+  }
+}
+
+function renderReviewEmail(business: string, message: string, link: string) {
+  return `
+  <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto">
+    <p style="color:#111827;font-size:15px;line-height:1.6">${escapeHtml(message)}</p>
+    ${
+      link
+        ? `<p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#1e3a8a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;display:inline-block">Leave a Google Review</a></p>`
+        : ""
+    }
+    <p style="color:#9ca3af;font-size:12px;margin-top:24px">Thank you from ${escapeHtml(business)}.</p>
+  </div>`;
+}
 
 // Sends a "new lead" notification to the business. Fails soft: if Resend isn't
 // configured or the send errors, we log and continue — a missed email should

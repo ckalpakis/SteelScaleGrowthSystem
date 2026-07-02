@@ -257,6 +257,42 @@ export function SettingsForm({
         <Field label="Google Business URL" name="google_business_url" defaultValue={settings?.google_business_url} />
       </Section>
 
+      {/* Review automation */}
+      <Section title="Automated review requests">
+        <label className="flex items-start gap-3">
+          <input
+            type="checkbox"
+            name="auto_review_enabled"
+            defaultChecked={settings?.auto_review_enabled ?? false}
+            className="mt-1 h-4 w-4 rounded border-gray-300"
+          />
+          <span>
+            <span className="block text-sm font-medium text-gray-800">
+              Automatically request a Google review when I mark a job “Won”
+            </span>
+            <span className="block text-xs text-gray-400">
+              Sends the customer a review request by email and text a few days after the job.
+              Requires your Google review link above.
+            </span>
+          </span>
+        </label>
+        <div className="max-w-xs">
+          <Field
+            label="Days to wait after “Won”"
+            name="auto_review_delay_days"
+            type="number"
+            defaultValue={(settings?.auto_review_delay_days ?? 3).toString()}
+          />
+        </div>
+        <TextareaField
+          label="Custom message (optional)"
+          name="review_request_message"
+          defaultValue={settings?.review_request_message}
+          rows={3}
+          hint="Placeholders: {{name}} = customer first name, {{business}} = your business, {{link}} = your Google review link. Leave blank to use a proven default."
+        />
+      </Section>
+
       {/* Status + save */}
       <div className="sticky bottom-0 flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white/95 px-4 py-3 shadow-lg backdrop-blur">
         <div className="text-sm">

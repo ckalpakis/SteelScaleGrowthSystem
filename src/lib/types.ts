@@ -97,6 +97,10 @@ export interface ClientSettings {
   brand_color: string | null;
   secondary_color: string | null;
   google_review_link: string | null;
+  // Review-request automation (migration 0013)
+  auto_review_enabled: boolean | null;
+  auto_review_delay_days: number | null;
+  review_request_message: string | null;
   services: string[] | null;
   service_area: string | null;
   hero_headline: string | null;
@@ -149,6 +153,10 @@ export interface Lead {
   status: LeadStatus;
   /** Estimated job value in dollars, set by the client (migration 0010). */
   estimate_value: number | null;
+  /** When the lead was marked "won" — starts the review-request delay clock. */
+  won_at: string | null;
+  /** When a review request was sent (so we never ask the same customer twice). */
+  review_requested_at: string | null;
   created_at: string;
   updated_at: string;
 }

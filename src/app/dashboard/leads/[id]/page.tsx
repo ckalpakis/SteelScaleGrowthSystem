@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Badge, Button, Card, CardBody, Input, Textarea } from "@/components/ui";
 import { StatusSelect } from "@/components/dashboard/StatusSelect";
 import { ReviewRequestButton } from "@/components/dashboard/ReviewRequestButton";
-import { addNote, deleteNote, updateLeadValue } from "@/app/dashboard/actions";
+import { addNote, deleteNote, updateLeadValue, sendReviewRequestNow } from "@/app/dashboard/actions";
 import { stageFor, type Lead, type LeadNote } from "@/lib/types";
 import { buildReviewMessage, buildSmsHref, buildEmailHref } from "@/lib/review";
 import { businessName } from "@/lib/types";
@@ -42,6 +42,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
   // Bind server actions to this lead.
   const addNoteAction = addNote.bind(null, lead.id);
   const updateValueAction = updateLeadValue.bind(null, lead.id);
+  const sendReviewNowAction = sendReviewRequestNow.bind(null, lead.id);
 
   return (
     <div>
@@ -158,6 +159,24 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                 emailHref={emailHref}
                 hasReviewLink={Boolean(settings?.google_review_link)}
               />
+              {settings?.google_review_link && (
+                <div className="mt-4 border-t border-gray-100 pt-4">
+                  {lead.review_requested_at ? (
+                    <p className="text-xs text-gray-500">
+                      ✓ Review requested on {new Date(lead.review_requested_at).toLocaleDateString()}
+                    </p>
+                  ) : (
+                    <form action={sendReviewNowAction}>
+                      <button className="w-full rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark">
+                        Send now by email &amp; text
+                      </button>
+                      <p className="mt-1.5 text-xs text-gray-400">
+                        We&apos;ll email {lead.email ? "and text " : ""}the customer their review link.
+                      </p>
+                    </form>
+                  )}
+                </div>
+              )}
             </CardBody>
           </Card>
         </div>
