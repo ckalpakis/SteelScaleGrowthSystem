@@ -126,7 +126,7 @@ export default function TermsOfServicePage() {
       <h2>16. Contact us</h2>
       <p>
         Questions about these Terms? Email{" "}
-        <a href="mailto:hello@steelscalesystems.com">hello@steelscalesystems.com</a>.
+        <a href="mailto:support@steelscale.xyz">support@steelscale.xyz</a>.
       </p>
     </LegalPage>
   );

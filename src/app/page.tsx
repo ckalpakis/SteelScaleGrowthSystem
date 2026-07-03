@@ -252,7 +252,7 @@ export default function Home() {
               Client Login
             </Link>
             <a
-              href="mailto:hello@steelscalesystems.com"
+              href="mailto:support@steelscale.xyz"
               className="rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
             >
               Get in Touch

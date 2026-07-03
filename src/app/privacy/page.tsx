@@ -20,7 +20,7 @@ export default function PrivacyPolicyPage() {
       <p>
         Steel Scale Systems is a web design and marketing agency that builds branded websites and provides a
         lead-management (CRM) platform for local service businesses. You can reach us at{" "}
-        <a href="mailto:hello@steelscalesystems.com">hello@steelscalesystems.com</a>.
+        <a href="mailto:support@steelscale.xyz">support@steelscale.xyz</a>.
       </p>
 
       <h2>2. Information we collect</h2>
@@ -65,7 +65,7 @@ export default function PrivacyPolicyPage() {
         <li>
           <strong>Opt out at any time</strong> by replying <strong>STOP</strong> to any message. Reply{" "}
           <strong>HELP</strong> for help. You may also contact us at{" "}
-          <a href="mailto:hello@steelscalesystems.com">hello@steelscalesystems.com</a>.
+          <a href="mailto:support@steelscale.xyz">support@steelscale.xyz</a>.
         </li>
       </ul>
       <p>
@@ -119,7 +119,7 @@ export default function PrivacyPolicyPage() {
         <li>Unsubscribe from marketing emails using the link in the email.</li>
         <li>
           Request access to, correction of, or deletion of your personal information by emailing{" "}
-          <a href="mailto:hello@steelscalesystems.com">hello@steelscalesystems.com</a>.
+          <a href="mailto:support@steelscale.xyz">support@steelscale.xyz</a>.
         </li>
       </ul>
 
@@ -138,7 +138,7 @@ export default function PrivacyPolicyPage() {
       <h2>13. Contact us</h2>
       <p>
         Questions about this Policy? Email{" "}
-        <a href="mailto:hello@steelscalesystems.com">hello@steelscalesystems.com</a>.
+        <a href="mailto:support@steelscale.xyz">support@steelscale.xyz</a>.
       </p>
     </LegalPage>
   );
