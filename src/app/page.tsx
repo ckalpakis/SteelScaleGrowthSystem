@@ -148,8 +148,15 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Right: explainer video */}
-          <div className="relative">
+          {/* Right: quote form above the explainer video */}
+          <div className="relative space-y-6">
+            <div id="quote" className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-float sm:p-7">
+              <h3 className="font-display text-xl font-extrabold text-white">Get your free homepage mockup</h3>
+              <p className="mt-1 text-sm text-white/60">No cost, no commitment — we reply within one business day.</p>
+              <div className="mt-4">
+                <AgencyLeadForm />
+              </div>
+            </div>
             <div className="overflow-hidden rounded-2xl border border-white/10 shadow-float">
               <video
                 className="block w-full bg-black"
