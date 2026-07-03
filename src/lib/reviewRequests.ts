@@ -23,7 +23,8 @@ export async function sendReviewRequest(
     const ok = await sendReviewRequestEmail(client, settings, lead);
     if (ok) channels.push("email");
   }
-  if (lead.phone && smsConfigured()) {
+  // Only text customers who explicitly opted in on the quote form (TCPA/A2P).
+  if (lead.phone && lead.sms_consent && smsConfigured()) {
     const ok = await sendSms(lead.phone, buildReviewMessage(client, settings, lead));
     if (ok) channels.push("sms");
   }

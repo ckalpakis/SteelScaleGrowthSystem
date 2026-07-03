@@ -71,6 +71,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
                 <Detail label="Email" value={lead.email} href={lead.email ? `mailto:${lead.email}` : undefined} />
                 <Detail label="Service requested" value={lead.service_needed} />
                 <Detail label="Source" value={lead.source} />
+                <Detail label="SMS consent" value={lead.sms_consent ? "Opted in" : "Not opted in"} />
                 <Detail label="Received" value={new Date(lead.created_at).toLocaleString()} />
               </dl>
               {lead.message && (

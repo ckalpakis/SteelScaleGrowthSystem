@@ -80,6 +80,7 @@ export default async function AreaPage({ params }: { params: { slug: string; are
                 theme="light"
                 title={`Free Quote in ${area.name}`}
                 subtitle="Tell us about your project."
+                businessName={site.name}
               />
             </div>
           </aside>

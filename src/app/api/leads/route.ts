@@ -48,6 +48,7 @@ export async function POST(request: Request) {
       message: str(payload.message),
       source: str(payload.source) ?? "website",
       estimate_value: money(payload.estimate_value),
+      sms_consent: payload.sms_consent === true,
       status: "new",
     })
     .select("*")

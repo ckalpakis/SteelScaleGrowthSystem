@@ -10,7 +10,13 @@ interface Props {
   theme?: "dark" | "light";
   title?: string;
   subtitle?: string;
+  /** Business name, shown in the SMS consent line. */
+  businessName?: string;
 }
+
+// Agency legal pages (govern the SMS program). Absolute so they resolve from a
+// client's own domain, not just the agency host.
+const LEGAL_BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://steelscale.xyz";
 
 // Reusable quote/contact form. Posts to /api/leads. Accent from --brand.
 export function LeadForm({
@@ -20,6 +26,7 @@ export function LeadForm({
   theme = "light",
   title,
   subtitle,
+  businessName,
 }: Props) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -45,6 +52,7 @@ export function LeadForm({
       service_needed: fd.get("service_needed"),
       estimate_value: budget || null,
       message: zip ? `ZIP: ${zip}${details ? `\n\n${details}` : ""}` : details,
+      sms_consent: fd.get("sms_consent") === "on",
       source,
     };
 
@@ -138,6 +146,27 @@ export function LeadForm({
         <Field label="How can we help?" labelClass={labelClass}>
           <textarea name="message" rows={3} className={fieldClass} placeholder="Tell us about your project..." />
         </Field>
+
+        {/* SMS consent — unchecked by default; opting in is not required to submit. */}
+        <label className="flex items-start gap-2.5">
+          <input
+            type="checkbox"
+            name="sms_consent"
+            className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-[color:var(--brand)]"
+          />
+          <span className={`text-xs leading-relaxed ${dark ? "text-white/60" : "text-slate-500"}`}>
+            I agree to receive text messages from {businessName || "this business"} about my request.
+            Message &amp; data rates may apply, message frequency varies, and I can reply STOP to opt out.
+            See the{" "}
+            <a href={`${LEGAL_BASE}/privacy`} target="_blank" rel="noreferrer" className="underline hover:text-client">
+              Privacy Policy
+            </a>{" "}
+            and{" "}
+            <a href={`${LEGAL_BASE}/terms`} target="_blank" rel="noreferrer" className="underline hover:text-client">
+              Terms of Service
+            </a>.
+          </span>
+        </label>
 
         {status === "error" && error && <p className="text-sm text-red-400">{error}</p>}
 

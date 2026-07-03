@@ -166,6 +166,8 @@ export interface Lead {
   status: LeadStatus;
   /** Estimated job value in dollars, set by the client (migration 0010). */
   estimate_value: number | null;
+  /** Whether the customer opted in to SMS on the quote form (migration 0015). */
+  sms_consent: boolean | null;
   /** When the lead was marked "won" — starts the review-request delay clock. */
   won_at: string | null;
   /** When a review request was sent (so we never ask the same customer twice). */
