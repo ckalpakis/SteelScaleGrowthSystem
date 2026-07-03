@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandLogo } from "@/components/BrandLogo";
+import { AgencyLeadForm } from "@/components/AgencyLeadForm";
 
 // =============================================================================
 // Steel Scale Systems — product marketing / landing page.
@@ -72,19 +73,25 @@ export default function Home() {
       <header className="sticky top-0 z-50 border-b border-white/10 bg-ink/90 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <BrandLogo />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             <Link
               href="/site/demo"
-              className="rounded-lg px-4 py-2.5 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
+              className="hidden rounded-lg px-4 py-2.5 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white sm:block"
             >
               View Demo
             </Link>
             <Link
               href="/login"
-              className="rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-brand-dark"
+              className="rounded-lg px-4 py-2.5 text-sm font-bold text-white/80 transition hover:bg-white/10 hover:text-white"
             >
               Client Login
             </Link>
+            <a
+              href="#contact"
+              className="rounded-lg bg-brand px-5 py-2.5 text-sm font-bold text-white shadow-card transition hover:bg-brand-dark"
+            >
+              Free Mockup
+            </a>
           </div>
         </div>
       </header>
@@ -235,28 +242,34 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ----------------------------------------------------------- CTA band */}
-      <section className="bg-ink py-20 text-center text-white">
-        <div className="mx-auto max-w-3xl px-6">
-          <h2 className="font-display text-3xl font-extrabold sm:text-5xl">
-            Ready to grow your business?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl text-lg text-white/70">
-            Already a client? Log in to manage your leads, pipeline, and website content.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
-            <Link
-              href="/login"
-              className="rounded-xl bg-brand px-8 py-4 text-base font-bold uppercase tracking-wide text-white shadow-card-hover transition hover:-translate-y-0.5 hover:bg-brand-dark"
-            >
-              Client Login
-            </Link>
-            <a
-              href="mailto:support@steelscale.xyz"
-              className="rounded-xl border-2 border-white/30 px-8 py-4 text-base font-bold uppercase tracking-wide text-white transition hover:-translate-y-0.5 hover:bg-white/10"
-            >
-              Get in Touch
-            </a>
+      {/* --------------------------------------------------------- Contact / quote */}
+      <section id="contact" className="relative overflow-hidden bg-ink py-24 text-white">
+        <div className="pointer-events-none absolute inset-0" style={heroGlow} />
+        <div className="relative mx-auto grid max-w-6xl items-start gap-12 px-6 lg:grid-cols-2">
+          <div>
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-white/60">Get started</p>
+            <h2 className="mt-3 font-display text-3xl font-extrabold sm:text-5xl">
+              Get your <span className="text-blue-400">free homepage mockup</span>
+            </h2>
+            <p className="mt-4 max-w-md text-lg text-white/70">
+              Tell us about your business and we&apos;ll design a custom homepage mockup — no cost, no
+              commitment. See exactly what your new site could look like.
+            </p>
+            <ul className="mt-6 space-y-2 text-white/70">
+              <li className="flex items-center gap-2"><Check /> Free, custom mockup for your business</li>
+              <li className="flex items-center gap-2"><Check /> No obligation, no pressure</li>
+              <li className="flex items-center gap-2"><Check /> We reply within one business day</li>
+            </ul>
+            <p className="mt-8 text-sm text-white/50">
+              Already a client?{" "}
+              <Link href="/login" className="font-semibold text-white underline hover:text-brand">
+                Log in to your dashboard
+              </Link>
+              .
+            </p>
+          </div>
+          <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-6 shadow-float sm:p-8">
+            <AgencyLeadForm />
           </div>
         </div>
       </section>
@@ -340,6 +353,13 @@ function StarIcon({ className = "h-6 w-6" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
       <path d="M12 2l2.9 6.3 6.9.7-5.1 4.7 1.4 6.8L12 17.8 5.9 20.5l1.4-6.8L2.2 9l6.9-.7L12 2z" />
+    </svg>
+  );
+}
+function Check() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5 shrink-0 text-blue-400" stroke="currentColor" strokeWidth="2">
+      <path d="m5 12 5 5 9-11" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

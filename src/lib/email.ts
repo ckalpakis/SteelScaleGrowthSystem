@@ -120,6 +120,64 @@ function renderLeadEmail(business: string, lead: Lead) {
   </div>`;
 }
 
+// Agency inquiry from the steelscalesystems.com contact/quote form. Emails the
+// Steel Scale inbox. Fails soft; returns true only if the email was sent.
+export interface AgencyInquiry {
+  name: string;
+  email: string;
+  phone?: string | null;
+  business?: string | null;
+  message?: string | null;
+  smsConsent: boolean;
+}
+
+export async function sendAgencyInquiryEmail(data: AgencyInquiry): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.LEAD_NOTIFICATION_FROM;
+  const to = process.env.AGENCY_NOTIFICATION_EMAIL || "support@steelscale.xyz";
+  if (!apiKey || !from) {
+    console.warn("[email] Resend not configured — skipping agency inquiry");
+    return false;
+  }
+
+  const resend = new Resend(apiKey);
+  const rows = [
+    ["Name", data.name],
+    ["Business", data.business],
+    ["Email", data.email],
+    ["Phone", data.phone],
+    ["SMS consent", data.smsConsent ? "Yes" : "No"],
+    ["Message", data.message],
+  ]
+    .filter(([, v]) => v)
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 12px;font-weight:600;color:#374151">${label}</td><td style="padding:6px 12px;color:#111827">${escapeHtml(
+          String(value)
+        )}</td></tr>`
+    )
+    .join("");
+
+  try {
+    await resend.emails.send({
+      from,
+      to,
+      ...(data.email ? { replyTo: data.email } : {}),
+      subject: `New inquiry from ${data.name}${data.business ? ` (${data.business})` : ""}`,
+      html: `
+        <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto">
+          <h2 style="color:#111827">New Steel Scale inquiry</h2>
+          <p style="color:#6b7280">Someone requested a free mockup / got in touch via steelscalesystems.com.</p>
+          <table style="border-collapse:collapse;background:#f9fafb;border-radius:8px;width:100%">${rows}</table>
+        </div>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] failed to send agency inquiry", err);
+    return false;
+  }
+}
+
 function escapeHtml(s: string) {
   return s
     .replace(/&/g, "&amp;")
