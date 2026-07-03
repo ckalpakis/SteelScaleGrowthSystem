@@ -10,6 +10,21 @@ export async function middleware(request: NextRequest) {
   const host = hostnameFrom(request.headers.get("host"));
   const cls = classifyHost(host);
 
+  // Edge-runtime diagnostic: `?__mw=1` reflects exactly what THIS middleware
+  // computes (unlike /api/debug/host, which runs in a different runtime).
+  if (request.nextUrl.searchParams.get("__mw") === "1") {
+    const dbgSlug =
+      cls.type === "subdomain" ? cls.slug : cls.type === "custom" ? await slugForDomain(host) : null;
+    return NextResponse.json({
+      via: "middleware(edge)",
+      host,
+      rootDomain: process.env.ROOT_DOMAIN ?? "(not set)",
+      classification: cls.type,
+      slug: dbgSlug,
+      action: cls.type === "primary" ? "serve agency app" : dbgSlug ? `rewrite → /site/${dbgSlug}` : "fallback → agency app",
+    });
+  }
+
   // Primary app host: unchanged behavior.
   if (cls.type === "primary") {
     return await updateSession(request);
