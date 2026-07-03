@@ -10,8 +10,6 @@ interface Props {
   theme?: "dark" | "light";
   title?: string;
   subtitle?: string;
-  /** Business name, shown in the SMS consent line. */
-  businessName?: string;
 }
 
 // Agency legal pages (govern the SMS program). Absolute so they resolve from a
@@ -26,7 +24,6 @@ export function LeadForm({
   theme = "light",
   title,
   subtitle,
-  businessName,
 }: Props) {
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [error, setError] = useState<string | null>(null);
@@ -155,9 +152,9 @@ export function LeadForm({
             className="mt-0.5 h-4 w-4 shrink-0 rounded border-slate-300 accent-[color:var(--brand)]"
           />
           <span className={`text-xs leading-relaxed ${dark ? "text-white/60" : "text-slate-500"}`}>
-            I agree to receive text messages from {businessName || "this business"} about my request.
-            Message &amp; data rates may apply, message frequency varies, and I can reply STOP to opt out.
-            See the{" "}
+            I agree to receive text messages from Steel Scale Systems about my inquiry. Message frequency
+            varies. Message &amp; data rates may apply. Reply STOP to opt out or HELP for assistance. Consent
+            is not a condition of purchase. See our{" "}
             <a href={`${LEGAL_BASE}/privacy`} target="_blank" rel="noreferrer" className="underline hover:text-client">
               Privacy Policy
             </a>{" "}

@@ -49,7 +49,7 @@ export default async function ServicePage({ params }: { params: { slug: string; 
           )}
           <aside id="quote" className="scroll-mt-28">
             <div className="rounded-2xl bg-white p-7 shadow-card-hover">
-              <LeadForm clientId={site.clientId} services={site.services.map((s) => s.name)} source={`service-${service.slug}`} theme="light" title={`Get a ${service.name} Quote`} subtitle="Free, no-obligation estimate." businessName={site.name} />
+              <LeadForm clientId={site.clientId} services={site.services.map((s) => s.name)} source={`service-${service.slug}`} theme="light" title={`Get a ${service.name} Quote`} subtitle="Free, no-obligation estimate." />
             </div>
           </aside>
         </div>

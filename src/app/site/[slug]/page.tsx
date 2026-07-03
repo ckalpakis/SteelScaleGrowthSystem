@@ -83,7 +83,7 @@ export default async function HomePage({ params }: { params: { slug: string } })
           <div id="quote" className="scroll-mt-28">
             <Reveal>
               <div className="rounded-3xl bg-white p-6 shadow-float sm:p-8">
-                <LeadForm clientId={site.clientId} services={serviceNames} source="website-hero" theme="light" title="Get Your Free Quote" subtitle="Takes 2 minutes — we'll be in touch fast." businessName={site.name} />
+                <LeadForm clientId={site.clientId} services={serviceNames} source="website-hero" theme="light" title="Get Your Free Quote" subtitle="Takes 2 minutes — we'll be in touch fast." />
               </div>
             </Reveal>
           </div>

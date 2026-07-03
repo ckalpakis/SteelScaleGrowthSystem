@@ -56,7 +56,6 @@ export default async function ContactPage({ params }: { params: { slug: string }
               source="contact-page"
               theme="light"
               title="Request a Free Estimate"
-              businessName={site.name}
             />
           </div>
         </div>
