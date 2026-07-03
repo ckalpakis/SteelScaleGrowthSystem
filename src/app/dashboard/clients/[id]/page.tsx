@@ -41,7 +41,7 @@ export default async function ClientEditPage({ params }: { params: { id: string 
       <div>
         <Link href="/dashboard/clients" className="text-sm text-gray-500 hover:text-gray-700">← Back to clients</Link>
         <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{client.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">{client.name}</h1>
           <div className="flex gap-3 text-sm">
             <Link href={`/site/${client.slug}`} target="_blank" className="text-gray-500 hover:text-brand">View site ↗</Link>
           </div>

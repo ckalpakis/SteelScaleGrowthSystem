@@ -12,7 +12,7 @@ export function cn(...classes: (string | false | null | undefined)[]) {
 export function Card({ className, ...props }: DivProps) {
   return (
     <div
-      className={cn("rounded-xl border border-gray-200 bg-white shadow-sm", className)}
+      className={cn("rounded-lg border border-[#ededec] bg-white shadow-[0_1px_2px_rgba(15,15,15,0.04)]", className)}
       {...props}
     />
   );
@@ -28,8 +28,8 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
       <input
         ref={ref}
         className={cn(
-          "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm",
-          "focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200",
+          "w-full rounded-md border border-[#e0e0de] bg-white px-3 py-2 text-sm text-[#37352f] placeholder-[#b9b9b7]",
+          "transition-colors focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/15",
           className
         )}
         {...props}
@@ -46,8 +46,8 @@ export const Textarea = forwardRef<
     <textarea
       ref={ref}
       className={cn(
-        "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm shadow-sm",
-        "focus:border-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-200",
+        "w-full rounded-md border border-[#e0e0de] bg-white px-3 py-2 text-sm text-[#37352f] placeholder-[#b9b9b7]",
+        "transition-colors focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/15",
         className
       )}
       {...props}
@@ -58,7 +58,7 @@ export const Textarea = forwardRef<
 export function Label({ className, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) {
   return (
     <label
-      className={cn("mb-1 block text-sm font-medium text-gray-700", className)}
+      className={cn("mb-1.5 block text-sm font-medium text-[#37352f]", className)}
       {...props}
     />
   );
@@ -70,14 +70,14 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
 
 export function Button({ className, variant = "primary", ...props }: ButtonProps) {
   const variants = {
-    primary: "bg-brand text-white hover:bg-brand-dark disabled:opacity-60",
-    secondary: "bg-white text-gray-800 border border-gray-300 hover:bg-gray-50",
-    ghost: "text-gray-600 hover:bg-gray-100",
+    primary: "bg-brand text-white shadow-[0_1px_2px_rgba(15,15,15,0.1)] hover:bg-brand-dark disabled:opacity-60",
+    secondary: "bg-white text-[#37352f] border border-[#e0e0de] hover:bg-[#f7f7f5]",
+    ghost: "text-[#5f5e5b] hover:bg-black/[0.05]",
   };
   return (
     <button
       className={cn(
-        "inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center rounded-md px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed",
         variants[variant],
         className
       )}

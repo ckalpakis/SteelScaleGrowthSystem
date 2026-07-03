@@ -52,7 +52,7 @@ export default async function LeadDetailPage({ params }: { params: { id: string 
 
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-bold text-gray-900">{lead.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">{lead.name}</h1>
           <Badge className={stage.badgeClass}>{stage.label}</Badge>
         </div>
         <StatusSelect leadId={lead.id} status={lead.status} />

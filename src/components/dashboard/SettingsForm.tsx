@@ -46,8 +46,8 @@ export function SettingsForm({
   return (
     <form action={formAction} className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Business Settings</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">Business Settings</h1>
+        <p className="mt-1 text-sm text-[#787774]">
           Everything here powers your public website and review requests. Changes go
           live as soon as you save.
         </p>

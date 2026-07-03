@@ -41,8 +41,8 @@ export default async function DashboardPage({
       {/* Header + range selector */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="text-sm text-gray-500">Your lead performance over the last {rangeLabel}.</p>
+          <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">Dashboard</h1>
+          <p className="mt-1 text-sm text-[#787774]">Your lead performance over the last {rangeLabel}.</p>
         </div>
         <div className="flex items-center gap-3">
           {!settings?.google_review_link && (
@@ -61,7 +61,7 @@ export default async function DashboardPage({
       {a.needsResponse > 0 && (
         <Link
           href="/dashboard/leads"
-          className="flex items-center justify-between gap-3 rounded-xl border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-800 transition hover:bg-amber-100"
+          className="flex items-center justify-between gap-3 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800 transition hover:bg-amber-100"
         >
           <span className="font-medium">
             {a.needsResponse} new lead{a.needsResponse === 1 ? "" : "s"} awaiting your reply — respond fast to win more jobs.
@@ -140,7 +140,7 @@ function parseRange(raw: string | undefined): RangeDays {
 
 function RangeSelector({ active }: { active: RangeDays }) {
   return (
-    <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5 shadow-sm">
+    <div className="inline-flex rounded-lg border border-[#e0e0de] bg-white p-0.5">
       {RANGE_OPTIONS.map((r) => (
         <Link
           key={r}
@@ -176,7 +176,7 @@ function Kpi({
   return (
     <div
       className={
-        "rounded-xl border bg-white p-5 shadow-sm " + (alert ? "border-amber-300 bg-amber-50/60" : "border-gray-200")
+        "rounded-lg border bg-white p-5 shadow-[0_1px_2px_rgba(15,15,15,0.04)] " + (alert ? "border-amber-300 bg-amber-50/60" : "border-[#ededec]")
       }
     >
       <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{label}</p>
@@ -224,7 +224,7 @@ function Panel({
   legend?: React.ReactNode;
 }) {
   return (
-    <section className={"rounded-xl border border-gray-200 bg-white p-5 shadow-sm " + (className ?? "")}>
+    <section className={"rounded-lg border border-[#ededec] bg-white p-5 shadow-[0_1px_2px_rgba(15,15,15,0.04)] " + (className ?? "")}>
       <div className="mb-4 flex items-center justify-between gap-3">
         <h2 className="text-sm font-semibold text-gray-900">{title}</h2>
         {legend ?? action}

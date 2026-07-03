@@ -23,7 +23,7 @@ export default async function ClientsPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Clients</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">Clients</h1>
           <p className="text-sm text-gray-500">{rows.length} total</p>
         </div>
         <Link
