@@ -55,30 +55,35 @@ export default async function LeadsPage() {
           to start capturing them.
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {PIPELINE_STAGES.map((stage) => {
-            const stageLeads = byStage[stage.value] ?? [];
-            return (
-              <div key={stage.value} className="flex flex-col">
-                <div className="mb-3 flex items-center gap-2">
-                  <span className={`h-2.5 w-2.5 rounded-full ${stage.dotClass}`} />
-                  <h2 className="text-sm font-semibold text-gray-700">{stage.label}</h2>
-                  <span className="text-xs text-gray-400">{stageLeads.length}</span>
+        // Horizontally-scrolling pipeline board — always fits, never wraps.
+        <div className="-mx-1 overflow-x-auto pb-4 [scrollbar-width:thin]">
+          <div className="flex gap-4 px-1">
+            {PIPELINE_STAGES.map((stage) => {
+              const stageLeads = byStage[stage.value] ?? [];
+              return (
+                <div key={stage.value} className="flex w-[300px] shrink-0 flex-col rounded-xl bg-[#f7f7f5] p-3">
+                  <div className="mb-3 flex items-center gap-2 px-1">
+                    <span className={`h-2.5 w-2.5 rounded-full ${stage.dotClass}`} />
+                    <h2 className="text-sm font-semibold text-[#37352f]">{stage.label}</h2>
+                    <span className="ml-auto rounded-md bg-black/[0.05] px-1.5 text-xs font-medium text-[#787774]">
+                      {stageLeads.length}
+                    </span>
+                  </div>
+                  <div className="space-y-3">
+                    {stageLeads.length === 0 ? (
+                      <p className="rounded-lg border border-dashed border-[#e0e0de] px-3 py-6 text-center text-xs text-[#9b9a97]">
+                        Nothing here yet
+                      </p>
+                    ) : (
+                      stageLeads.map((lead) => (
+                        <LeadCard key={lead.id} lead={lead} client={client} settings={settings} />
+                      ))
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  {stageLeads.length === 0 ? (
-                    <p className="rounded-lg border border-dashed border-gray-200 px-3 py-6 text-center text-xs text-gray-400">
-                      Nothing here yet
-                    </p>
-                  ) : (
-                    stageLeads.map((lead) => (
-                      <LeadCard key={lead.id} lead={lead} client={client} settings={settings} />
-                    ))
-                  )}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
     </div>
