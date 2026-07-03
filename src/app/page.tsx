@@ -266,9 +266,13 @@ export default function Home() {
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 border-t border-white/10 px-6 py-8 text-sm text-white/50 sm:flex-row">
           <BrandLogo className="h-8 w-auto" />
           <p>© {new Date().getFullYear()} Steel Scale Systems. All rights reserved.</p>
-          <Link href="/login" className="font-semibold text-white hover:text-brand">
-            Client Login
-          </Link>
+          <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
+            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
+            <Link href="/login" className="font-semibold text-white hover:text-brand">
+              Client Login
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
