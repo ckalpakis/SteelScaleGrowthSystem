@@ -9,7 +9,13 @@ import { updateClientSettings, updateClientCore } from "@/app/dashboard/clients/
 import type { Client, ClientSettings } from "@/lib/types";
 import { TIER_LABELS, hasReviewAutomation } from "@/lib/types";
 
-export default async function ClientEditPage({ params }: { params: { id: string } }) {
+export default async function ClientEditPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { error?: string };
+}) {
   await requireAgencyAdmin();
   const admin = createAdminClient();
 
@@ -47,6 +53,12 @@ export default async function ClientEditPage({ params }: { params: { id: string 
           </div>
         </div>
       </div>
+
+      {searchParams.error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          Couldn&apos;t save: {searchParams.error}
+        </div>
+      )}
 
       {/* Core: slug + domain */}
       <Card>

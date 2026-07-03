@@ -95,3 +95,16 @@ export function buildClientSettings(formData: FormData, clientId: string) {
 export function slugify(input: string): string {
   return input.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
+
+// Normalize a custom domain to the exact hostname the middleware matches:
+// lowercase, no protocol, no path/query, no trailing slash, no spaces.
+// Returns null for blank input. Keeps any leading "www." (the user chooses
+// whether www or apex is canonical).
+export function normalizeDomain(input: string | null | undefined): string | null {
+  let d = String(input ?? "").trim().toLowerCase();
+  if (!d) return null;
+  d = d.replace(/^https?:\/\//, ""); // strip protocol
+  d = d.replace(/\/.*$/, "");         // strip path/query/hash
+  d = d.replace(/\.$/, "");           // strip trailing dot
+  return d || null;
+}

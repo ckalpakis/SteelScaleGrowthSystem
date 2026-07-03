@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAgencyAdmin } from "@/lib/auth";
-import { buildClientSettings, slugify } from "@/lib/settings";
+import { buildClientSettings, slugify, normalizeDomain } from "@/lib/settings";
 import type { SettingsState } from "@/app/dashboard/actions";
 
 // All actions here are agency-admin only and use the service-role client.
@@ -26,7 +26,7 @@ export async function createClientAction(_prev: SettingsState, formData: FormDat
   const slug = slugify(String(formData.get("slug") || name));
   if (!slug) return { ok: false, error: "Could not derive a valid slug." };
 
-  const domain = String(formData.get("domain") ?? "").trim() || null;
+  const domain = normalizeDomain(formData.get("domain") as string | null);
   const tier = parseTier(formData.get("tier"));
 
   // 1) Create the client row.
@@ -104,10 +104,15 @@ export async function updateClientCore(formData: FormData) {
   const admin = createAdminClient();
   const clientId = String(formData.get("client_id") ?? "");
   const slug = slugify(String(formData.get("slug") ?? ""));
-  const domain = String(formData.get("domain") ?? "").trim() || null;
+  const domain = normalizeDomain(formData.get("domain") as string | null);
   const tier = parseTier(formData.get("tier"));
   if (clientId && slug) {
-    await admin.from("clients").update({ slug, domain, tier }).eq("id", clientId);
+    const { error } = await admin.from("clients").update({ slug, domain, tier }).eq("id", clientId);
+    // Surface a failure (e.g. domain column missing, or duplicate domain) in the
+    // URL instead of silently doing nothing.
+    if (error) {
+      redirect(`/dashboard/clients/${clientId}?error=${encodeURIComponent(error.message)}`);
+    }
     revalidatePath(`/dashboard/clients/${clientId}`);
   }
   redirect(`/dashboard/clients/${clientId}`);
