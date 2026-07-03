@@ -42,8 +42,12 @@ export function classifyHost(host: string): HostClass {
 
 // Best-effort domain → slug lookup against Supabase (clients are publicly
 // readable). Cached per edge isolate to avoid a query on every request.
+// Successful matches are cached a few minutes; "not found" results are cached
+// only briefly, so a newly-added domain starts working within seconds and a
+// stale negative can't keep serving the landing page.
 const domainCache = new Map<string, { slug: string | null; exp: number }>();
-const CACHE_TTL_MS = 5 * 60 * 1000;
+const HIT_TTL_MS = 5 * 60 * 1000;
+const MISS_TTL_MS = 20 * 1000;
 
 export async function slugForDomain(host: string): Promise<string | null> {
   const now = Date.now();
@@ -61,7 +65,7 @@ export async function slugForDomain(host: string): Promise<string | null> {
     );
     const rows = (await res.json()) as { slug: string }[];
     const slug = Array.isArray(rows) && rows[0]?.slug ? rows[0].slug : null;
-    domainCache.set(host, { slug, exp: now + CACHE_TTL_MS });
+    domainCache.set(host, { slug, exp: now + (slug ? HIT_TTL_MS : MISS_TTL_MS) });
     return slug;
   } catch {
     return null;
