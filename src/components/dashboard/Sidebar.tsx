@@ -30,6 +30,7 @@ export function Sidebar({
   if (hasClient) {
     nav.push({ href: "/dashboard", label: "Overview", icon: <HomeIcon />, exact: true });
     nav.push({ href: "/dashboard/leads", label: "Leads", icon: <InboxIcon /> });
+    nav.push({ href: "/dashboard/reputation", label: "Reputation", icon: <StarNavIcon /> });
     nav.push({ href: "/dashboard/settings", label: "Settings", icon: <CogIcon /> });
   }
   if (isAdmin) {
@@ -156,6 +157,13 @@ function InboxIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
       <path d="M4 13h4l1.5 2.5h5L16 13h4M4 13l2.5-7h11L20 13v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-5z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function StarNavIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
+      <path d="M12 4l2.35 4.76 5.25.77-3.8 3.7.9 5.23L12 16.9l-4.7 2.46.9-5.23-3.8-3.7 5.25-.77L12 4z" strokeLinejoin="round" />
     </svg>
   );
 }
