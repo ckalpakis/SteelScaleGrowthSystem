@@ -200,6 +200,55 @@ export interface ConversationMessage {
 
 export const CONVERSATION_PAGE_SIZE = 25;
 
+// ---------------------------------------------------------------- settings
+export interface ReviewSettingsValues {
+  google_review_url: string | null;
+  business_name: string | null;
+  request_signature: string | null;
+  default_delay_minutes: number;
+  default_reminder_count: number;
+  timezone: string;
+  sms_send_start_hour: number;
+  sms_send_end_hour: number;
+  quiet_hours_enabled: boolean;
+  quiet_start_hour: number;
+  quiet_end_hour: number;
+}
+
+export const DEFAULT_REVIEW_SETTINGS: ReviewSettingsValues = {
+  google_review_url: null,
+  business_name: null,
+  request_signature: null,
+  default_delay_minutes: 4320,
+  default_reminder_count: 1,
+  timezone: "America/New_York",
+  sms_send_start_hour: 9,
+  sms_send_end_hour: 20,
+  quiet_hours_enabled: true,
+  quiet_start_hour: 21,
+  quiet_end_hour: 8,
+};
+
+export const US_TIMEZONES: { value: string; label: string }[] = [
+  { value: "America/New_York", label: "Eastern (New York)" },
+  { value: "America/Chicago", label: "Central (Chicago)" },
+  { value: "America/Denver", label: "Mountain (Denver)" },
+  { value: "America/Phoenix", label: "Arizona (Phoenix)" },
+  { value: "America/Los_Angeles", label: "Pacific (Los Angeles)" },
+  { value: "America/Anchorage", label: "Alaska (Anchorage)" },
+  { value: "Pacific/Honolulu", label: "Hawaii (Honolulu)" },
+];
+
+// 12-hour labels for an hour-of-day (0–24) select.
+export function hourLabel(h: number): string {
+  if (h === 0 || h === 24) return "12:00 AM";
+  if (h === 12) return "12:00 PM";
+  return h < 12 ? `${h}:00 AM` : `${h - 12}:00 PM`;
+}
+
+export const HOUR_OPTIONS_0_23 = Array.from({ length: 24 }, (_, h) => ({ value: h, label: hourLabel(h) }));
+export const HOUR_OPTIONS_1_24 = Array.from({ length: 24 }, (_, i) => ({ value: i + 1, label: hourLabel(i + 1) }));
+
 // Short label for a message timestamp in the conversation list ("2m", "3h", "Mon").
 export function shortTime(iso: string | null): string {
   if (!iso) return "";

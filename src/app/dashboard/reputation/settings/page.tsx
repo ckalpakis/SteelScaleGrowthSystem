@@ -1,97 +1,51 @@
-import { Button, Input, Label } from "@/components/ui";
-import { PageHeader, Panel, StatusPill } from "@/components/dashboard/reputation/ui";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { getTwilioSummary, type TwilioConfigSummary } from "@/lib/twilio";
+import { DEFAULT_REVIEW_SETTINGS, type ReviewSettingsValues } from "@/lib/reputation";
+import { PageHeader } from "@/components/dashboard/reputation/ui";
+import { ReputationSettingsForm } from "@/components/dashboard/reputation/settings/ReputationSettingsForm";
 import { TwilioSettingsForm } from "@/components/dashboard/reputation/settings/TwilioSettingsForm";
+import { TestSmsForm } from "@/components/dashboard/reputation/settings/TestSmsForm";
 
 export const dynamic = "force-dynamic";
 
-const PLATFORMS = [
-  { name: "Google Business Profile", connected: true },
-  { name: "Facebook", connected: false },
-  { name: "Yelp", connected: false },
-];
+const EMPTY_TWILIO: TwilioConfigSummary = {
+  configured: false,
+  accountSid: null,
+  messagingServiceSid: null,
+  phoneNumber: null,
+  isActive: false,
+};
 
-const NOTIFS = [
-  { label: "Email me when a new review comes in", on: true },
-  { label: "Email me when a review request is completed", on: true },
-  { label: "Weekly reputation summary", on: false },
-];
-
-async function loadTwilioSummary(): Promise<TwilioConfigSummary> {
-  const empty: TwilioConfigSummary = {
-    configured: false,
-    accountSid: null,
-    messagingServiceSid: null,
-    phoneNumber: null,
-    isActive: false,
-  };
+async function loadSettings(): Promise<{ settings: ReviewSettingsValues; twilio: TwilioConfigSummary }> {
   const supabase = createClient();
   const { data: company } = await supabase.from("companies").select("id").limit(1).maybeSingle<{ id: string }>();
-  if (!company) return empty;
-  return getTwilioSummary(createAdminClient(), company.id);
+  if (!company) return { settings: DEFAULT_REVIEW_SETTINGS, twilio: EMPTY_TWILIO };
+
+  const { data: row } = await supabase
+    .from("review_settings")
+    .select(
+      "google_review_url, business_name, request_signature, default_delay_minutes, default_reminder_count, timezone, sms_send_start_hour, sms_send_end_hour, quiet_hours_enabled, quiet_start_hour, quiet_end_hour"
+    )
+    .eq("company_id", company.id)
+    .maybeSingle<Partial<ReviewSettingsValues>>();
+
+  const settings: ReviewSettingsValues = { ...DEFAULT_REVIEW_SETTINGS, ...(row ?? {}) };
+  const twilio = await getTwilioSummary(createAdminClient(), company.id);
+  return { settings, twilio };
 }
 
 export default async function ReputationSettingsPage() {
-  const twilio = await loadTwilioSummary();
+  const { settings, twilio } = await loadSettings();
+
   return (
     <div className="max-w-3xl space-y-6">
       <PageHeader title="Settings" description="Configure how your reputation tools work." />
 
+      <ReputationSettingsForm initial={settings} />
+
       <TwilioSettingsForm summary={twilio} />
-
-      {/* Connected platforms */}
-      <Panel title="Connected platforms">
-        <ul className="space-y-3">
-          {PLATFORMS.map((p) => (
-            <li key={p.name} className="flex items-center justify-between gap-3 rounded-lg border border-[#f0f0ef] px-4 py-3">
-              <div className="flex items-center gap-3">
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#f4f4f3] text-sm font-bold text-[#787774]">
-                  {p.name.charAt(0)}
-                </span>
-                <span className="text-sm font-medium text-[#37352f]">{p.name}</span>
-              </div>
-              {p.connected ? (
-                <div className="flex items-center gap-3">
-                  <StatusPill tone="green">Connected</StatusPill>
-                  <Button variant="ghost" className="text-xs">Disconnect</Button>
-                </div>
-              ) : (
-                <Button variant="secondary" className="text-xs">Connect</Button>
-              )}
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      {/* Review link */}
-      <Panel title="Review link">
-        <Label htmlFor="review_link">Google review link</Label>
-        <Input id="review_link" placeholder="https://g.page/r/…/review" defaultValue="" />
-        <p className="mt-1.5 text-xs text-[#9b9a97]">Where customers are sent to leave a review. Used in requests and templates.</p>
-      </Panel>
-
-      {/* Notifications */}
-      <Panel title="Notifications">
-        <ul className="space-y-3">
-          {NOTIFS.map((n) => (
-            <li key={n.label} className="flex items-center justify-between gap-3">
-              <span className="text-sm text-[#37352f]">{n.label}</span>
-              <span
-                className={"relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors " + (n.on ? "bg-brand" : "bg-[#e0e0de]")}
-                aria-hidden
-              >
-                <span className={"inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform " + (n.on ? "translate-x-5" : "translate-x-0.5")} />
-              </span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <div className="flex justify-end">
-        <Button>Save changes</Button>
-      </div>
+      <TestSmsForm configured={twilio.configured} />
     </div>
   );
 }

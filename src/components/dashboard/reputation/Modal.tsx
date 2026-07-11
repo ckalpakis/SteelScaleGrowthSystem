@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
+import { cn } from "@/components/ui";
 
-// Reusable, accessible-ish modal for the Reputation module. Matches the
-// dashboard palette. Closes on backdrop click or Escape.
+// Reusable, accessible modal for the Reputation module. Matches the dashboard
+// palette. Closes on backdrop click or Escape, animates in/out, moves focus
+// into the dialog on open and restores it on close.
 export function Modal({
   open,
   onClose,
@@ -19,14 +21,26 @@ export function Modal({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  const [shown, setShown] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const restoreRef = useRef<HTMLElement | null>(null);
+
   useEffect(() => {
     if (!open) return;
+    restoreRef.current = document.activeElement as HTMLElement | null;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
+    const raf = requestAnimationFrame(() => {
+      setShown(true);
+      dialogRef.current?.focus();
+    });
     return () => {
       window.removeEventListener("keydown", onKey);
       document.body.style.overflow = "";
+      cancelAnimationFrame(raf);
+      setShown(false);
+      restoreRef.current?.focus?.();
     };
   }, [open, onClose]);
 
@@ -34,11 +48,21 @@ export function Modal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-[2px]" onClick={onClose} aria-hidden />
       <div
+        className={cn("absolute inset-0 bg-black/30 backdrop-blur-[2px] transition-opacity duration-200", shown ? "opacity-100" : "opacity-0")}
+        onClick={onClose}
+        aria-hidden
+      />
+      <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        className="relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-[#ededec] bg-white shadow-float"
+        aria-label={title}
+        tabIndex={-1}
+        className={cn(
+          "relative z-10 w-full max-w-lg overflow-hidden rounded-2xl border border-[#ededec] bg-white shadow-float outline-none transition-all duration-200",
+          shown ? "translate-y-0 scale-100 opacity-100" : "translate-y-2 scale-[0.98] opacity-0"
+        )}
       >
         <div className="flex items-start justify-between gap-4 border-b border-[#f0f0ef] px-5 py-4">
           <div>

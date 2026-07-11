@@ -3,22 +3,20 @@
 import { useState } from "react";
 import { Button, Input, Label } from "@/components/ui";
 import { Panel, StatusPill } from "@/components/dashboard/reputation/ui";
+import { useToast } from "@/components/dashboard/reputation/Toast";
 import { saveTwilioSettings } from "@/app/dashboard/reputation/settings/actions";
 import type { TwilioConfigSummary } from "@/lib/twilio";
 
 export function TwilioSettingsForm({ summary }: { summary: TwilioConfigSummary }) {
+  const { toast } = useToast();
   const [accountSid, setAccountSid] = useState(summary.accountSid ?? "");
   const [messagingServiceSid, setMessagingServiceSid] = useState(summary.messagingServiceSid ?? "");
   const [phoneNumber, setPhoneNumber] = useState(summary.phoneNumber ?? "");
   const [authToken, setAuthToken] = useState("");
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [saved, setSaved] = useState(false);
   const [configured, setConfigured] = useState(summary.configured);
 
   async function save() {
-    setError(null);
-    setSaved(false);
     setSaving(true);
     const res = await saveTwilioSettings({
       accountSid,
@@ -29,10 +27,10 @@ export function TwilioSettingsForm({ summary }: { summary: TwilioConfigSummary }
     });
     setSaving(false);
     if (!res.ok) {
-      setError(res.error);
+      toast({ title: "Couldn't save Twilio settings", description: res.error, variant: "error" });
       return;
     }
-    setSaved(true);
+    toast({ title: "Twilio connected", description: "Your credentials are saved and encrypted.", variant: "success" });
     setConfigured(true);
     setAuthToken(""); // never keep the secret in component state after saving
   }
@@ -98,8 +96,6 @@ export function TwilioSettingsForm({ summary }: { summary: TwilioConfigSummary }
           </p>
         </div>
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {saved && <p className="text-sm text-green-600">Saved.</p>}
 
         <div className="flex justify-end border-t border-[#f0f0ef] pt-4">
           <Button onClick={save} disabled={saving}>
