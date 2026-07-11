@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { getCompanyTwilio, sendTwilioSms, appBaseUrl, normalizeTwilioStatus } from "@/lib/twilio";
+import { getOrCreateConversation, touchConversation } from "@/lib/reputation.conversations";
 import { toE164 } from "@/lib/sms";
 
 // =============================================================================
@@ -43,6 +44,9 @@ export async function sendCompanySms(
   const stepKey = opts.stepKey ?? null;
   const requestId = opts.requestId ?? null;
 
+  // Ensure a conversation exists so the message threads into the inbox.
+  const conversationId = await getOrCreateConversation(admin, companyId, dest, opts.contactId ?? null);
+
   // 1. Reuse or create the message row (idempotent per request+step).
   let messageId: string | null = null;
   if (stepKey && requestId) {
@@ -75,6 +79,7 @@ export async function sendCompanySms(
         provider: "twilio",
         status: "queued",
         step_key: stepKey,
+        conversation_id: conversationId,
       })
       .select("id")
       .single<{ id: string }>();
@@ -125,6 +130,10 @@ export async function sendCompanySms(
       event_type: "message_sent",
       data: { channel: "sms", provider_message_id: result.sid, step_key: stepKey },
     });
+
+    if (conversationId) {
+      await touchConversation(admin, conversationId, { direction: "outbound", preview: opts.body });
+    }
 
     return { ok: true, messageId: messageId!, sid: result.sid, status: result.status };
   }

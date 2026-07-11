@@ -7,6 +7,7 @@ import {
   emptyTwiml,
   isStopKeyword,
 } from "@/lib/twilio";
+import { getOrCreateConversation, touchConversation } from "@/lib/reputation.conversations";
 
 export const dynamic = "force-dynamic";
 
@@ -45,6 +46,9 @@ export async function POST(request: Request) {
     .eq("phone", from)
     .maybeSingle<{ id: string }>();
 
+  // Thread the reply into a conversation.
+  const conversationId = await getOrCreateConversation(admin, companyId, from, contact?.id ?? null);
+
   // Store the inbound message.
   const { data: message } = await admin
     .from("review_messages")
@@ -58,9 +62,14 @@ export async function POST(request: Request) {
       provider: "twilio",
       provider_message_id: messageSid,
       status: "received",
+      conversation_id: conversationId,
     })
     .select("id")
     .single<{ id: string }>();
+
+  if (conversationId) {
+    await touchConversation(admin, conversationId, { direction: "inbound", preview: body });
+  }
 
   // Honor opt-out. Twilio's Advanced Opt-Out stops delivery automatically; we
   // also reflect it in our own data so automations stop targeting this contact.

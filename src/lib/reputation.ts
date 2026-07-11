@@ -173,3 +173,44 @@ export function reviewLinkUrl(code: string): string {
   const base = reviewLinkBase();
   return base ? `${base}/r/${code}` : `/r/${code}`;
 }
+
+// ---------------------------------------------------------------- conversations
+export type ConversationStatus = "open" | "closed" | "archived";
+export type MessageDirection = "inbound" | "outbound";
+
+export interface ConversationListItem {
+  id: string;
+  contactId: string | null;
+  name: string;
+  phone: string;
+  status: ConversationStatus;
+  unread: number;
+  lastMessageAt: string | null;
+  lastPreview: string | null;
+  lastDirection: MessageDirection | null;
+}
+
+export interface ConversationMessage {
+  id: string;
+  direction: MessageDirection;
+  body: string;
+  status: string;
+  createdAt: string;
+}
+
+export const CONVERSATION_PAGE_SIZE = 25;
+
+// Short label for a message timestamp in the conversation list ("2m", "3h", "Mon").
+export function shortTime(iso: string | null): string {
+  if (!iso) return "";
+  const then = new Date(iso).getTime();
+  const diff = Date.now() - then;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "now";
+  if (min < 60) return `${min}m`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}h`;
+  const day = Math.floor(hr / 24);
+  if (day < 7) return `${day}d`;
+  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+}

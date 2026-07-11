@@ -10,7 +10,7 @@ const TABS = [
   { href: "/dashboard/reputation/review-requests", label: "Review Requests" },
   { href: "/dashboard/reputation/templates", label: "Templates" },
   { href: "/dashboard/reputation/automations", label: "Automations" },
-  { href: "/dashboard/reputation/inbox", label: "Inbox" },
+  { href: "/dashboard/reputation/inbox", label: "Conversations" },
   { href: "/dashboard/reputation/settings", label: "Settings" },
 ];
 
