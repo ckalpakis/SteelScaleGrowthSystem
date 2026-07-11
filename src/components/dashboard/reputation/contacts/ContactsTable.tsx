@@ -5,6 +5,8 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui";
 import { PageHeader, StatusPill, SearchIcon, PlusIcon } from "@/components/dashboard/reputation/ui";
 import { Modal } from "@/components/dashboard/reputation/Modal";
+import { ConfirmDialog, useConfirm } from "@/components/dashboard/reputation/ConfirmDialog";
+import { useToast } from "@/components/dashboard/reputation/Toast";
 import { NewContactModal } from "@/components/dashboard/reputation/contacts/NewContactModal";
 import { CONTACT_STATUS_FILTERS, type ContactStatus, type ReviewContact } from "@/lib/reputation";
 import {
@@ -64,6 +66,8 @@ export function ContactsTable({
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [newOpen, setNewOpen] = useState(false);
   const [viewing, setViewing] = useState<ReviewContact | null>(null);
+  const { toast } = useToast();
+  const confirmDelete = useConfirm<string[]>();
 
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const allSelected = rows.length > 0 && rows.every((c) => selected.has(c.id));
@@ -91,32 +95,32 @@ export function ContactsTable({
   }
 
   // ---- Mutations (optimistic) ----
-  function handleDelete(id: string) {
-    startTransition(async () => {
-      dispatch({ t: "delete", ids: [id] });
-      setSelected((s) => {
-        const n = new Set(s);
-        n.delete(id);
-        return n;
-      });
-      await deleteContact(id);
-    });
-  }
-
-  function handleBulkDelete() {
-    const ids = [...selected];
-    if (ids.length === 0) return;
+  function runDelete(ids: string[]) {
     startTransition(async () => {
       dispatch({ t: "delete", ids });
-      setSelected(new Set());
-      await deleteContacts(ids);
+      setSelected((s) => {
+        const n = new Set(s);
+        ids.forEach((id) => n.delete(id));
+        return n;
+      });
+      try {
+        ids.length === 1 ? await deleteContact(ids[0]) : await deleteContacts(ids);
+        toast({ title: ids.length === 1 ? "Contact deleted" : `${ids.length} contacts deleted`, variant: "success" });
+      } catch {
+        toast({ title: "Couldn't delete", description: "Please try again.", variant: "error" });
+      }
     });
   }
 
   function handleSend(id: string) {
     startTransition(async () => {
       dispatch({ t: "requested", id });
-      await sendReviewRequest(id);
+      try {
+        await sendReviewRequest(id);
+        toast({ title: "Review request queued", variant: "success" });
+      } catch (err) {
+        toast({ title: "Couldn't send request", description: err instanceof Error ? err.message : undefined, variant: "error" });
+      }
     });
   }
 
@@ -150,6 +154,7 @@ export function ContactsTable({
           },
         });
         const res = await createContact(input);
+        if (res.ok) toast({ title: "Contact added", variant: "success" });
         resolve(res.ok ? null : res.error);
       });
     });
@@ -219,7 +224,7 @@ export function ContactsTable({
             <Button variant="secondary" className="text-xs" onClick={() => setSelected(new Set())}>
               Clear
             </Button>
-            <Button variant="secondary" className="text-xs !text-red-600" onClick={handleBulkDelete}>
+            <Button variant="secondary" className="text-xs !text-red-600" onClick={() => selected.size > 0 && confirmDelete.ask([...selected])}>
               Delete selected
             </Button>
           </div>
@@ -282,7 +287,7 @@ export function ContactsTable({
                         <IconButton title="View" onClick={() => setViewing(c)}><EyeIcon /></IconButton>
                         <IconButton title="Send review request" onClick={() => handleSend(c.id)}><SendIcon2 /></IconButton>
                         <IconButton title="Message" onClick={() => handleMessage(c)}><ChatIcon2 /></IconButton>
-                        <IconButton title="Delete" danger onClick={() => handleDelete(c.id)}><TrashIcon /></IconButton>
+                        <IconButton title="Delete" danger onClick={() => confirmDelete.ask([c.id])}><TrashIcon /></IconButton>
                       </div>
                     </td>
                   </tr>
@@ -335,6 +340,18 @@ export function ContactsTable({
           </dl>
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={confirmDelete.open}
+        onClose={confirmDelete.close}
+        onConfirm={() => {
+          if (confirmDelete.target) runDelete(confirmDelete.target);
+        }}
+        title={confirmDelete.target && confirmDelete.target.length > 1 ? `Delete ${confirmDelete.target.length} contacts?` : "Delete contact?"}
+        description="They'll be removed from your contacts. This can't be undone."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 }

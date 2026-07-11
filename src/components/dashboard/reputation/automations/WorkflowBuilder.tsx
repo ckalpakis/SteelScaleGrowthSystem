@@ -3,11 +3,12 @@
 import { useState } from "react";
 import { Button, Input, Label, cn } from "@/components/ui";
 import { PageHeader, Panel, BoltIcon, PlusIcon, SendIcon, TemplateIcon } from "@/components/dashboard/reputation/ui";
+import { DelayField } from "@/components/dashboard/reputation/DelayField";
+import { useToast } from "@/components/dashboard/reputation/Toast";
+import { ConfirmDialog, useConfirm } from "@/components/dashboard/reputation/ConfirmDialog";
 import {
   WORKFLOW_TRIGGERS,
   WORKFLOW_STOP_CONDITIONS,
-  DELAY_UNITS,
-  splitDelay,
   formatDelay,
   triggerLabel,
   type ReviewWorkflow,
@@ -65,18 +66,17 @@ export function WorkflowBuilder({
   const [draft, setDraft] = useState<Draft>(() => (initial[0] ? toDraft(initial[0]) : blankDraft()));
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+  const confirmDelete = useConfirm<string>();
 
   const isNew = draft.id === null;
   const set = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((d) => ({ ...d, [key]: value }));
 
   function selectWorkflow(w: ReviewWorkflow) {
-    setError(null);
     setDraft(toDraft(w));
   }
 
   function newWorkflow() {
-    setError(null);
     setDraft(blankDraft());
   }
 
@@ -90,13 +90,12 @@ export function WorkflowBuilder({
   }
 
   async function save() {
-    setError(null);
     const input: WorkflowInput = { ...draft };
     setSaving(true);
     const res = isNew ? await createWorkflow(input) : await updateWorkflow(draft.id!, input);
     setSaving(false);
     if (!res.ok) {
-      setError(res.error);
+      toast({ title: "Couldn't save workflow", description: res.error, variant: "error" });
       return;
     }
     setWorkflows((list) => {
@@ -104,6 +103,7 @@ export function WorkflowBuilder({
       return exists ? list.map((w) => (w.id === res.workflow.id ? res.workflow : w)) : [res.workflow, ...list];
     });
     setDraft(toDraft(res.workflow));
+    toast({ title: isNew ? "Workflow created" : "Workflow saved", variant: "success" });
   }
 
   async function remove(id: string) {
@@ -115,6 +115,7 @@ export function WorkflowBuilder({
     setBusy(true);
     try {
       await deleteWorkflow(id);
+      toast({ title: "Workflow deleted", variant: "success" });
     } finally {
       setBusy(false);
     }
@@ -129,7 +130,7 @@ export function WorkflowBuilder({
       // revert on failure
       setWorkflows((list) => list.map((x) => (x.id === w.id ? { ...x, is_active: w.is_active } : x)));
       if (draft.id === w.id) set("is_active", w.is_active);
-      setError(res.error);
+      toast({ title: "Couldn't update workflow", description: res.error, variant: "error" });
     }
   }
 
@@ -342,14 +343,12 @@ export function WorkflowBuilder({
                 </button>
               </label>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
-
               <div className="flex flex-wrap items-center gap-2 border-t border-[#f0f0ef] pt-4">
                 <Button onClick={save} disabled={saving}>
                   {saving ? "Saving…" : isNew ? "Create workflow" : "Save changes"}
                 </Button>
                 {!isNew && (
-                  <Button variant="ghost" className="!text-red-600" disabled={busy} onClick={() => remove(draft.id!)}>
+                  <Button variant="ghost" className="!text-red-600" disabled={busy} onClick={() => confirmDelete.ask(draft.id!)}>
                     Delete
                   </Button>
                 )}
@@ -370,58 +369,18 @@ export function WorkflowBuilder({
           </Panel>
         </div>
       </div>
-    </div>
-  );
-}
 
-// ------------------------------------------------------------- delay control
-function DelayField({
-  minutes,
-  onChange,
-  disabled,
-}: {
-  minutes: number;
-  onChange: (minutes: number) => void;
-  disabled?: boolean;
-}) {
-  const initial = splitDelay(minutes);
-  const [value, setValue] = useState<number>(initial.value);
-  const [unit, setUnit] = useState<string>(initial.unit);
-
-  function emit(nextValue: number, nextUnit: string) {
-    const mult = DELAY_UNITS.find((u) => u.value === nextUnit)?.minutes ?? 1;
-    onChange(Math.max(0, Math.floor(nextValue)) * mult);
-  }
-
-  return (
-    <div className="flex gap-2">
-      <Input
-        type="number"
-        min={0}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => {
-          const v = Number(e.target.value);
-          setValue(v);
-          emit(v, unit);
+      <ConfirmDialog
+        open={confirmDelete.open}
+        onClose={confirmDelete.close}
+        onConfirm={() => {
+          if (confirmDelete.target) remove(confirmDelete.target);
         }}
-        className="w-24 disabled:opacity-50"
+        title="Delete workflow?"
+        description="This workflow will stop running for new contacts. This can't be undone."
+        confirmLabel="Delete"
+        destructive
       />
-      <select
-        value={unit}
-        disabled={disabled}
-        onChange={(e) => {
-          setUnit(e.target.value);
-          emit(value, e.target.value);
-        }}
-        className="rounded-md border border-[#e0e0de] bg-white px-3 py-2 text-sm text-[#37352f] transition-colors focus:border-brand/40 focus:outline-none focus:ring-2 focus:ring-brand/15 disabled:opacity-50"
-      >
-        {DELAY_UNITS.map((u) => (
-          <option key={u.value} value={u.value}>
-            {u.label}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

@@ -4,11 +4,10 @@ import { useState } from "react";
 import { Button, Input, Label, cn } from "@/components/ui";
 import { Panel } from "@/components/dashboard/reputation/ui";
 import { Tooltip } from "@/components/dashboard/reputation/Tooltip";
+import { DelayField } from "@/components/dashboard/reputation/DelayField";
 import { useToast } from "@/components/dashboard/reputation/Toast";
 import { saveReputationSettings } from "@/app/dashboard/reputation/settings/actions";
 import {
-  DELAY_UNITS,
-  splitDelay,
   US_TIMEZONES,
   HOUR_OPTIONS_0_23,
   HOUR_OPTIONS_1_24,
@@ -89,7 +88,7 @@ export function ReputationSettingsForm({ initial }: { initial: ReviewSettingsVal
                 <InfoDot />
               </Tooltip>
             </Label>
-            <DelayInput minutes={values.default_delay_minutes} onChange={(m) => set("default_delay_minutes", m)} />
+            <DelayField minutes={values.default_delay_minutes} onChange={(m) => set("default_delay_minutes", m)} />
           </div>
           <div>
             <Label htmlFor="default_reminders">Default reminder count</Label>
@@ -190,50 +189,6 @@ export function ReputationSettingsForm({ initial }: { initial: ReviewSettingsVal
           {saving ? "Saving…" : "Save settings"}
         </Button>
       </div>
-    </div>
-  );
-}
-
-// Number + unit control for the default delay.
-function DelayInput({ minutes, onChange }: { minutes: number; onChange: (m: number) => void }) {
-  const initial = splitDelay(minutes);
-  const [value, setValue] = useState(initial.value);
-  const [unit, setUnit] = useState(initial.unit);
-
-  function emit(v: number, u: string) {
-    const mult = DELAY_UNITS.find((x) => x.value === u)?.minutes ?? 1;
-    onChange(Math.max(0, Math.floor(v)) * mult);
-  }
-
-  return (
-    <div className="flex gap-2">
-      <Input
-        type="number"
-        min={0}
-        value={value}
-        onChange={(e) => {
-          const v = Number(e.target.value);
-          setValue(v);
-          emit(v, unit);
-        }}
-        className="w-24"
-        aria-label="Delay amount"
-      />
-      <select
-        value={unit}
-        onChange={(e) => {
-          setUnit(e.target.value);
-          emit(value, e.target.value);
-        }}
-        className={selectClass}
-        aria-label="Delay unit"
-      >
-        {DELAY_UNITS.map((u) => (
-          <option key={u.value} value={u.value}>
-            {u.label}
-          </option>
-        ))}
-      </select>
     </div>
   );
 }

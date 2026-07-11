@@ -1,8 +1,11 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Input, Label } from "@/components/ui";
 import { PageHeader, Panel, TemplateIcon, PlusIcon } from "@/components/dashboard/reputation/ui";
+import { useToast } from "@/components/dashboard/reputation/Toast";
+import { ConfirmDialog, useConfirm } from "@/components/dashboard/reputation/ConfirmDialog";
+import { Tooltip } from "@/components/dashboard/reputation/Tooltip";
 import {
   MERGE_TAGS,
   MERGE_SAMPLE,
@@ -30,8 +33,9 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
   );
   const [saving, setSaving] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const bodyRef = useRef<HTMLTextAreaElement>(null);
+  const { toast } = useToast();
+  const confirmDelete = useConfirm<string>();
 
   const isNew = draft.id === null;
   const preview = useMemo(() => renderTemplate(draft.body, MERGE_SAMPLE), [draft.body]);
@@ -39,12 +43,10 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
   const segments = smsSegments(charCount);
 
   function selectTemplate(t: ReviewTemplate) {
-    setError(null);
     setDraft({ id: t.id, name: t.name, body: t.body });
   }
 
   function newTemplate() {
-    setError(null);
     setDraft({ id: null, name: "", body: STARTER });
     requestAnimationFrame(() => bodyRef.current?.focus());
   }
@@ -68,13 +70,12 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
   }
 
   async function save() {
-    setError(null);
     const input: TemplateInput = { name: draft.name, body: draft.body };
     setSaving(true);
     const res = isNew ? await createTemplate(input) : await updateTemplate(draft.id!, input);
     setSaving(false);
     if (!res.ok) {
-      setError(res.error);
+      toast({ title: "Couldn't save template", description: res.error, variant: "error" });
       return;
     }
     setTemplates((list) => {
@@ -82,6 +83,7 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
       return exists ? list.map((t) => (t.id === res.template.id ? res.template : t)) : [res.template, ...list];
     });
     setDraft({ id: res.template.id, name: res.template.name, body: res.template.body });
+    toast({ title: isNew ? "Template created" : "Template saved", variant: "success" });
   }
 
   async function remove(id: string) {
@@ -93,6 +95,7 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
     setBusy(true);
     try {
       await deleteTemplate(id);
+      toast({ title: "Template deleted", variant: "success" });
     } finally {
       setBusy(false);
     }
@@ -103,12 +106,26 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
     const res = await duplicateTemplate(id);
     setBusy(false);
     if (!res.ok) {
-      setError(res.error);
+      toast({ title: "Couldn't duplicate", description: res.error, variant: "error" });
       return;
     }
     setTemplates((list) => [res.template, ...list]);
     setDraft({ id: res.template.id, name: res.template.name, body: res.template.body });
+    toast({ title: "Template duplicated", variant: "success" });
   }
+
+  // Cmd/Ctrl+S saves the current template.
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "s") {
+        e.preventDefault();
+        if (!saving) save();
+      }
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft, saving]);
 
   return (
     <div className="space-y-5">
@@ -205,18 +222,18 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
                 </p>
               </div>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
-
               <div className="flex flex-wrap items-center gap-2 border-t border-[#f0f0ef] pt-4">
-                <Button onClick={save} disabled={saving}>
-                  {saving ? "Saving…" : isNew ? "Create template" : "Save changes"}
-                </Button>
+                <Tooltip label="Save (⌘S)">
+                  <Button onClick={save} disabled={saving}>
+                    {saving ? "Saving…" : isNew ? "Create template" : "Save changes"}
+                  </Button>
+                </Tooltip>
                 {!isNew && (
                   <>
                     <Button variant="secondary" disabled={busy} onClick={() => duplicate(draft.id!)}>
                       Duplicate
                     </Button>
-                    <Button variant="ghost" className="!text-red-600" disabled={busy} onClick={() => remove(draft.id!)}>
+                    <Button variant="ghost" className="!text-red-600" disabled={busy} onClick={() => confirmDelete.ask(draft.id!)}>
                       Delete
                     </Button>
                   </>
@@ -249,6 +266,18 @@ export function TemplatesManager({ templates: initial }: { templates: ReviewTemp
           </Panel>
         </div>
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete.open}
+        onClose={confirmDelete.close}
+        onConfirm={() => {
+          if (confirmDelete.target) remove(confirmDelete.target);
+        }}
+        title="Delete template?"
+        description="This template will be removed. Workflows using it will fall back to the default message."
+        confirmLabel="Delete"
+        destructive
+      />
     </div>
   );
 }
