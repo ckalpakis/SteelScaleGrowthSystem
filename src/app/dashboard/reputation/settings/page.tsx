@@ -1,5 +1,11 @@
 import { Button, Input, Label } from "@/components/ui";
 import { PageHeader, Panel, StatusPill } from "@/components/dashboard/reputation/ui";
+import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { getTwilioSummary, type TwilioConfigSummary } from "@/lib/twilio";
+import { TwilioSettingsForm } from "@/components/dashboard/reputation/settings/TwilioSettingsForm";
+
+export const dynamic = "force-dynamic";
 
 const PLATFORMS = [
   { name: "Google Business Profile", connected: true },
@@ -13,10 +19,27 @@ const NOTIFS = [
   { label: "Weekly reputation summary", on: false },
 ];
 
-export default function ReputationSettingsPage() {
+async function loadTwilioSummary(): Promise<TwilioConfigSummary> {
+  const empty: TwilioConfigSummary = {
+    configured: false,
+    accountSid: null,
+    messagingServiceSid: null,
+    phoneNumber: null,
+    isActive: false,
+  };
+  const supabase = createClient();
+  const { data: company } = await supabase.from("companies").select("id").limit(1).maybeSingle<{ id: string }>();
+  if (!company) return empty;
+  return getTwilioSummary(createAdminClient(), company.id);
+}
+
+export default async function ReputationSettingsPage() {
+  const twilio = await loadTwilioSummary();
   return (
     <div className="max-w-3xl space-y-6">
       <PageHeader title="Settings" description="Configure how your reputation tools work." />
+
+      <TwilioSettingsForm summary={twilio} />
 
       {/* Connected platforms */}
       <Panel title="Connected platforms">
