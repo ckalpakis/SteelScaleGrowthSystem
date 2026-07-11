@@ -83,3 +83,76 @@ export function smsSegments(len: number): number {
   if (len === 0) return 0;
   return len <= 160 ? 1 : Math.ceil(len / 153);
 }
+
+// ---------------------------------------------------------------- workflows
+export type WorkflowTrigger =
+  | "job_completed"
+  | "invoice_paid"
+  | "manual"
+  | "contact_imported"
+  | "appointment_completed";
+
+export type StopCondition = "clicked_review_link" | "review_received" | "replied_stop";
+
+export interface ReviewWorkflow {
+  id: string;
+  company_id: string;
+  name: string;
+  trigger_type: WorkflowTrigger;
+  template_id: string | null;
+  channel: "sms" | "email";
+  delay_minutes: number;
+  reminder_count: number;
+  reminder_delay_minutes: number;
+  stop_conditions: StopCondition[];
+  config: Record<string, unknown>;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export const WORKFLOW_TRIGGERS: { value: WorkflowTrigger; label: string; description: string }[] = [
+  { value: "job_completed", label: "Job Completed", description: "A job is marked complete" },
+  { value: "invoice_paid", label: "Invoice Paid", description: "An invoice is paid in full" },
+  { value: "manual", label: "Manual", description: "You start it by hand" },
+  { value: "contact_imported", label: "Contact Imported", description: "A new contact is added" },
+  { value: "appointment_completed", label: "Appointment Completed", description: "An appointment wraps up" },
+];
+
+export const WORKFLOW_STOP_CONDITIONS: { value: StopCondition; label: string; description: string }[] = [
+  { value: "clicked_review_link", label: "Customer clicked review link", description: "Stop once they open the review link" },
+  { value: "review_received", label: "Review received", description: "Stop once a new review comes in" },
+  { value: "replied_stop", label: "Customer replied STOP", description: "Stop if they opt out by text" },
+];
+
+export function triggerLabel(t: string): string {
+  return WORKFLOW_TRIGGERS.find((x) => x.value === t)?.label ?? t;
+}
+
+// Turn a minute count into a short human phrase ("3 days", "2 hours", "45 min").
+export function formatDelay(minutes: number): string {
+  if (!minutes || minutes <= 0) return "Immediately";
+  if (minutes % 1440 === 0) {
+    const d = minutes / 1440;
+    return `${d} day${d === 1 ? "" : "s"}`;
+  }
+  if (minutes % 60 === 0) {
+    const h = minutes / 60;
+    return `${h} hour${h === 1 ? "" : "s"}`;
+  }
+  return `${minutes} min`;
+}
+
+// Delay units the builder offers, with their minute multiplier.
+export const DELAY_UNITS: { value: string; label: string; minutes: number }[] = [
+  { value: "minutes", label: "Minutes", minutes: 1 },
+  { value: "hours", label: "Hours", minutes: 60 },
+  { value: "days", label: "Days", minutes: 1440 },
+];
+
+// Split a minute total into the largest clean {value, unit} for editing.
+export function splitDelay(minutes: number): { value: number; unit: string } {
+  if (minutes > 0 && minutes % 1440 === 0) return { value: minutes / 1440, unit: "days" };
+  if (minutes > 0 && minutes % 60 === 0) return { value: minutes / 60, unit: "hours" };
+  return { value: minutes, unit: "minutes" };
+}
