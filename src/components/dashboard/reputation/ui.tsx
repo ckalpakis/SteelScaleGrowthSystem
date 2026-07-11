@@ -55,6 +55,33 @@ export function StatCard({
   );
 }
 
+// Prominent platform-rating card (e.g. Google) with stars + review count.
+export function RatingCard({
+  rating,
+  reviews,
+  platform = "Google",
+}: {
+  rating: number;
+  reviews: number;
+  platform?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-[#ededec] bg-white p-5 shadow-[0_1px_2px_rgba(15,15,15,0.04)]">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium uppercase tracking-wide text-[#787774]">{platform} Rating</span>
+        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-100 text-amber-500">
+          <StarIcon className="h-4 w-4" filled />
+        </span>
+      </div>
+      <div className="mt-3 flex items-end gap-2">
+        <span className="text-2xl font-bold text-[#37352f]">{rating.toFixed(1)}</span>
+        <Stars value={Math.round(rating)} className="mb-1" />
+      </div>
+      <div className="mt-1 text-xs text-[#9b9a97]">{reviews} reviews</div>
+    </div>
+  );
+}
+
 // Titled surface panel with optional header action.
 export function Panel({
   title,
