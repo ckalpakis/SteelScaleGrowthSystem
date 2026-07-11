@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentCompanyId } from "@/lib/reputation.server";
+import { getCurrentCompanyId, generateShortCode } from "@/lib/reputation.server";
 import { type ReviewContact } from "@/lib/reputation";
 
 const PATH = "/dashboard/reputation/contacts";
@@ -81,10 +81,22 @@ export async function sendReviewRequest(id: string): Promise<void> {
     .single<{ phone: string | null; email: string | null }>();
   if (!contact) throw new Error("Contact not found.");
 
+  // Pull the company's Google review URL so the tracked link has a destination.
+  const { data: settings } = await supabase
+    .from("review_settings")
+    .select("google_review_url")
+    .eq("company_id", companyId)
+    .maybeSingle<{ google_review_url: string | null }>();
+
   const channel = contact.phone ? "sms" : "email";
-  const { error: reqError } = await supabase
-    .from("review_requests")
-    .insert({ company_id: companyId, contact_id: id, channel, status: "pending" });
+  const { error: reqError } = await supabase.from("review_requests").insert({
+    company_id: companyId,
+    contact_id: id,
+    channel,
+    status: "pending",
+    short_code: generateShortCode(),
+    review_url: settings?.google_review_url ?? null,
+  });
   if (reqError) throw new Error(reqError.message);
 
   await supabase

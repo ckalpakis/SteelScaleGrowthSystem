@@ -1,79 +1,102 @@
-import { Button } from "@/components/ui";
-import { PageHeader, StatCard, Panel, StatusPill, SendIcon, PlusIcon } from "@/components/dashboard/reputation/ui";
+import { createClient } from "@/lib/supabase/server";
+import { PageHeader, StatCard, Panel, StatusPill, EmptyState, SendIcon, ChartIcon } from "@/components/dashboard/reputation/ui";
+import { BarChart } from "@/components/dashboard/reputation/charts";
+import { CopyLinkButton } from "@/components/dashboard/reputation/review-requests/CopyLinkButton";
+import { getReviewLinkAnalytics, type RequestRow } from "@/lib/reputation.analytics";
+import { reviewLinkUrl } from "@/lib/reputation";
 
-const FILTERS = ["All", "Pending", "Sent", "Opened", "Completed"];
+export const dynamic = "force-dynamic";
 
-// Placeholder sample rows — no business logic yet.
-const REQUESTS = [
-  { name: "Karen Mitchell", channel: "SMS", sent: "Jul 2, 2:14 PM", status: "Completed" as const },
-  { name: "Dave Robertson", channel: "Email", sent: "Jun 28, 9:02 AM", status: "Opened" as const },
-  { name: "Priya Shah", channel: "SMS", sent: "Jun 24, 4:41 PM", status: "Sent" as const },
-  { name: "Tom Becker", channel: "Email", sent: "—", status: "Pending" as const },
-];
+const STATUS_TONE: Record<string, "green" | "blue" | "amber" | "gray" | "red"> = {
+  completed: "green",
+  clicked: "blue",
+  opened: "blue",
+  delivered: "green",
+  sent: "amber",
+  scheduled: "amber",
+  pending: "gray",
+  failed: "red",
+  opted_out: "red",
+};
 
-const TONE = { Completed: "green", Opened: "blue", Sent: "amber", Pending: "gray" } as const;
+const DATE_FMT = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 
-export default function ReviewRequestsPage() {
+function fmt(iso: string | null): string {
+  return iso ? DATE_FMT.format(new Date(iso)) : "—";
+}
+
+export default async function ReviewRequestsPage() {
+  const supabase = createClient();
+  const { data: company } = await supabase.from("companies").select("id").limit(1).maybeSingle<{ id: string }>();
+
+  const analytics = company
+    ? await getReviewLinkAnalytics(supabase, company.id)
+    : { sent: 0, totalClicks: 0, clickedRequests: 0, reviews: 0, clickThroughRate: 0, clicksPerWeek: [], recent: [] as RequestRow[] };
+
   return (
     <div className="space-y-6">
       <PageHeader
         title="Review Requests"
         description="Send and track requests that turn happy customers into reviews."
-        action={
-          <Button>
-            <PlusIcon className="mr-1.5 h-4 w-4" /> New request
-          </Button>
-        }
       />
 
+      {/* Click analytics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Sent" value="96" icon={<SendIcon className="h-4 w-4" />} />
-        <StatCard label="Opened" value="61" icon={<SendIcon className="h-4 w-4" />} trend="64% open rate" />
-        <StatCard label="Clicked" value="42" icon={<SendIcon className="h-4 w-4" />} />
-        <StatCard label="Reviews" value="33" icon={<SendIcon className="h-4 w-4" />} trend="34% conversion" trendUp />
+        <StatCard label="Requests Sent" value={String(analytics.sent)} icon={<SendIcon className="h-4 w-4" />} />
+        <StatCard label="Link Clicks" value={String(analytics.totalClicks)} icon={<ChartIcon className="h-4 w-4" />} trend={`${analytics.clickedRequests} unique`} />
+        <StatCard
+          label="Click-Through Rate"
+          value={`${analytics.clickThroughRate}%`}
+          icon={<ChartIcon className="h-4 w-4" />}
+          trend="Sent → clicked"
+          trendUp={analytics.clickThroughRate > 0}
+        />
+        <StatCard label="Reviews" value={String(analytics.reviews)} icon={<SendIcon className="h-4 w-4" />} trend="Completed" trendUp={analytics.reviews > 0} />
       </div>
 
-      {/* Filter segmented control (visual only) */}
-      <div className="inline-flex flex-wrap gap-1 rounded-lg border border-[#e0e0de] bg-white p-0.5">
-        {FILTERS.map((f, i) => (
-          <button
-            key={f}
-            className={
-              "rounded-md px-3 py-1.5 text-sm font-medium transition-colors " +
-              (i === 0 ? "bg-brand text-white" : "text-[#787774] hover:bg-black/[0.04]")
-            }
-          >
-            {f}
-          </button>
-        ))}
-      </div>
-
-      <Panel className="overflow-hidden !p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="border-b border-[#f0f0ef] bg-[#fafafa] text-left text-xs uppercase tracking-wide text-[#9b9a97]">
-              <tr>
-                <th className="px-5 py-3 font-medium">Contact</th>
-                <th className="px-5 py-3 font-medium">Channel</th>
-                <th className="hidden px-5 py-3 font-medium sm:table-cell">Sent</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#f0f0ef]">
-              {REQUESTS.map((r, i) => (
-                <tr key={i} className="transition-colors hover:bg-[#fafafa]">
-                  <td className="px-5 py-3 font-medium text-[#37352f]">{r.name}</td>
-                  <td className="px-5 py-3 text-[#787774]">{r.channel}</td>
-                  <td className="hidden px-5 py-3 text-[#787774] sm:table-cell">{r.sent}</td>
-                  <td className="px-5 py-3">
-                    <StatusPill tone={TONE[r.status]}>{r.status}</StatusPill>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+      <Panel title="Clicks Per Week">
+        <BarChart data={analytics.clicksPerWeek} />
       </Panel>
+
+      {/* Requests table */}
+      {analytics.recent.length === 0 ? (
+        <EmptyState
+          icon={<SendIcon className="h-5 w-5" />}
+          title="No review requests yet"
+          description="Send a review request from the Contacts page to start tracking clicks and conversions."
+        />
+      ) : (
+        <Panel className="overflow-hidden !p-0" title="Recent Requests">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="border-b border-[#f0f0ef] bg-[#fafafa] text-left text-xs uppercase tracking-wide text-[#9b9a97]">
+                <tr>
+                  <th className="px-5 py-3 font-medium">Contact</th>
+                  <th className="hidden px-5 py-3 font-medium sm:table-cell">Sent</th>
+                  <th className="px-5 py-3 font-medium">Clicks</th>
+                  <th className="px-5 py-3 font-medium">Status</th>
+                  <th className="px-5 py-3 font-medium">Link</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-[#f0f0ef]">
+                {analytics.recent.map((r) => (
+                  <tr key={r.id} className="transition-colors hover:bg-[#fafafa]">
+                    <td className="px-5 py-3 font-medium text-[#37352f]">{r.contactName}</td>
+                    <td className="hidden px-5 py-3 text-[#787774] sm:table-cell">{fmt(r.sentAt ?? r.createdAt)}</td>
+                    <td className="px-5 py-3 text-[#787774]">{r.clicks}</td>
+                    <td className="px-5 py-3">
+                      <StatusPill tone={STATUS_TONE[r.status] ?? "gray"}>{r.status}</StatusPill>
+                    </td>
+                    <td className="px-5 py-3">
+                      {r.shortCode ? <CopyLinkButton url={reviewLinkUrl(r.shortCode)} /> : <span className="text-xs text-[#b9b9b7]">—</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Panel>
+      )}
     </div>
   );
 }

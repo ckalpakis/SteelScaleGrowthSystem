@@ -156,3 +156,20 @@ export function splitDelay(minutes: number): { value: number; unit: string } {
   if (minutes > 0 && minutes % 60 === 0) return { value: minutes / 60, unit: "hours" };
   return { value: minutes, unit: "minutes" };
 }
+
+// ---------------------------------------------------------------- review links
+// Base URL for tracked review short links (growth.steelscale.com/r/<code>).
+export function reviewLinkBase(): string {
+  const raw =
+    process.env.NEXT_PUBLIC_REVIEW_LINK_BASE ||
+    process.env.NEXT_PUBLIC_APP_URL ||
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    "";
+  return raw.replace(/\/$/, "");
+}
+
+// Full tracked URL for a request's short code.
+export function reviewLinkUrl(code: string): string {
+  const base = reviewLinkBase();
+  return base ? `${base}/r/${code}` : `/r/${code}`;
+}
