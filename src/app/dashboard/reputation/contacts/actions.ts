@@ -2,7 +2,9 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { getCurrentCompanyId, generateShortCode } from "@/lib/reputation.server";
+import { enrollByTrigger, enrollContactInWorkflow, type EnrollResult } from "@/lib/reputation.engine";
 import { type ReviewContact } from "@/lib/reputation";
 
 const PATH = "/dashboard/reputation/contacts";
@@ -49,8 +51,25 @@ export async function createContact(input: ContactInput): Promise<CreateResult> 
     return { ok: false, error: msg ?? "Could not create the contact." };
   }
 
+  // Fire any "contact imported" workflows (best-effort; only enrolls contacts
+  // with a phone + SMS consent, so a plain manual add never auto-texts).
+  try {
+    await enrollByTrigger(createAdminClient(), companyId, "contact_imported", data.id);
+  } catch (err) {
+    console.error("[contacts] contact_imported enroll failed", err);
+  }
+
   revalidatePath(PATH);
   return { ok: true, contact: data };
+}
+
+// Manually enroll a contact into a specific workflow (e.g. from the UI).
+export async function enrollContact(contactId: string, workflowId: string): Promise<EnrollResult> {
+  const companyId = await getCurrentCompanyId();
+  if (!companyId) return { ok: false, error: "No company is linked to your account." };
+  const res = await enrollContactInWorkflow(createAdminClient(), workflowId, contactId);
+  revalidatePath(PATH);
+  return res;
 }
 
 export async function deleteContact(id: string): Promise<void> {
