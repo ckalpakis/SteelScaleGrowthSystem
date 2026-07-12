@@ -54,7 +54,7 @@ export async function createContact(input: ContactInput): Promise<CreateResult> 
   // Fire any "contact imported" workflows (best-effort; only enrolls contacts
   // with a phone + SMS consent, so a plain manual add never auto-texts).
   try {
-    await enrollByTrigger(createAdminClient(), companyId, "contact_imported", data.id);
+    await enrollByTrigger(createAdminClient(), companyId, "CONTACT_IMPORTED", data.id);
   } catch (err) {
     console.error("[contacts] contact_imported enroll failed", err);
   }

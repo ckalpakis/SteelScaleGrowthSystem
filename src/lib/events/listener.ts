@@ -53,17 +53,19 @@ export interface EventListenerDeps {
 }
 
 /**
- * Standardized event → review workflow trigger. This is the ONLY mapping the
- * listener needs; it is expressed purely in terms of platform event types, with
- * no reference to any provider.
+ * Standardized event → review workflow trigger. Workflow triggers ARE the
+ * standardized event names, so this is mostly identity; the only aliases fold
+ * related events onto one trigger (a payment counts as the invoice being paid).
+ * Expressed purely in platform event types — no reference to any provider.
  */
 export const EVENT_TRIGGER_MAP: Partial<Record<PlatformEventType, WorkflowTrigger>> = {
-  JOB_COMPLETED: "job_completed",
-  INVOICE_PAID: "invoice_paid",
-  PAYMENT_RECEIVED: "invoice_paid",
-  APPOINTMENT_COMPLETED: "appointment_completed",
-  CONTACT_IMPORTED: "contact_imported",
-  CUSTOMER_CREATED: "contact_imported",
+  JOB_COMPLETED: "JOB_COMPLETED",
+  INVOICE_PAID: "INVOICE_PAID",
+  PAYMENT_RECEIVED: "INVOICE_PAID", // a payment satisfies the "invoice paid" trigger
+  ESTIMATE_ACCEPTED: "ESTIMATE_ACCEPTED",
+  APPOINTMENT_COMPLETED: "APPOINTMENT_COMPLETED",
+  CUSTOMER_CREATED: "CUSTOMER_CREATED",
+  CONTACT_IMPORTED: "CONTACT_IMPORTED",
 };
 
 // Events whose payload carries a full canonical customer (drives CRM automation).

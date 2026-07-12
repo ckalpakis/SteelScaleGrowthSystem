@@ -31,7 +31,7 @@ function blankDraft(): Draft {
   return {
     id: null,
     name: "",
-    trigger_type: "job_completed",
+    trigger_type: "JOB_COMPLETED",
     template_id: null,
     delay_minutes: 4320, // 3 days
     reminder_count: 1,

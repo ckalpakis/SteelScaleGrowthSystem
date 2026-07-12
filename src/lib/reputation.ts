@@ -85,12 +85,17 @@ export function smsSegments(len: number): number {
 }
 
 // ---------------------------------------------------------------- workflows
+// Triggers are STANDARDIZED platform events (see @/lib/events). A workflow fires
+// whenever the matching event is published, regardless of which CRM generated
+// it. "MANUAL" is the one non-event trigger (started by hand).
 export type WorkflowTrigger =
-  | "job_completed"
-  | "invoice_paid"
-  | "manual"
-  | "contact_imported"
-  | "appointment_completed";
+  | "JOB_COMPLETED"
+  | "INVOICE_PAID"
+  | "ESTIMATE_ACCEPTED"
+  | "APPOINTMENT_COMPLETED"
+  | "CUSTOMER_CREATED"
+  | "CONTACT_IMPORTED"
+  | "MANUAL";
 
 export type StopCondition = "clicked_review_link" | "review_received" | "replied_stop";
 
@@ -112,11 +117,13 @@ export interface ReviewWorkflow {
 }
 
 export const WORKFLOW_TRIGGERS: { value: WorkflowTrigger; label: string; description: string }[] = [
-  { value: "job_completed", label: "Job Completed", description: "A job is marked complete" },
-  { value: "invoice_paid", label: "Invoice Paid", description: "An invoice is paid in full" },
-  { value: "manual", label: "Manual", description: "You start it by hand" },
-  { value: "contact_imported", label: "Contact Imported", description: "A new contact is added" },
-  { value: "appointment_completed", label: "Appointment Completed", description: "An appointment wraps up" },
+  { value: "JOB_COMPLETED", label: "Job Completed", description: "A job is marked complete in any connected CRM" },
+  { value: "INVOICE_PAID", label: "Invoice Paid", description: "An invoice is paid in full" },
+  { value: "ESTIMATE_ACCEPTED", label: "Estimate Accepted", description: "A customer approves an estimate" },
+  { value: "APPOINTMENT_COMPLETED", label: "Appointment Completed", description: "An appointment wraps up" },
+  { value: "CUSTOMER_CREATED", label: "Customer Created", description: "A new customer is added in a CRM" },
+  { value: "CONTACT_IMPORTED", label: "Contact Imported", description: "A contact is imported or added" },
+  { value: "MANUAL", label: "Manual", description: "You start it by hand" },
 ];
 
 export const WORKFLOW_STOP_CONDITIONS: { value: StopCondition; label: string; description: string }[] = [
