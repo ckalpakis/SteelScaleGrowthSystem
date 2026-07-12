@@ -20,6 +20,11 @@ import {
   saveIntegrationSettings,
 } from "@/app/dashboard/integrations/actions";
 
+// Providers that connect via a real OAuth redirect instead of the stub action.
+const OAUTH_CONNECT: Record<string, string> = {
+  google_business: "/api/integrations/google/connect",
+};
+
 const DISCONNECTED: IntegrationConnection = {
   provider: "",
   status: "disconnected",
@@ -128,6 +133,7 @@ export function IntegrationsMarketplace({ connections }: { connections: Integrat
               def={def}
               connection={connectionOf(def.provider)}
               busy={busy === def.provider}
+              connectHref={OAUTH_CONNECT[def.provider]}
               onConnect={() => connect(def)}
               onDisconnect={() => confirmDisconnect.ask(def.provider)}
               onSettings={() => setSettingsFor(def)}
@@ -169,6 +175,7 @@ function IntegrationCard({
   def,
   connection,
   busy,
+  connectHref,
   onConnect,
   onDisconnect,
   onSettings,
@@ -176,6 +183,7 @@ function IntegrationCard({
   def: IntegrationDef;
   connection: IntegrationConnection;
   busy: boolean;
+  connectHref?: string;
   onConnect: () => void;
   onDisconnect: () => void;
   onSettings: () => void;
@@ -216,6 +224,18 @@ function IntegrationCard({
             </Button>
             <Button variant="ghost" className="text-sm !text-red-600" disabled={busy} onClick={onDisconnect}>
               {busy ? "…" : "Disconnect"}
+            </Button>
+          </>
+        ) : connectHref ? (
+          <>
+            <a
+              href={connectHref}
+              className="inline-flex flex-1 items-center justify-center rounded-md bg-brand px-3.5 py-2 text-sm font-medium text-white transition-colors hover:bg-brand-dark"
+            >
+              Connect
+            </a>
+            <Button variant="secondary" className="text-sm" onClick={onSettings} aria-label={`${def.name} settings`}>
+              Settings
             </Button>
           </>
         ) : (

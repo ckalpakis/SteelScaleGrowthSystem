@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui";
+import { createClient } from "@/lib/supabase/server";
 import {
   PageHeader,
   RatingCard,
@@ -11,6 +12,8 @@ import {
 } from "@/components/dashboard/reputation/ui";
 import { AreaChart, BarChart, type ChartPoint } from "@/components/dashboard/reputation/charts";
 import { ActivityFeed, type Activity } from "@/components/dashboard/reputation/ActivityFeed";
+
+export const dynamic = "force-dynamic";
 
 // Placeholder data (no business logic yet).
 const REVIEW_GROWTH: ChartPoint[] = [
@@ -43,7 +46,17 @@ const ACTIVITY: Activity[] = [
   { type: "workflow_started", title: "Workflow started", description: "“Request review when job marked Won” triggered", time: "5h ago" },
 ];
 
-export default function ReputationOverviewPage() {
+export default async function ReputationOverviewPage() {
+  // Real Google rating when connected; falls back to placeholders otherwise.
+  const supabase = createClient();
+  const { data: gp } = await supabase
+    .from("google_business_profiles")
+    .select("average_rating, total_reviews")
+    .limit(1)
+    .maybeSingle<{ average_rating: number | null; total_reviews: number }>();
+  const rating = gp?.average_rating ?? 4.9;
+  const totalReviews = gp?.total_reviews ?? 168;
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -54,8 +67,8 @@ export default function ReputationOverviewPage() {
 
       {/* Metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        <RatingCard rating={4.9} reviews={168} platform="Google" />
-        <StatCard label="Total Reviews" value="221" icon={<UsersIcon className="h-4 w-4" />} trend="+18 this month" trendUp />
+        <RatingCard rating={rating} reviews={totalReviews} platform="Google" />
+        <StatCard label="Total Reviews" value={String(totalReviews)} icon={<UsersIcon className="h-4 w-4" />} trend="+18 this month" trendUp />
         <StatCard label="Reviews This Month" value="18" icon={<StarIcon className="h-4 w-4" />} trend="+6 vs last month" trendUp />
         <StatCard label="Review Requests Sent" value="96" icon={<SendIcon className="h-4 w-4" />} trend="+18 this month" trendUp />
         <StatCard label="Pending Requests" value="12" icon={<SendIcon className="h-4 w-4" />} trend="Awaiting a response" />
