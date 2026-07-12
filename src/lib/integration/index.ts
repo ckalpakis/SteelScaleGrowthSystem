@@ -13,3 +13,11 @@ export * from "@/lib/integration/ports";
 export * from "@/lib/integration/types";
 export * from "@/lib/integration/adapter";
 export { SkeletonIntegrationAdapter } from "@/lib/integration/skeleton";
+export {
+  JobberIntegrationAdapter,
+  createJobberIntegration,
+  jobberOAuthConfig,
+  mapJobberTopic,
+  JOBBER_OAUTH,
+  JOBBER_WEBHOOK_EVENTS,
+} from "@/lib/integration/adapters/jobber";
