@@ -17,8 +17,9 @@ export * from "@/lib/crm/provider";
 
 import { registerAdapter } from "@/lib/crm/provider";
 import { jobberAdapter } from "@/lib/crm/adapters/jobber";
+import { housecallAdapter } from "@/lib/crm/adapters/housecall";
 
-export { jobberAdapter };
+export { jobberAdapter, housecallAdapter };
 
 let registered = false;
 
@@ -26,5 +27,6 @@ let registered = false;
 export function registerBuiltInAdapters(): void {
   if (registered) return;
   registerAdapter(jobberAdapter);
+  registerAdapter(housecallAdapter);
   registered = true;
 }

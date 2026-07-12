@@ -21,3 +21,11 @@ export {
   JOBBER_OAUTH,
   JOBBER_WEBHOOK_EVENTS,
 } from "@/lib/integration/adapters/jobber";
+export {
+  HousecallProIntegrationAdapter,
+  createHousecallProIntegration,
+  housecallOAuthConfig,
+  mapHousecallTopic,
+  HOUSECALL_OAUTH,
+  HOUSECALL_WEBHOOK_EVENTS,
+} from "@/lib/integration/adapters/housecall";
