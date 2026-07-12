@@ -31,6 +31,7 @@ export function Sidebar({
     nav.push({ href: "/dashboard", label: "Overview", icon: <HomeIcon />, exact: true });
     nav.push({ href: "/dashboard/leads", label: "Leads", icon: <InboxIcon /> });
     nav.push({ href: "/dashboard/reputation", label: "Reputation", icon: <StarNavIcon /> });
+    nav.push({ href: "/dashboard/integrations", label: "Integrations", icon: <PlugIcon /> });
     nav.push({ href: "/dashboard/settings", label: "Settings", icon: <CogIcon /> });
   }
   if (isAdmin) {
@@ -172,6 +173,13 @@ function CogIcon() {
     <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
       <circle cx="12" cy="12" r="3" />
       <path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.3 1a7 7 0 0 0-1.7-1L14.5 3h-4l-.4 2.1a7 7 0 0 0-1.7 1l-2.3-1-2 3.4L4 11a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.3-1a7 7 0 0 0 1.7 1l.4 2.1h4l.4-2.1a7 7 0 0 0 1.7-1l2.3 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+function PlugIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
+      <path d="M9 3v5M15 3v5M6 8h12v3a6 6 0 0 1-12 0V8zM12 17v4" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
