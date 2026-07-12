@@ -29,3 +29,11 @@ export {
   HOUSECALL_OAUTH,
   HOUSECALL_WEBHOOK_EVENTS,
 } from "@/lib/integration/adapters/housecall";
+export {
+  ServiceTitanIntegrationAdapter,
+  createServiceTitanIntegration,
+  servicetitanConfig,
+  mapServiceTitanEvent,
+  SERVICETITAN_OAUTH,
+  SERVICETITAN_WEBHOOK_EVENTS,
+} from "@/lib/integration/adapters/servicetitan";
