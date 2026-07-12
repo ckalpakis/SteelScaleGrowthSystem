@@ -27,11 +27,19 @@ export default async function IntegrationsPage() {
   return (
     <ToastProvider>
       <div>
-        <div className="mb-6">
-          <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">Integrations</h1>
-          <p className="mt-1 text-sm text-[#787774]">
-            Connect Steel Scale to the tools you already use. Sync jobs, customers, and reviews automatically.
-          </p>
+        <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-[#37352f]">Integrations</h1>
+            <p className="mt-1 text-sm text-[#787774]">
+              Connect Steel Scale to the tools you already use. Sync jobs, customers, and reviews automatically.
+            </p>
+          </div>
+          <a
+            href="/dashboard/integrations/dashboard"
+            className="rounded-md border border-[#e0e0de] bg-white px-3.5 py-2 text-sm font-medium text-[#37352f] transition-colors hover:bg-[#f7f7f5]"
+          >
+            Sync dashboard
+          </a>
         </div>
         <IntegrationsMarketplace connections={connections} />
       </div>
