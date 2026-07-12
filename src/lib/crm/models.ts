@@ -19,7 +19,10 @@
 // =============================================================================
 
 // ---------------------------------------------------------------- providers
-export type CrmProvider =
+// Provider ids are an OPEN set: a new CRM registers itself without editing this
+// file. The known ids give autocomplete; `(string & {})` keeps the type open so
+// any registered provider id is valid.
+export type KnownCrmProvider =
   | "jobber"
   | "housecall_pro"
   | "servicetitan"
@@ -27,6 +30,8 @@ export type CrmProvider =
   | "acculynx"
   | "quickbooks"
   | "manual";
+
+export type CrmProvider = KnownCrmProvider | (string & {});
 
 // The seven standardized object types.
 export type CanonicalObjectType =

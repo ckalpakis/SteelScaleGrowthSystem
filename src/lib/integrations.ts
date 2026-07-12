@@ -1,8 +1,12 @@
 // =============================================================================
-// Integrations catalog — the static definitions of every integration we offer.
-// Client-safe (no server imports). The DB (integration_connections) stores the
-// per-company connection state, which is merged with this catalog at render.
+// Integrations catalog. Client-safe. CRM providers are sourced from the provider
+// registry (@/lib/providers) so a newly-registered CRM appears in the
+// marketplace automatically; the remaining (non-CRM-adapter) integrations stay
+// listed statically here. The DB (integration_connections) stores per-company
+// connection state, merged with this catalog at render.
 // =============================================================================
+
+import { listProviderDescriptors } from "@/lib/providers";
 
 export type IntegrationStatus = "connected" | "disconnected" | "pending" | "error";
 
@@ -30,8 +34,8 @@ export interface IntegrationConnection {
   connected_at: string | null;
 }
 
-// The initial marketplace. Ordered by category relevance for home-service SaaS.
-export const INTEGRATION_CATALOG: IntegrationDef[] = [
+// Integrations that are not CRM provider adapters (no ProviderDefinition).
+const STATIC_INTEGRATIONS: IntegrationDef[] = [
   {
     provider: "google_business",
     name: "Google Business Profile",
@@ -40,33 +44,6 @@ export const INTEGRATION_CATALOG: IntegrationDef[] = [
     color: "#4285F4",
     monogram: "G",
     accountLabel: "Profile",
-  },
-  {
-    provider: "jobber",
-    name: "Jobber",
-    category: "CRM & Field Service",
-    description: "Import clients and jobs, and trigger review requests when a job is completed.",
-    color: "#1CA67A",
-    monogram: "J",
-    accountLabel: "Account",
-  },
-  {
-    provider: "housecall_pro",
-    name: "Housecall Pro",
-    category: "CRM & Field Service",
-    description: "Sync customers and completed jobs to automate follow-ups and reviews.",
-    color: "#2563EB",
-    monogram: "H",
-    accountLabel: "Account",
-  },
-  {
-    provider: "servicetitan",
-    name: "ServiceTitan",
-    category: "CRM & Field Service",
-    description: "Pull jobs, customers, and invoices to power automations at scale.",
-    color: "#0F172A",
-    monogram: "S",
-    accountLabel: "Tenant",
   },
   {
     provider: "jobnimbus",
@@ -114,6 +91,54 @@ export const INTEGRATION_CATALOG: IntegrationDef[] = [
     accountLabel: "Endpoint",
   },
 ];
+
+// Preferred display order; anything registered but unlisted is appended.
+const DISPLAY_ORDER = [
+  "google_business",
+  "jobber",
+  "housecall_pro",
+  "servicetitan",
+  "jobnimbus",
+  "acculynx",
+  "quickbooks",
+  "zapier",
+  "webhooks",
+];
+
+function buildCatalog(): IntegrationDef[] {
+  // CRM providers come from the registry (single source of truth).
+  const fromRegistry = new Map<string, IntegrationDef>(
+    listProviderDescriptors().map((d) => [
+      d.id,
+      {
+        provider: d.id,
+        name: d.name,
+        category: d.category as IntegrationCategory,
+        description: d.description,
+        color: d.color,
+        monogram: d.monogram,
+        accountLabel: d.accountLabel,
+      },
+    ])
+  );
+  const staticById = new Map(STATIC_INTEGRATIONS.map((d) => [d.provider, d]));
+
+  const out: IntegrationDef[] = [];
+  const seen = new Set<string>();
+  for (const id of DISPLAY_ORDER) {
+    const def = fromRegistry.get(id) ?? staticById.get(id);
+    if (def) {
+      out.push(def);
+      seen.add(id);
+    }
+  }
+  // Newly-registered CRMs not in DISPLAY_ORDER appear automatically.
+  for (const [id, def] of fromRegistry) if (!seen.has(id)) out.push(def);
+  return out;
+}
+
+// The marketplace. CRM entries are registry-driven; the rest are static.
+export const INTEGRATION_CATALOG: IntegrationDef[] = buildCatalog();
 
 export const INTEGRATION_CATEGORIES: IntegrationCategory[] = [
   "CRM & Field Service",
