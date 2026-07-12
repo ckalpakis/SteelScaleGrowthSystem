@@ -47,3 +47,13 @@ export interface IntegrationLogger {
 export interface CanonicalRecordSink {
   upsert(records: CanonicalRecord[]): Promise<void>;
 }
+
+/**
+ * Updates a connection's health and notifies the user. Real impl writes
+ * integration_connections/company_integrations status and emails the account.
+ */
+export interface IntegrationStatePort {
+  markStatus(status: "connected" | "error" | "disconnected", reason?: string | null): Promise<void>;
+  /** Called when a token refresh permanently fails (re-auth required). */
+  notifyAuthExpired(reason?: string | null): Promise<void>;
+}

@@ -34,7 +34,14 @@ import {
   type EventPayloadMap,
   type EventCustomerRef,
 } from "@/lib/events";
-import type { CredentialStore, IntegrationLogger, CanonicalRecordSink, OAuthTokens } from "@/lib/integration/ports";
+import type {
+  CredentialStore,
+  IntegrationLogger,
+  CanonicalRecordSink,
+  IntegrationStatePort,
+  OAuthTokens,
+} from "@/lib/integration/ports";
+import { withRetry, isRetryable } from "@/lib/integration/retry";
 import type {
   SyncOptions,
   SyncResult,
@@ -58,7 +65,17 @@ export interface IntegrationContext {
   logger?: IntegrationLogger;
   /** Optional store for normalized records produced by sync. */
   sink?: CanonicalRecordSink;
+  /** Health/notification port — marks connections in error, notifies on re-auth. */
+  state?: IntegrationStatePort;
+  /** Retry tuning for syncs / webhooks / token refresh. */
+  retry?: { maxAttempts?: number; baseDelayMs?: number; maxDelayMs?: number };
   now?: () => Date;
+}
+
+interface RetryConfig {
+  maxAttempts: number;
+  baseDelayMs: number;
+  maxDelayMs: number;
 }
 
 /** The uniform contract every CRM integration implements. */
@@ -83,6 +100,8 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
   protected readonly credentials?: CredentialStore;
   protected readonly logger?: IntegrationLogger;
   protected readonly sink?: CanonicalRecordSink;
+  protected readonly state?: IntegrationStatePort;
+  protected readonly retryCfg: RetryConfig;
   protected readonly now: () => Date;
 
   constructor(ctx: IntegrationContext) {
@@ -93,7 +112,53 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
     this.credentials = ctx.credentials;
     this.logger = ctx.logger;
     this.sink = ctx.sink;
+    this.state = ctx.state;
+    this.retryCfg = {
+      maxAttempts: ctx.retry?.maxAttempts ?? 4,
+      baseDelayMs: ctx.retry?.baseDelayMs ?? 500,
+      maxDelayMs: ctx.retry?.maxDelayMs ?? 30_000,
+    };
     this.now = ctx.now ?? (() => new Date());
+  }
+
+  /**
+   * Run an operation with retries + structured logging. Logs every attempt and
+   * the final outcome to integration_logs (an entry per API request), with
+   * duration and detailed error context. Rethrows after exhausting attempts.
+   */
+  protected async execute<T>(
+    action: string,
+    fn: () => Promise<T>,
+    opts: { retryable?: (e: unknown) => boolean; maxAttempts?: number; context?: Record<string, unknown> } = {}
+  ): Promise<T> {
+    const started = Date.now();
+    try {
+      const value = await withRetry(() => fn(), {
+        maxAttempts: opts.maxAttempts ?? this.retryCfg.maxAttempts,
+        baseDelayMs: this.retryCfg.baseDelayMs,
+        maxDelayMs: this.retryCfg.maxDelayMs,
+        retryable: opts.retryable ?? isRetryable,
+        onRetry: async ({ attempt, delayMs, error }) => {
+          await this.logger?.log({
+            level: "warn",
+            action,
+            message: `attempt ${attempt} failed; retrying in ${delayMs}ms`,
+            context: { ...opts.context, attempt, error: errText(error) },
+          });
+        },
+      });
+      await this.logger?.log({ level: "info", action, durationMs: Date.now() - started, context: opts.context });
+      return value;
+    } catch (err) {
+      await this.logger?.log({
+        level: "error",
+        action,
+        message: errText(err),
+        durationMs: Date.now() - started,
+        context: { ...opts.context, error: errText(err), stack: err instanceof Error ? err.stack : undefined },
+      });
+      throw err;
+    }
   }
 
   // ===========================================================================
@@ -162,7 +227,8 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
       return { verified: false, published: 0, events: [] };
     }
 
-    const parsed = await this.parseWebhook(request);
+    // Retry webhook parsing (it may fetch the full record from the provider).
+    const parsed = await this.execute("webhook.parse", () => this.parseWebhook(request));
     const events: PlatformEvent[] = [];
     for (const item of parsed.items) {
       // Provider supplied a ready-made event (e.g. PAYMENT_RECEIVED).
@@ -193,7 +259,10 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
     const started = Date.now();
     await this.ensureFreshToken();
 
-    const page = await fetch(opts);
+    // Retry the fetch on transient failure; every attempt + outcome is logged.
+    const page = await this.execute(`sync.fetch.${objectType}`, () => fetch(opts), {
+      context: { objectType, cursor: opts.cursor ?? null },
+    });
     const records: CanonicalRecord[] = [];
     const errors: SyncResult["errors"] = [];
 
@@ -252,10 +321,24 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
     const tokens = await this.credentials.load();
     if (!tokens) return;
     const expMs = tokens.expiresAt ? new Date(tokens.expiresAt).getTime() : Infinity;
-    if (expMs - this.now().getTime() < 60_000) {
-      const refreshed = await this.refreshToken();
+    if (expMs - this.now().getTime() >= 60_000) return;
+
+    try {
+      // Retry the refresh; log each attempt.
+      const refreshed = await this.execute("token.refresh", () => this.refreshToken());
       await this.credentials.save(refreshed);
+    } catch (err) {
+      // Refresh permanently failed → the connection needs re-authentication.
+      await this.onAuthExpired(errText(err));
+      throw err;
     }
+  }
+
+  /** Mark the connection in error and notify the user that re-auth is needed. */
+  protected async onAuthExpired(reason: string): Promise<void> {
+    await this.logger?.log({ level: "error", action: "auth.expired", message: reason });
+    await this.state?.markStatus("error", `Authentication expired: ${reason}`);
+    await this.state?.notifyAuthExpired(reason);
   }
 
   /** Assemble a typed platform event from a normalized record. */
@@ -292,6 +375,10 @@ export abstract class AbstractIntegrationAdapter implements IntegrationAdapter {
     const ref = record as { customerExternalId?: string | null };
     return ref.customerExternalId ? { externalId: ref.customerExternalId } : null;
   }
+}
+
+function errText(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 // Wrap a normalized record into the payload shape for its object's events.

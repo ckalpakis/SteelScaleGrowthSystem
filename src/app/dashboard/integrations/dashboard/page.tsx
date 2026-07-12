@@ -31,7 +31,7 @@ export default async function IntegrationDashboardPage() {
   const { data: company } = await supabase.from("companies").select("id").limit(1).maybeSingle<{ id: string }>();
   const data = company
     ? await getIntegrationDashboard(supabase, createAdminClient(), company.id)
-    : { cards: [], recentEvents: [] };
+    : { cards: [], failed: [], recentEvents: [] };
 
   return (
     <ToastProvider>
@@ -48,6 +48,33 @@ export default async function IntegrationDashboardPage() {
             Browse integrations
           </Link>
         </div>
+
+        {/* Failed integrations — needs re-authentication / attention */}
+        {data.failed.length > 0 && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4">
+            <div className="flex items-start gap-3">
+              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-100 text-red-600">
+                <AlertIcon />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-red-800">
+                  {data.failed.length} integration{data.failed.length === 1 ? "" : "s"} need attention
+                </p>
+                <ul className="mt-1.5 space-y-1">
+                  {data.failed.map((f) => (
+                    <li key={f.provider} className="text-sm text-red-700">
+                      <span className="font-medium">{f.name}</span>
+                      {f.lastError ? ` — ${f.lastError}` : " — authentication expired. Reconnect required."}
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/dashboard/integrations" className="mt-2 inline-block text-sm font-medium text-red-800 underline">
+                  Reconnect
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
 
         {data.cards.length === 0 ? (
           <EmptyState
@@ -148,6 +175,14 @@ function EventRow({ event }: { event: RecentEvent }) {
       <StatusPill tone={EVENT_TONE[event.status] ?? "gray"}>{event.status}</StatusPill>
       <span className="w-16 shrink-0 text-right text-xs text-[#9b9a97]">{timeAgo(event.at)}</span>
     </li>
+  );
+}
+
+function AlertIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-4 w-4">
+      <path d="M12 9v4M12 16h.01M10.3 4.3 2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0z" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

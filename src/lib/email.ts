@@ -178,6 +178,49 @@ export async function sendAgencyInquiryEmail(data: AgencyInquiry): Promise<boole
   }
 }
 
+// Notify a user that a CRM integration's authentication expired and needs to be
+// reconnected. Fails soft.
+export async function sendIntegrationAuthExpiredEmail(
+  to: string,
+  providerName: string,
+  reason?: string | null
+): Promise<boolean> {
+  const apiKey = process.env.RESEND_API_KEY;
+  const from = process.env.LEAD_NOTIFICATION_FROM;
+  if (!apiKey || !from) {
+    console.warn("[email] Resend not configured — skipping auth-expired notice");
+    return false;
+  }
+  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "").replace(/\/$/, "");
+  const link = appUrl ? `${appUrl}/dashboard/integrations` : "";
+  const resend = new Resend(apiKey);
+  try {
+    await resend.emails.send({
+      from,
+      to,
+      subject: `Action needed: reconnect ${providerName}`,
+      html: `
+      <div style="font-family:system-ui,sans-serif;max-width:520px;margin:0 auto">
+        <h2 style="color:#111827">Reconnect ${escapeHtml(providerName)}</h2>
+        <p style="color:#374151;font-size:15px;line-height:1.6">
+          Your ${escapeHtml(providerName)} connection stopped working and needs to be re-authenticated.
+          Syncing and automations are paused until you reconnect.
+        </p>
+        ${reason ? `<p style="color:#9ca3af;font-size:12px">Details: ${escapeHtml(reason)}</p>` : ""}
+        ${
+          link
+            ? `<p style="margin:24px 0"><a href="${escapeHtml(link)}" style="background:#1e3a8a;color:#fff;text-decoration:none;padding:12px 22px;border-radius:8px;font-weight:700;display:inline-block">Reconnect now</a></p>`
+            : ""
+        }
+      </div>`,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] failed to send auth-expired notice", err);
+    return false;
+  }
+}
+
 function escapeHtml(s: string) {
   return s
     .replace(/&/g, "&amp;")

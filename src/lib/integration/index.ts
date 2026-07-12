@@ -12,6 +12,8 @@
 export * from "@/lib/integration/ports";
 export * from "@/lib/integration/types";
 export * from "@/lib/integration/adapter";
+export * from "@/lib/integration/retry";
+export { createIntegrationLogger, consoleIntegrationLogger, multiLogger } from "@/lib/integration/logger";
 export { SkeletonIntegrationAdapter } from "@/lib/integration/skeleton";
 export {
   JobberIntegrationAdapter,

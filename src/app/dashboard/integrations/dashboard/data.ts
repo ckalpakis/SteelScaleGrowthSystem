@@ -31,12 +31,25 @@ export interface RecentEvent {
   at: string;
 }
 
+export interface FailedIntegration {
+  provider: string;
+  name: string;
+  lastError: string | null;
+}
+
 export interface IntegrationDashboardData {
   cards: DashboardCard[];
+  failed: FailedIntegration[];
   recentEvents: RecentEvent[];
 }
 
-type ConnRow = { provider: string; status: string; connected_account: string | null; last_sync_at: string | null };
+type ConnRow = {
+  provider: string;
+  status: string;
+  connected_account: string | null;
+  last_sync_at: string | null;
+  last_error: string | null;
+};
 type JobRow = { provider: string | null; job_type: string; status: string; records_processed: number; records_failed: number; finished_at: string | null };
 type EventRow = { id: string; provider: string; event_type: string; status: string; created_at: string };
 type WebhookRow = { provider: string | null; status: string };
@@ -49,7 +62,7 @@ export async function getIntegrationDashboard(
   const [{ data: conns }, { data: jobs }, { data: events }, { data: webhooks }] = await Promise.all([
     supabase
       .from("integration_connections")
-      .select("provider, status, connected_account, last_sync_at")
+      .select("provider, status, connected_account, last_sync_at, last_error")
       .eq("company_id", companyId)
       .returns<ConnRow[]>(),
     supabase
@@ -116,6 +129,10 @@ export async function getIntegrationDashboard(
       };
     });
 
+  const failed: FailedIntegration[] = (conns ?? [])
+    .filter((c) => c.status === "error")
+    .map((c) => ({ provider: c.provider, name: integrationDef(c.provider)?.name ?? c.provider, lastError: c.last_error }));
+
   const recentEvents: RecentEvent[] = (events ?? []).map((e) => ({
     id: e.id,
     provider: e.provider,
@@ -124,7 +141,7 @@ export async function getIntegrationDashboard(
     at: e.created_at,
   }));
 
-  return { cards, recentEvents };
+  return { cards, failed, recentEvents };
 }
 
 function groupBy<T>(rows: T[], key: (r: T) => string): Map<string, T[]> {
