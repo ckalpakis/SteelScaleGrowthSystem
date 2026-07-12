@@ -16,6 +16,7 @@
 
 export * from "@/lib/events/types";
 export * from "@/lib/events/bus";
+export * from "@/lib/events/listener";
 
 import {
   EVENT_SCHEMA_VERSION,
