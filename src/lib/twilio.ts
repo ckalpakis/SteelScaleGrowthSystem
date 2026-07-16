@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "crypto";
+import twilio from "twilio";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { encryptSecret, decryptSecret } from "@/lib/crypto";
 import { toE164 } from "@/lib/sms";
@@ -327,4 +328,78 @@ export function emptyTwiml(): Response {
 const STOP_KEYWORDS = new Set(["stop", "stopall", "unsubscribe", "cancel", "end", "quit"]);
 export function isStopKeyword(body: string): boolean {
   return STOP_KEYWORDS.has(body.trim().toLowerCase());
+}
+
+// =============================================================================
+// Review request sender (GoHighLevel → Twilio Messaging Service).
+//
+// Standalone path used by POST /api/review. Uses the Twilio SDK with API-key
+// auth and sends via a Messaging Service SID (never a hard-coded `from`).
+// Credentials come from the environment and never leave the server.
+// =============================================================================
+
+export interface SendReviewRequestInput {
+  firstName: string;
+  businessName: string;
+  reviewLink: string;
+  /** Destination phone in E.164 (caller normalizes it). */
+  to: string;
+}
+
+export interface SendReviewRequestResult {
+  messageSid: string;
+  status: string;
+}
+
+/** Thrown when the required Twilio environment variables are not configured. */
+export class TwilioConfigError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "TwilioConfigError";
+  }
+}
+
+/** Build the review-request SMS body. */
+export function buildReviewRequestMessage(firstName: string, businessName: string, reviewLink: string): string {
+  return (
+    `Hi ${firstName},\n\n` +
+    `Thanks for choosing ${businessName}.\n\n` +
+    `Would you mind leaving us a quick review?\n\n` +
+    `${reviewLink}\n\n` +
+    `Reply STOP to opt out.`
+  );
+}
+
+/**
+ * Send a review-request SMS through the Twilio Messaging Service.
+ * Reads TWILIO_ACCOUNT_SID / TWILIO_API_KEY / TWILIO_API_SECRET /
+ * TWILIO_MESSAGING_SERVICE_SID from the environment. Throws TwilioConfigError
+ * if any is missing; rethrows Twilio/network errors for the caller to handle.
+ */
+export async function sendReviewRequest(input: SendReviewRequestInput): Promise<SendReviewRequestResult> {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const apiKey = process.env.TWILIO_API_KEY;
+  const apiSecret = process.env.TWILIO_API_SECRET;
+  const messagingServiceSid = process.env.TWILIO_MESSAGING_SERVICE_SID;
+
+  if (!accountSid || !apiKey || !apiSecret || !messagingServiceSid) {
+    throw new TwilioConfigError(
+      "Twilio is not configured (need TWILIO_ACCOUNT_SID, TWILIO_API_KEY, TWILIO_API_SECRET, TWILIO_MESSAGING_SERVICE_SID)."
+    );
+  }
+
+  const client = twilio(apiKey, apiSecret, { accountSid });
+  const body = buildReviewRequestMessage(input.firstName, input.businessName, input.reviewLink);
+
+  console.log("[review] sending SMS", {
+    to: input.to,
+    business: input.businessName,
+    messagingServiceSid,
+  });
+
+  const message = await client.messages.create({ messagingServiceSid, to: input.to, body });
+
+  console.log("[review] Twilio accepted", { messageSid: message.sid, status: message.status, to: input.to });
+
+  return { messageSid: message.sid, status: message.status };
 }
