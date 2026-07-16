@@ -54,6 +54,30 @@ export class TwilioError extends AppError {
   }
 }
 
+/** Missing or invalid webhook secret. 401. */
+export class UnauthorizedError extends AppError {
+  readonly status = 401;
+  toPayload(): ErrorPayload {
+    return { success: false, error: "Unauthorized." };
+  }
+}
+
+/** Request body exceeds the allowed size. 413. */
+export class PayloadTooLargeError extends AppError {
+  readonly status = 413;
+  toPayload(): ErrorPayload {
+    return { success: false, error: "Payload too large." };
+  }
+}
+
+/** Too many requests from a client. 429. */
+export class RateLimitError extends AppError {
+  readonly status = 429;
+  toPayload(): ErrorPayload {
+    return { success: false, error: "Too many requests." };
+  }
+}
+
 /** Required environment/config is missing. 500. */
 export class ConfigurationError extends AppError {
   readonly status = 500;

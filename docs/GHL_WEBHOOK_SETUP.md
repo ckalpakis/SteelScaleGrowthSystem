@@ -30,8 +30,13 @@ GoHighLevel Workflow
 |---|---|
 | **Method** | `POST` |
 | **URL** | `https://<your-app-domain>/api/review` |
-| **Header** | `Content-Type: application/json` |
-| **Auth** | None |
+| **Headers** | `Content-Type: application/json` **and** `x-steelscale-secret: <your secret>` |
+| **Auth** | Shared secret header (see below) |
+
+> **Security:** the webhook requires an `x-steelscale-secret` header matching the
+> server's `STEELSCALE_WEBHOOK_SECRET`. Requests without it (or with a wrong
+> value) get `401 Unauthorized`. The endpoint is also rate-limited per caller and
+> rejects oversized bodies.
 
 > Replace `<your-app-domain>` with your **actual deployed domain** (for example
 > `https://app.steelscale.xyz/api/review`). This must be the live production URL —
@@ -89,9 +94,9 @@ Set the fields on the webhook action:
 
 - **Method:** `POST`
 - **URL:** `https://<your-app-domain>/api/review`
-- **Headers:** add one header —
-  - Key: `Content-Type`
-  - Value: `application/json`
+- **Headers:** add two headers —
+  - Key: `Content-Type` — Value: `application/json`
+  - Key: `x-steelscale-secret` — Value: the secret Steel Scale gave you (matches the server's `STEELSCALE_WEBHOOK_SECRET`)
 - **Body / Payload:** choose **JSON** (raw) and paste the payload below.
 
 ### Complete payload — paste this into the Body
