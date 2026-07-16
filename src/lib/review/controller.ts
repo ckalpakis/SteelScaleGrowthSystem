@@ -6,8 +6,9 @@
 
 import { validateReviewWebhook } from "@/lib/review/validation/reviewSchema";
 import { requireValidPhone } from "@/lib/review/validation/phone";
+import { resolveMediaUrls } from "@/lib/review/validation/media";
 import { buildReviewMessage } from "@/lib/review/messageBuilder";
-import { sendSms } from "@/lib/review/services/twilioService";
+import { sendMessage } from "@/lib/review/services/twilioService";
 import { toAppError, ValidationError, type AppError } from "@/lib/review/errors";
 import type { ControllerResponse } from "@/lib/review/types";
 
@@ -24,9 +25,18 @@ export async function handleReviewWebhook(raw: unknown): Promise<ControllerRespo
       reviewLink: data.reviewLink,
     });
 
-    const { messageSid, status } = await sendSms({ to: phone, body });
+    // MMS when a valid image URL is present; plain SMS otherwise.
+    const mediaUrl = resolveMediaUrls(data.image);
 
-    console.log("[review] success", { messageSid, status, phone, business: data.businessName });
+    const { messageSid, status } = await sendMessage({ to: phone, body, mediaUrl });
+
+    console.log("[review] success", {
+      messageSid,
+      status,
+      phone,
+      business: data.businessName,
+      channel: mediaUrl ? "mms" : "sms",
+    });
     return { status: 200, body: { success: true, messageSid } };
   } catch (err) {
     const appError = toAppError(err);
