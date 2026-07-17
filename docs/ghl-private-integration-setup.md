@@ -4,12 +4,17 @@ This is the **simplest** way to connect your provisioning system to GHL: create
 **one token** in your GHL settings and paste it into **one environment
 variable**. No Marketplace app, no redirect URL, no OAuth dance, no token expiry.
 
-> **When to use this vs OAuth.** Start here — it's the least setup and the least
-> maintenance. The one catch: a Private Integration Token is sometimes
-> **location‑scoped**, and on some plans it may **not** be allowed to create
-> sub‑accounts (an agency‑level action). If that's your situation, provisioning
-> will fail fast with a clear auth/scope error, and you switch to OAuth
-> (`docs/ghl-marketplace-app-setup.md`). You lose nothing by trying PIT first.
+> **⚠️ Known blocker (confirmed): agency PITs can't complete provisioning.**
+> Agency Private Integrations **do not offer the `locations/customValues.write`
+> scope**, and a PIT also **cannot mint per‑location tokens** — both of which this
+> system's "update custom values" step requires. If the scope picker in step 3
+> doesn't list `locations/customValues.write` (it won't, for agency PITs), **PIT
+> cannot run the full flow — use OAuth instead**
+> (`docs/ghl-marketplace-app-setup.md`).
+>
+> A PIT can still work for the *read/create* parts (create sub‑account, list
+> snapshots), so it's fine for early testing, but not for the custom‑value step.
+> **For a working end‑to‑end setup, use OAuth.**
 
 > **Heads‑up on accuracy.** I can't see GHL's live UI, and they rename/move menus.
 > Each location below includes **alternate labels** to look for. If a label
@@ -137,10 +142,10 @@ Then **redeploy** so the new variables take effect.
 
 ## How this compares (quick recap)
 
-| | Setup effort | Ongoing effort | Works for creating sub‑accounts? |
+| | Setup effort | Ongoing effort | Completes full provisioning (incl. custom values)? |
 | --- | --- | --- | --- |
-| **PIT (this guide)** | Lowest — one token, one env var | Lowest — never expires | Usually, but plan‑dependent |
-| **OAuth Marketplace app** | Higher — app + redirect + scopes + token grab | Auto‑refreshes | Yes (agency OAuth) |
+| **PIT (this guide)** | Lowest — one token, one env var | Lowest — never expires | **No** — agency PITs lack `locations/customValues.write` and can't mint location tokens |
+| **OAuth Marketplace app** | Higher — app + redirect + scopes + token grab | Auto‑refreshes | **Yes** — exposes custom‑value write and mints per‑location tokens |
 
 ## Related docs
 - `docs/ghl-marketplace-app-setup.md` — the OAuth fallback, if PIT can't create sub‑accounts
