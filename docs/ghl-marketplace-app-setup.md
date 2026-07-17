@@ -37,22 +37,62 @@ Plus `GHL_AUTH_METHOD=oauth` and `GHL_COMPANY_ID` (your agency ID).
 
 ---
 
+## Where everything lives in the developer portal (navigation map)
+
+The confusing part is that the **developer portal is a different site** from your
+normal GHL login, and the settings are buried under "Advanced Settings." Here's
+the map. (GHL renames things occasionally — if a label doesn't match, the
+**alternate names** column tells you what else to look for.)
+
+| You want to… | Go here | Alternate labels you might see |
+| --- | --- | --- |
+| Reach the developer portal | **https://marketplace.gohighlevel.com/** → sign in → click your **profile icon (top‑right) → "My Apps"** | "Developer", "App Marketplace", the URL may be `/apps` |
+| Become a developer (first time) | You may be asked to **agree to the Developer Terms** before "My Apps" appears | "Developer Agreement" |
+| Create an app | On **My Apps** → big **"Create App"** button (top‑right) | "New App", "+ App" |
+| Set the app name / description | Inside the app → left sidebar **"App Info"** (or **"Profile"**) | "Listing", "General" |
+| Set the distribution (Agency vs Sub‑account) | Chosen in the **Create App** popup; later editable under **"Distribution Type"** or **"Advanced Settings → General"** | "App Type", "Install Location" |
+| Get **Client ID / Client Secret** | Inside the app → **"Advanced Settings" → "Auth"** tab | "Client Keys", "OAuth", "Keys" |
+| Add **Redirect URLs** | **"Advanced Settings" → "Auth"** tab (same page as the keys) | "Redirect URI", "Callback URL" |
+| Add **Scopes** | **"Advanced Settings" → "Scopes"** tab (a searchable list you pick from and click **Add**) | may be a section on the "Auth" page instead of its own tab |
+
+> **Rule of thumb:** almost everything technical (keys, redirect URLs, scopes)
+> lives under **Advanced Settings** in the app's left sidebar. If you're lost,
+> click **Advanced Settings** first and look at its tabs.
+
+> **Find your Company/Agency ID** (needed for `GHL_COMPANY_ID`) in your **normal
+> GHL agency login**, not the developer portal: **Agency Settings → Company →
+> Company ID**. (Alternate: it's the ID in the URL when you're in Agency View.)
+
+---
+
 ## Step 1 — Create a developer account
 
 1. Go to the GHL Marketplace developer portal: **https://marketplace.gohighlevel.com/**
-2. Sign in / create a **developer** account (separate from your normal GHL login).
-3. Open the developer dashboard.
+   — this is a **separate site** from your normal GHL dashboard (`app.gohighlevel.com`).
+2. Sign in (or sign up). If prompted, **agree to the Developer Terms** — you can't
+   see "My Apps" until you do.
+3. Click your **profile icon in the top‑right → "My Apps"**. This is your app list.
+   If you don't see "My Apps," look for **"Developer"** or go directly to
+   **https://marketplace.gohighlevel.com/apps**.
 
 ## Step 2 — Create a new app
 
-1. Click **Create App** (or **My Apps → Create**).
+**► Where:** profile icon (top‑right) → **My Apps** → **Create App** (top‑right).
+
+1. Click **Create App**.
 2. **App name:** anything internal, e.g. `Steel Scale Provisioning`.
-3. **App type / distribution:** choose so the app installs on an **Agency
-   (Company)**, not a single sub‑account — you need agency‑level access to create
-   sub‑accounts. (Look for "Distribution type: Agency" / "Sub‑account & Agency".)
-4. Save to create the app shell.
+3. **App type / distribution:** in the create popup choose so the app installs on
+   an **Agency (Company)**, not a single sub‑account — you need agency‑level
+   access to create sub‑accounts. (Look for "Distribution type: Agency" /
+   "Sub‑account & Agency".) If you can't set it in the popup, you'll set it after
+   in **Advanced Settings → General / Distribution Type**.
+4. Save to create the app shell. You'll land inside the app editor, which has a
+   **left sidebar** — that's where all the following steps happen.
 
 ## Step 3 — Add the Redirect URL
+
+**► Where:** in the app's left sidebar → **Advanced Settings** → **Auth** tab →
+**Redirect URLs** field. (Same page where the Client ID/Secret are shown.)
 
 The redirect URL is where GHL sends the temporary `code` after you authorize.
 Register this exact URL (even though the handler isn't built yet — you'll capture
@@ -72,6 +112,14 @@ http://localhost:3000/api/integrations/ghl/oauth/callback
 > authorize link (step 5) **must exactly match** one you registered here.
 
 ## Step 4 — Add scopes
+
+**► Where:** left sidebar → **Advanced Settings** → **Scopes** tab. Type each
+scope into the search box, click it to **Add**, then **Save**. (On some accounts
+scopes are a section on the **Auth** page instead of a separate tab.)
+
+**► To copy the Client ID / Secret:** left sidebar → **Advanced Settings** →
+**Auth** tab → **Client Keys** (a "Copy" button next to each). If a secret isn't
+shown yet, click **Generate** / **Create Client Key** first.
 
 Add these scopes to the app (the code expects these exact strings; confirm them
 in the scope picker):
@@ -99,6 +147,11 @@ GHL_GRANTED_SCOPES=locations.readonly locations.write locations/customValues.rea
 ---
 
 ## Step 5 — Authorize the app on your agency (get a `code`)
+
+**► Where:** this step is **not** in the developer portal. You paste a URL into
+your **browser** while logged into your **normal GHL agency** account
+(`app.gohighlevel.com`). Tip: do it in the same browser where you're already
+signed into your agency, so it goes straight to the consent screen.
 
 Build an **authorize URL** and open it in your browser while logged into your
 agency. Replace the placeholders:
