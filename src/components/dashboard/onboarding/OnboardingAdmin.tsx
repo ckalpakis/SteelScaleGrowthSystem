@@ -4,7 +4,12 @@ import { useState } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 
 import { Badge, Button, Card, CardBody, Input, Label } from "@/components/ui";
-import { createInvitationAction, revokeInvitationAction, type CreateInvitationState } from "@/app/dashboard/onboarding/actions";
+import {
+  createInvitationAction,
+  resendInvitationLinkAction,
+  revokeInvitationAction,
+  type CreateInvitationState,
+} from "@/app/dashboard/onboarding/actions";
 
 export interface InvitationView {
   id: string;
@@ -114,7 +119,11 @@ function NewLink({ link }: { link: string }) {
 
 function InvitationRow({ inv }: { inv: InvitationView }) {
   const [revoking, setRevoking] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [newLink, setNewLink] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
   const canRevoke = inv.status !== "submitted" && inv.status !== "revoked";
+  const canResend = inv.status !== "submitted"; // business rule
 
   async function revoke() {
     if (!confirm("Revoke this invitation? The link will stop working immediately.")) return;
@@ -126,28 +135,44 @@ function InvitationRow({ inv }: { inv: InvitationView }) {
     }
   }
 
+  async function resend() {
+    setResending(true);
+    setErr(null);
+    try {
+      const res = await resendInvitationLinkAction(inv.id);
+      if (res.ok && res.link) setNewLink(res.link);
+      else setErr(res.message);
+    } finally {
+      setResending(false);
+    }
+  }
+
   return (
-    <div className="flex flex-wrap items-center gap-3 p-4">
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium text-[#37352f]">{inv.email ?? "No email"}</div>
-        <div className="mt-0.5 text-xs text-[#91918e]">
-          Created {fmt(inv.createdAt)} · Expires {fmt(inv.expiresAt)}
-          {inv.submittedAt ? ` · Completed ${fmt(inv.submittedAt)}` : inv.openedAt ? ` · Opened ${fmt(inv.openedAt)}` : ""}
+    <div className="p-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium text-[#37352f]">{inv.email ?? "No email"}</div>
+          <div className="mt-0.5 text-xs text-[#91918e]">
+            Created {fmt(inv.createdAt)} · Expires {fmt(inv.expiresAt)}
+            {inv.submittedAt ? ` · Completed ${fmt(inv.submittedAt)}` : inv.openedAt ? ` · Opened ${fmt(inv.openedAt)}` : ""}
+          </div>
         </div>
+        <Badge className={STATUS_STYLE[inv.status] ?? "bg-gray-100 text-gray-700"}>
+          {STATUS_LABEL[inv.status] ?? inv.status}
+        </Badge>
+        {canResend && (
+          <button type="button" onClick={resend} disabled={resending} className="text-xs font-medium text-brand hover:underline disabled:opacity-50">
+            {resending ? "Resending…" : "Resend"}
+          </button>
+        )}
+        {canRevoke && (
+          <button type="button" onClick={revoke} disabled={revoking} className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50">
+            {revoking ? "Revoking…" : "Revoke"}
+          </button>
+        )}
       </div>
-      <Badge className={STATUS_STYLE[inv.status] ?? "bg-gray-100 text-gray-700"}>
-        {STATUS_LABEL[inv.status] ?? inv.status}
-      </Badge>
-      {canRevoke && (
-        <button
-          type="button"
-          onClick={revoke}
-          disabled={revoking}
-          className="text-xs font-medium text-red-600 hover:underline disabled:opacity-50"
-        >
-          {revoking ? "Revoking…" : "Revoke"}
-        </button>
-      )}
+      {err && <p className="mt-2 text-xs text-red-600">{err}</p>}
+      {newLink && <NewLink link={newLink} />}
     </div>
   );
 }
