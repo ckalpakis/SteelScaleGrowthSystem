@@ -273,11 +273,14 @@ function makeGhl(opts: {
   return client;
 }
 
-function makeEngine(store: FakeStore, ghl: GhlProvisioningClient, workerId = "w1") {
+function makeEngine(store: FakeStore, ghl: GhlProvisioningClient, workerId = "w1", policyOverride?: Partial<import("@/lib/onboarding/provisioning/config").ProvisioningPolicy>) {
   return new ProvisioningEngine({
     store,
     ghl,
     workerId,
+    // These tests exercise the FULL API automation path; opt in explicitly
+    // (production defaults to manual custom values).
+    policy: { snapshotGatesCustomValues: true, automateCustomValues: true, ...policyOverride },
     now: () => new Date("2026-07-17T00:00:00Z"),
     sleep: () => Promise.resolve(),
     makeWebhookSecret: () => ({ publicId: "whc_test", rawSecret: "raw", secretHash: "hash", secretCiphertext: "cipher", secretExpiresAt: new Date().toISOString() }),
@@ -411,6 +414,7 @@ describe("ProvisioningEngine", () => {
       store,
       ghl: makeGhl({ snapshotSupported: true }),
       workerId: "w1",
+      policy: { snapshotGatesCustomValues: true, automateCustomValues: true },
       now: () => new Date("2026-07-17T00:00:00Z"),
       sleep: () => Promise.resolve(),
       makeWebhookSecret: () => ({ publicId: "whc_test", rawSecret: "raw-secret", secretHash: "h", secretCiphertext: "c", secretExpiresAt: new Date().toISOString() }),
@@ -434,5 +438,36 @@ describe("ProvisioningEngine", () => {
 
     expect(outcome).toMatchObject({ result: "failed", step: "validate_submission", errorCode: "no_active_connection" });
     expect(ghl.calls.createLocation).toBe(0); // never reached the GHL calls
+  });
+
+  // ---- manual custom-values mode (the production default) ----
+  it("manual custom values: parks with a set_custom_values task and skips the token + update steps", async () => {
+    const store = new FakeStore();
+    const ghl = makeGhl({ snapshotSupported: true });
+    const outcome = await makeEngine(store, ghl, "w1", { automateCustomValues: false }).provision("run_1");
+
+    expect(outcome).toMatchObject({ result: "needs_action", step: "discover_custom_values" });
+    expect(store.clients.get("acc_1")!.status).toBe("needs_action");
+    expect(store.adminTasks.find((t) => t.task_type === "set_custom_values")).toBeTruthy();
+    // No location token was minted; the update step was never reached.
+    expect(store.steps.get("run_1:obtain_location_token")!.status).toBe("skipped");
+    expect(ghl.getLocationAccessToken).not.toHaveBeenCalled();
+    expect(store.steps.has("run_1:update_custom_values")).toBe(false);
+  });
+
+  it("manual custom values: resumes to complete + active after the values are marked done", async () => {
+    const store = new FakeStore();
+    const ghl = makeGhl({ snapshotSupported: true });
+    await makeEngine(store, ghl, "w1", { automateCustomValues: false }).provision("run_1");
+
+    // Operator enters the values in GHL by hand and marks the task complete.
+    await store.setLocation("acc_1", { custom_values_status: "complete" });
+
+    const outcome = await makeEngine(store, ghl, "w2", { automateCustomValues: false }).provision("run_1");
+    expect(outcome).toEqual({ result: "complete" });
+    expect(store.clients.get("acc_1")!.status).toBe("active");
+    expect(store.steps.get("run_1:update_custom_values")!.status).toBe("skipped");
+    // The whole flow never touched the custom-value API.
+    expect(ghl.getLocationAccessToken).not.toHaveBeenCalled();
   });
 });

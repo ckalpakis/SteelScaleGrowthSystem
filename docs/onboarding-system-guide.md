@@ -102,17 +102,32 @@ Needs action** with an admin task titled **"Load Steel Scale review snapshot."**
 2. In GHL **Agency View → Account Snapshots**, push the snapshot to that location.
 3. Back in the dashboard, click **Mark snapshot complete**.
 
-This resumes provisioning automatically: it discovers the custom values the
-snapshot created, fills them from the client's record, verifies them, and creates
-the webhook credential.
+This resumes provisioning, which then parks again for the custom‑value step
+(next).
 
-If a required custom value can't be matched, you'll get a **"Missing required
-custom values"** task instead — create the value in GHL, then **Retry
-provisioning** or **Re‑run value sync**.
+## 5. Set the review custom values (manual step)
+
+By default the system does **not** write custom values through the API (GHL only
+grants `customValues.write` via a sub‑account token some plans don't offer). So
+after the snapshot, provisioning parks at **Needs action** with a task titled
+**"Set review custom values in GHL"** that lists every value to enter.
+
+1. Open the task on the client detail page — it lists each custom‑value key and
+   the exact value to set (business name, review link, logo URL, follow‑up count,
+   etc.).
+2. In the sub‑account, go to **Settings → Custom Values** and set each one.
+3. Back in the dashboard, click **Mark custom values done**.
+
+That resumes provisioning, which creates the webhook credential and finishes.
+
+> **Advanced:** if your OAuth app + location tokens *can* write custom values,
+> set `GHL_AUTOMATE_CUSTOM_VALUES=true` to have the engine discover, write, and
+> verify them automatically (and, if one can't be matched, raise a "Missing
+> required custom values" task instead).
 
 ---
 
-## 5. Wire the review workflow webhook
+## 6. Wire the review workflow webhook
 
 Once the client is **Active**, open **(client) → Webhook setup**
 (`/dashboard/onboarding/clients/<id>/webhook`).
@@ -137,7 +152,7 @@ Then, in the client's GHL sub‑account, for each review workflow message:
 
 ---
 
-## 6. Test, then activate
+## 7. Test, then activate
 
 On the same Webhook setup page:
 
@@ -151,13 +166,14 @@ Activate the GHL workflow only after a successful test.
 
 ---
 
-## 7. Day‑to‑day actions (client detail page)
+## 8. Day‑to‑day actions (client detail page)
 
 | Action | What it does |
 | --- | --- |
 | **Retry provisioning** | Re‑runs from the first incomplete step (safe/idempotent) |
 | **Re‑run value sync** | Re‑discovers and re‑writes the custom values |
 | **Mark snapshot complete** | Clears the manual snapshot gate and resumes |
+| **Mark custom values done** | Confirms you set the values in GHL by hand and resumes |
 | **Regenerate webhook secret** | Rotates the secret (old one stops working — reinstall in GHL) |
 | **Edit configuration** | Correct business info / review settings |
 | **Pause** | Stops provisioning and sends for that client |
@@ -168,7 +184,7 @@ hashes are never displayed; raw webhook secrets appear only at creation/rotation
 
 ---
 
-## 8. Quick troubleshooting
+## 9. Quick troubleshooting
 
 | Symptom | Fix |
 | --- | --- |

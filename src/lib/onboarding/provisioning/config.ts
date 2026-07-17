@@ -37,10 +37,21 @@ export interface ProvisioningPolicy {
    * at needs_action rather than proceeding.
    */
   snapshotGatesCustomValues: boolean;
+  /**
+   * When false (the default), the engine does NOT read/write GHL custom values
+   * via the API. Instead it emits a guided admin task listing the exact values
+   * to enter by hand in the sub-account, and skips the location-token +
+   * update-custom-values steps. This is the default because writing custom
+   * values requires a sub-account (location) token with
+   * `locations/customValues.write`, which some GHL plans don't grant. Set
+   * `GHL_AUTOMATE_CUSTOM_VALUES=true` to re-enable full API automation.
+   */
+  automateCustomValues: boolean;
 }
 
 export const DEFAULT_POLICY: ProvisioningPolicy = {
   snapshotGatesCustomValues: true,
+  automateCustomValues: process.env.GHL_AUTOMATE_CUSTOM_VALUES === "true",
 };
 
 /** Scopes required across the provisioning flow (verified before GHL calls). */
@@ -56,3 +67,5 @@ export const TASK_LOAD_SNAPSHOT = "load_review_snapshot";
 export const TASK_INSTALL_WEBHOOK = "install_review_webhook";
 export const TASK_MISSING_CUSTOM_VALUE = "missing_custom_value";
 export const TASK_CUSTOM_VALUE_MISMATCH = "custom_value_mismatch";
+/** Manual-mode task: operator enters the custom values by hand in the sub-account. */
+export const TASK_SET_CUSTOM_VALUES = "set_custom_values";

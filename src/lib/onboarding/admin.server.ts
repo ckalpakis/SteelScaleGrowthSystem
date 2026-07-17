@@ -139,6 +139,21 @@ export async function markSnapshotTaskComplete(admin: SupabaseClient, taskId: st
   return { ok: true, message: "Snapshot marked complete." };
 }
 
+// Manual custom-values mode: the operator entered the values by hand in GHL and
+// is attesting completion. Mark the location's custom values complete and resume.
+export async function markCustomValuesTaskComplete(admin: SupabaseClient, taskId: string, actorEmail: string): Promise<{ ok: boolean; message: string }> {
+  const { data: task } = await admin.from("admin_tasks").select("*").eq("id", taskId).maybeSingle<AdminTask>();
+  if (!task) return { ok: false, message: "Task not found." };
+
+  await admin.from("ghl_locations").update({ custom_values_status: "complete" }).eq("client_account_id", task.client_account_id);
+  await admin.from("admin_tasks").update({ status: "complete", completed_at: new Date().toISOString() }).eq("id", taskId);
+  await recordAudit(admin, actorEmail, "custom_values.mark_complete", "admin_task", taskId, { clientAccountId: task.client_account_id });
+
+  const runId = task.provisioning_run_id;
+  if (runId) return retryProvisioning(admin, runId, actorEmail);
+  return { ok: true, message: "Custom values marked complete." };
+}
+
 // ---------------------------------------------------------------- webhook secret
 export async function rotateWebhookSecret(admin: SupabaseClient, clientAccountId: string, actorEmail: string): Promise<{ rawSecret: string; publicId: string } | null> {
   const { data: client } = await admin.from("client_accounts").select("id").eq("id", clientAccountId).maybeSingle<{ id: string }>();

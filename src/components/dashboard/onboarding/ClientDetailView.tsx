@@ -8,6 +8,7 @@ import { ClientStatusBadge, RunStatusBadge, stepTone } from "@/components/dashbo
 import {
   completeAdminTaskAction,
   editClientConfigAction,
+  markCustomValuesTaskCompleteAction,
   markSnapshotTaskCompleteAction,
   pauseClientAction,
   rerunCustomValueSyncAction,
@@ -105,6 +106,10 @@ export function ClientDetailView({ detail }: { detail: ClientDetail }) {
                     {t.task_type === "load_review_snapshot" ? (
                       <Button disabled={busy !== null} onClick={() => withBusy(`snap-${t.id}`, () => markSnapshotTaskCompleteAction(t.id))}>
                         Mark snapshot complete
+                      </Button>
+                    ) : t.task_type === "set_custom_values" ? (
+                      <Button disabled={busy !== null} onClick={() => withBusy(`cv-${t.id}`, () => markCustomValuesTaskCompleteAction(t.id))}>
+                        Mark custom values done
                       </Button>
                     ) : (
                       <Button disabled={busy !== null} onClick={() => withBusy(`done-${t.id}`, () => completeAdminTaskAction(t.id, "complete"))}>

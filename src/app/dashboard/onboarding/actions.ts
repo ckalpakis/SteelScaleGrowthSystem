@@ -8,6 +8,7 @@ import { createInvitation, revokeInvitation } from "@/lib/onboarding/invitations
 import {
   editClientConfig,
   getClientDetail,
+  markCustomValuesTaskComplete,
   markSnapshotTaskComplete,
   pauseClient,
   recordAudit,
@@ -95,6 +96,13 @@ export async function rerunCustomValueSyncAction(runId: string): Promise<{ ok: b
 export async function markSnapshotTaskCompleteAction(taskId: string): Promise<{ ok: boolean; message: string }> {
   const { email } = await requireAgencyAdmin();
   const res = await markSnapshotTaskComplete(createAdminClient(), taskId, email);
+  revalidatePath("/dashboard/onboarding");
+  return res;
+}
+
+export async function markCustomValuesTaskCompleteAction(taskId: string): Promise<{ ok: boolean; message: string }> {
+  const { email } = await requireAgencyAdmin();
+  const res = await markCustomValuesTaskComplete(createAdminClient(), taskId, email);
   revalidatePath("/dashboard/onboarding");
   return res;
 }

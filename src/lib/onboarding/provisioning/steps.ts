@@ -29,6 +29,7 @@ import {
   TASK_INSTALL_WEBHOOK,
   TASK_LOAD_SNAPSHOT,
   TASK_MISSING_CUSTOM_VALUE,
+  TASK_SET_CUSTOM_VALUES,
   TEXT_1_IMAGE_PLACEHOLDER,
   type ProvisioningPolicy,
 } from "@/lib/onboarding/provisioning/config";
@@ -189,6 +190,12 @@ export async function createGhlLocation(ctx: StepContext): Promise<StepOutcome> 
 
 // ---------------------------------------------------------------- STEP 3
 export async function obtainLocationToken(ctx: StepContext): Promise<StepOutcome> {
+  // Manual custom-values mode: we never call the custom-value API, so no
+  // location token is needed. Skip this step entirely.
+  if (!ctx.policy.automateCustomValues) {
+    return { status: "skipped", metadata: { reason: "custom_values_manual" } };
+  }
+
   // Verify the scopes location-scoped calls will require.
   try {
     ctx.ghl.assertScopes(PROVISIONING_REQUIRED_SCOPES);
@@ -267,6 +274,27 @@ export async function discoverCustomValues(ctx: StepContext): Promise<StepOutcom
   const locationId = loc.ghl_location_id;
   if (!locationId) return fail("no_location", "No provider location id is available.");
 
+  // Manual custom-values mode: the operator enters the values by hand in the
+  // sub-account. Emit a guided checklist task and park, until they mark it done.
+  if (!ctx.policy.automateCustomValues) {
+    if (loc.custom_values_status === "complete") return ok({ custom_values: "manual_complete" });
+
+    const existing = await ctx.store.findOpenAdminTask(ctx.client.id, TASK_SET_CUSTOM_VALUES);
+    if (!existing) {
+      await ctx.store.createAdminTask({
+        clientAccountId: ctx.client.id,
+        provisioningRunId: ctx.run.id,
+        taskType: TASK_SET_CUSTOM_VALUES,
+        title: "Set review custom values in GHL",
+        instructions: await manualCustomValuesInstructions(ctx, locationId),
+      });
+    }
+    await ctx.store.setLocation(ctx.client.id, { custom_values_status: "pending" });
+    return needsAction("Enter the review custom values in the sub-account, then mark the task complete.", {
+      custom_values: "manual_required",
+    });
+  }
+
   let values;
   try {
     const token = await ensureLocationToken(ctx);
@@ -306,6 +334,12 @@ export async function discoverCustomValues(ctx: StepContext): Promise<StepOutcom
 
 // ---------------------------------------------------------------- STEP 6
 export async function updateCustomValues(ctx: StepContext): Promise<StepOutcome> {
+  // Manual custom-values mode: nothing to write via the API — the operator set
+  // them by hand (and marked the task complete, which set custom_values_status).
+  if (!ctx.policy.automateCustomValues) {
+    return { status: "skipped", metadata: { reason: "custom_values_manual" } };
+  }
+
   const loc = await ctx.store.ensureLocation(ctx.client.id);
   const locationId = loc.ghl_location_id;
   if (!locationId) return fail("no_location", "No provider location id is available.");
@@ -448,19 +482,26 @@ export async function runHealthChecks(ctx: StepContext): Promise<StepOutcome> {
   // Snapshot confirmed / manual approved.
   if (loc.snapshot_status !== "applied") failures.push("snapshot not confirmed");
 
-  // Custom values exist + match.
-  try {
-    const token = await ensureLocationToken(ctx);
-    const values = await runTransient(ctx, () => ctx.ghl.listLocationCustomValues(locationId, token));
-    const mappings = (await ctx.store.getRequiredMappings()).filter((m) => m.required);
-    for (const m of mappings) {
-      const expected = expectedValueFor(m.canonical_key, c, { textImagePlaceholder: TEXT_1_IMAGE_PLACEHOLDER });
-      const match = matchMapping(m, values);
-      if (!match.ok) failures.push(`missing value ${m.canonical_key}`);
-      else if (expected !== null && match.match.currentValue !== expected) failures.push(`value mismatch ${m.canonical_key}`);
+  if (ctx.policy.automateCustomValues) {
+    // Custom values exist + match (via the location token).
+    try {
+      const token = await ensureLocationToken(ctx);
+      const values = await runTransient(ctx, () => ctx.ghl.listLocationCustomValues(locationId, token));
+      const mappings = (await ctx.store.getRequiredMappings()).filter((m) => m.required);
+      for (const m of mappings) {
+        const expected = expectedValueFor(m.canonical_key, c, { textImagePlaceholder: TEXT_1_IMAGE_PLACEHOLDER });
+        const match = matchMapping(m, values);
+        if (!match.ok) failures.push(`missing value ${m.canonical_key}`);
+        else if (expected !== null && match.match.currentValue !== expected) failures.push(`value mismatch ${m.canonical_key}`);
+      }
+    } catch {
+      failures.push("custom values not reachable");
     }
-  } catch {
-    failures.push("custom values not reachable");
+  } else {
+    // Manual mode: we can't read custom values via the API, so we rely on the
+    // operator's attestation (marking the "set custom values" task complete,
+    // which sets custom_values_status = complete).
+    if (loc.custom_values_status !== "complete") failures.push("custom values not confirmed");
   }
 
   // Webhook credential enabled.
@@ -521,6 +562,27 @@ function snapshotInstructions(client: ClientAccount, locationId: string, snapsho
     `3. Push the "${snapshot.name}" snapshot to this location.`,
     "4. Wait for the push to finish.",
     "5. Return here and mark this task complete to continue provisioning.",
+  ].join("\n");
+}
+
+async function manualCustomValuesInstructions(ctx: StepContext, locationId: string): Promise<string> {
+  const mappings = (await ctx.store.getRequiredMappings()).filter((m) => m.required);
+  const lines = mappings.map((m) => {
+    const key = m.expected_ghl_key ?? m.expected_display_name ?? m.canonical_key;
+    const expected = expectedValueFor(m.canonical_key, ctx.client, { textImagePlaceholder: TEXT_1_IMAGE_PLACEHOLDER });
+    const value = expected === null ? "(leave as-is)" : expected === "" ? "(blank)" : expected;
+    return `- ${key} = ${value}`;
+  });
+  return [
+    `Client: ${ctx.client.public_business_name}`,
+    `Location ID: ${locationId}`,
+    "",
+    "In this sub-account, open Settings → Custom Values and set each value below",
+    "exactly (create the value if the snapshot didn't):",
+    "",
+    ...lines,
+    "",
+    "Then return here and mark this task complete to continue provisioning.",
   ].join("\n");
 }
 
