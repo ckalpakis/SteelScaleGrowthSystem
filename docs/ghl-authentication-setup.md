@@ -51,13 +51,13 @@ The redirect URL is where HighLevel sends the `code` after an agency admin
 authorizes the app. For this repository (Next.js on Vercel) a natural choice is:
 
 ```
-https://<your-domain>/api/integrations/ghl/oauth/callback
+https://<your-domain>/api/integrations/reviews/oauth/callback
 ```
 
 For local development:
 
 ```
-http://localhost:3000/api/integrations/ghl/oauth/callback
+http://localhost:3000/api/integrations/reviews/oauth/callback
 ```
 
 > The OAuth **callback route itself is out of scope** for this task (no UI /

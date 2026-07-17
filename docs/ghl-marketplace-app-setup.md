@@ -99,17 +99,25 @@ Register this exact URL (even though the handler isn't built yet — you'll capt
 the code from the browser in step 5):
 
 ```
-https://<YOUR_APP_DOMAIN>/api/integrations/ghl/oauth/callback
+https://<YOUR_APP_DOMAIN>/api/integrations/reviews/oauth/callback
 ```
 
 For local testing you can also add:
 
 ```
-http://localhost:3000/api/integrations/ghl/oauth/callback
+http://localhost:3000/api/integrations/reviews/oauth/callback
 ```
 
 > Add both if the app allows multiple redirect URLs. The value you use in the
 > authorize link (step 5) **must exactly match** one you registered here.
+
+> **Important — GHL blocks "HighLevel references" in the redirect URL.** GHL
+> rejects a redirect URL whose text contains `ghl`, `highlevel`, or
+> `leadconnector` (that's why an earlier `…/ghl/oauth/callback` path failed to
+> save). The path above avoids all of those. Also make sure your **domain**
+> itself doesn't contain one of those words. Any HTTPS URL you control works —
+> since the callback handler isn't built yet, it only needs to be a valid,
+> reference‑free URL you can read the `code` back from in step 5.
 
 ## Step 4 — Add scopes
 
@@ -157,7 +165,7 @@ Build an **authorize URL** and open it in your browser while logged into your
 agency. Replace the placeholders:
 
 ```
-https://marketplace.gohighlevel.com/oauth/chooselocation?response_type=code&client_id=<CLIENT_ID>&redirect_uri=https://<YOUR_APP_DOMAIN>/api/integrations/ghl/oauth/callback&scope=locations.readonly%20locations.write%20locations/customValues.readonly%20locations/customValues.write%20snapshots.readonly
+https://marketplace.gohighlevel.com/oauth/chooselocation?response_type=code&client_id=<CLIENT_ID>&redirect_uri=https://<YOUR_APP_DOMAIN>/api/integrations/reviews/oauth/callback&scope=locations.readonly%20locations.write%20locations/customValues.readonly%20locations/customValues.write%20snapshots.readonly
 ```
 
 1. Open that URL. GHL shows a consent screen.
@@ -182,7 +190,7 @@ curl -s -X POST https://services.leadconnectorhq.com/oauth/token \
   --data-urlencode "grant_type=authorization_code" \
   --data-urlencode "code=<CODE_FROM_STEP_5>" \
   --data-urlencode "user_type=Company" \
-  --data-urlencode "redirect_uri=https://<YOUR_APP_DOMAIN>/api/integrations/ghl/oauth/callback"
+  --data-urlencode "redirect_uri=https://<YOUR_APP_DOMAIN>/api/integrations/reviews/oauth/callback"
 ```
 
 The response is JSON like:
@@ -238,7 +246,7 @@ GHL_TOKEN_EXPIRES_AT=<an ISO timestamp ~expires_in seconds from now>
 
 Right now token acquisition is the manual steps 5–6 because there's **no OAuth
 callback route** in the app. If you'd like, I can build a small admin‑only route
-(`/api/integrations/ghl/oauth/callback`) that captures the `code`, performs the
+(`/api/integrations/reviews/oauth/callback`) that captures the `code`, performs the
 step‑6 exchange automatically, and stores the tokens (encrypted) in the
 `ghl_connections` table — turning this into a single **Connect GHL** click in the
 dashboard instead of curl. Say the word and I'll add it.
