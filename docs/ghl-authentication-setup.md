@@ -70,13 +70,19 @@ http://localhost:3000/api/integrations/reviews/oauth/callback
 Request at least the scopes below (confirm exact strings in the app's scope
 picker — they are centralized in `GHL_SCOPES` in `config.ts`):
 
-| Capability | Scope (verify) |
-| --- | --- |
-| Read locations | `locations.readonly` |
-| Create / update locations | `locations.write` |
-| Read location custom values | `locations/customValues.readonly` |
-| Update location custom values | `locations/customValues.write` |
-| List snapshots | `snapshots.readonly` |
+| Capability | Scope (verify) | Level |
+| --- | --- | --- |
+| Read locations | `locations.readonly` | Agency |
+| Create / update locations | `locations.write` | Agency |
+| List snapshots | `snapshots.readonly` | Agency |
+| Read location custom values | `locations/customValues.readonly` | **Sub‑Account** |
+| Update location custom values | `locations/customValues.write` | **Sub‑Account** |
+
+> GHL categorizes scopes as **Agency (Company)** vs **Sub‑Account (Location)**.
+> The custom‑value scopes are **Sub‑Account** level — they're exercised via a
+> **location token** the app mints from the agency token, not via the agency
+> token itself. Add them from the Sub‑Account scope section of the app (a single
+> app can hold both agency and sub‑account scopes).
 
 The auth manager verifies granted scopes before each operation. Populate
 `GHL_GRANTED_SCOPES` with the space/comma-separated scopes your token actually

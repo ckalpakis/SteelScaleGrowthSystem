@@ -130,15 +130,32 @@ scopes are a section on the **Auth** page instead of a separate tab.)
 shown yet, click **Generate** / **Create Client Key** first.
 
 Add these scopes to the app (the code expects these exact strings; confirm them
-in the scope picker):
+in the scope picker). **Important:** GHL splits scopes into **Agency (Company)**
+and **Sub‑Account (Location)** categories, and the two custom‑value scopes live
+under **Sub‑Account**, not Agency. A single app can request both — add each from
+its section:
 
-| Purpose | Scope |
-| --- | --- |
-| Read sub‑accounts (locations) | `locations.readonly` |
-| Create/update sub‑accounts | `locations.write` |
-| Read location custom values | `locations/customValues.readonly` |
-| Update location custom values | `locations/customValues.write` |
-| List snapshots | `snapshots.readonly` |
+| Purpose | Scope | Scope level (where to find it) |
+| --- | --- | --- |
+| Read sub‑accounts (locations) | `locations.readonly` | **Agency / Company** |
+| Create/update sub‑accounts | `locations.write` | **Agency / Company** |
+| List snapshots | `snapshots.readonly` | **Agency / Company** |
+| Read location custom values | `locations/customValues.readonly` | **Sub‑Account / Location** |
+| Update location custom values | `locations/customValues.write` | **Sub‑Account / Location** |
+
+> **Why the split matters.** Creating a sub‑account and listing snapshots run on
+> the **agency (Company) token**. Reading/writing a sub‑account's custom values
+> runs on a **location token**, which the provisioning engine mints from the
+> agency token (STEP 3) and then uses for the custom‑value steps. So
+> `locations/customValues.write` is correctly a **sub‑account** scope — if the
+> picker won't let you add it as an *agency* scope, that's expected; add it from
+> the **Sub‑Account / Location** scope section instead.
+>
+> **Caveat to watch when testing:** for the minted location token to work on a
+> freshly created sub‑account, your app must have access to that sub‑account
+> (agency apps typically need to be **installed on it**, or set to auto‑install on
+> all sub‑accounts). If custom‑value writes fail *after* the location token is
+> minted, that's an app‑install/access issue, not a missing scope.
 
 Save. Then copy the app's **Client ID** and **Client Secret** and set:
 
