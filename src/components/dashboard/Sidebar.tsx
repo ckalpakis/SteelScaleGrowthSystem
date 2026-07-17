@@ -36,6 +36,7 @@ export function Sidebar({
   }
   if (isAdmin) {
     nav.push({ href: "/dashboard/clients", label: "Clients", icon: <GridIcon /> });
+    nav.push({ href: "/dashboard/onboarding", label: "Onboarding", icon: <TicketIcon /> });
   }
 
   const isActive = (item: NavItem) =>
@@ -190,6 +191,14 @@ function GridIcon() {
       <rect x="13" y="4" width="7" height="7" rx="1.5" />
       <rect x="4" y="13" width="7" height="7" rx="1.5" />
       <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+function TicketIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
+      <path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2 2 2 0 0 0 0 4 2 2 0 0 1-2 2H6a2 2 0 0 1-2-2 2 2 0 0 0 0-4Z" />
+      <path d="M13 6v12" strokeDasharray="2 2" />
     </svg>
   );
 }
