@@ -7,17 +7,17 @@ useful, but you can follow this top to bottom.
 **Two phases:**
 - **Phase A — Platform setup** (once): configure the app, GHL connection, snapshot.
 - **Phase B — Onboard a client** (repeat per client): invite → form → provision →
-  two manual GHL steps → wire the webhook → test → live.
+  three manual GHL steps → wire the webhook → test → live.
 
 ---
 
 ## 0. How it works (the mental model)
 
 ```
-Client fills your form  →  your app provisions a GHL sub-account
-                              (creates the sub-account via API)
-        You (manually in GHL):  load the review snapshot + set custom values
-        Your app:               generates a per-client webhook secret
+Client fills your form  →  your app queues provisioning + tracks every step
+        You (manually in GHL):  create the sub-account, load the snapshot,
+                                set custom values
+        Your app:               generates a per-client webhook secret, health checks
    Wire GHL review workflow → Custom Webhook → your app → your Twilio → customer
 ```
 
@@ -25,11 +25,12 @@ Key facts:
 - **GHL is the trigger; your app + your Twilio send the text.** The review
   workflow calls a webhook on your app at each stage; your app looks up the
   business/review link from its own record and sends via Twilio.
-- **Automated:** creating the sub‑account, generating the webhook credential,
-  health checks, status tracking.
-- **Manual (by design, because GHL's public API can't do these on your plan):**
-  loading the snapshot, and setting custom values. The dashboard hands you a
-  checklist and a "mark done" button for each.
+- **Automated:** generating the webhook credential, health checks, status
+  tracking, and the whole resumable pipeline.
+- **Manual (by design, because GHL's public API blocks these on most plans):**
+  creating the sub‑account, loading the snapshot, and setting custom values. The
+  dashboard gives you a task + a "mark done" (or "Save Location ID") button for
+  each, and resumes automatically.
 
 ---
 
@@ -147,22 +148,35 @@ They open `/onboard/<token>` (no login) and complete the 6‑step form (business
 location, Google review link, logo + color, review settings, review & submit).
 On submit, a provisioning run is queued.
 
-## B3. Provisioning creates the sub‑account (automatic)
+## B3. Start provisioning
 
-Open the client at **Onboarding → (client)** and watch the timeline. It runs
-`validate → create location → …`. On Vercel Hobby the daily cron drives it, so to
-run it now click **Retry provisioning**. When it needs you, it parks at
-**Needs action** with a task (next two steps).
+Open the client at **Onboarding → (client)** and watch the timeline. On Vercel
+Hobby the daily cron drives it, so to run it now click **Retry provisioning**.
+When it needs you, it parks at **Needs action** with a task (next three steps).
 
-## B4. Load the review snapshot (manual)
+## B4. Create the sub‑account & enter its Location ID (manual)
 
-Task: **"Load Steel Scale review snapshot."**
-1. GHL → **Agency View → Account Snapshots**.
-2. Push your review snapshot to this client's location (the task shows the
-   Location ID).
-3. Back in the dashboard, click **Mark snapshot complete**.
+Creating a sub‑account via the GHL API is blocked for Private Integration Tokens
+and gated behind higher plans, so by default the app has **you** create it. Task:
+**"Create the GHL sub‑account and enter its Location ID."**
+1. In GHL **Agency View**, create a new sub‑account for this business — **create
+   it FROM your review snapshot** so the snapshot step is handled at the same time.
+2. Open the new sub‑account and copy its **Location ID** (in the URL / Settings →
+   Business Info).
+3. Paste it into the field on the task and click **Save Location ID**.
 
-## B5. Set the custom values (manual)
+> Prefer full automation? If you have an agency OAuth token on a plan that permits
+> API sub‑account creation, set `GHL_AUTOMATE_LOCATION_CREATION=true` and this
+> step becomes automatic.
+
+## B5. Load the review snapshot (manual)
+
+Task: **"Load Steel Scale review snapshot."** If you created the sub‑account
+**from** the snapshot in B4, it's already applied — just click **Mark snapshot
+complete**. Otherwise, in **Agency View → Account Snapshots**, push your snapshot
+to the sub‑account first, then **Mark snapshot complete**.
+
+## B6. Set the custom values (manual)
 
 Task: **"Set review custom values in GHL"** — it lists every key and the exact
 value.
@@ -174,7 +188,7 @@ value.
 Provisioning resumes, creates the webhook credential, runs health checks, and the
 client becomes **Active**.
 
-## B6. Wire the review workflow webhook
+## B7. Wire the review workflow webhook
 
 Open **(client) → Webhook setup** (`/dashboard/onboarding/clients/<id>/webhook`).
 It gives you the URL, headers, a one‑time secret, and four JSON payloads. In the
@@ -186,7 +200,7 @@ action with a **Custom Webhook (POST)** using:
 
 Full walkthrough with the merge‑field reference: **`docs/ghl-setup-guide.md` Part 6**.
 
-## B7. Test, then go live
+## B8. Test, then go live
 
 On the Webhook setup page:
 - **Test Configuration** — dry run (no SMS); fix any ❌.
@@ -199,7 +213,7 @@ Then **publish** the GHL workflow. Done — that client is live.
 
 | Task | How |
 | --- | --- |
-| Create the sub‑account | ✅ Automatic (API) |
+| Create the sub‑account | ✍️ Manual → Save Location ID (unless `GHL_AUTOMATE_LOCATION_CREATION=true`) |
 | Generate webhook credential | ✅ Automatic |
 | Health checks / status | ✅ Automatic |
 | Load snapshot | ✍️ Manual in GHL → Mark complete |
@@ -208,16 +222,16 @@ Then **publish** the GHL workflow. Done — that client is live.
 
 ## Day‑to‑day admin actions (client detail page)
 
-**Retry provisioning**, **Mark snapshot complete**, **Mark custom values done**,
-**Regenerate webhook secret**, **Edit configuration**, **Pause**, **Open GHL
-sub‑account**.
+**Retry provisioning**, **Save Location ID**, **Mark snapshot complete**, **Mark
+custom values done**, **Regenerate webhook secret**, **Edit configuration**,
+**Pause**, **Open GHL sub‑account**.
 
 ## Troubleshooting
 
 | Symptom | Fix |
 | --- | --- |
 | Provisioning fails at **validate** (`no_active_connection`) | Do step **A5** (insert the active `ghl_connections` row) |
-| Fails at **create location** (401/scope) | Your GHL token can't create sub‑accounts — check `locations.write`; switch PIT→OAuth (A4) |
+| Fails at **create location** (403 Forbidden) | Expected with a PIT — it can't create sub‑accounts. Use the manual flow (B4: create it in GHL, Save Location ID). Only `GHL_AUTOMATE_LOCATION_CREATION=true` + agency OAuth on a qualifying plan enables auto‑creation |
 | Stuck at **Needs action** | Do the listed manual task (B4/B5), then it resumes |
 | Webhook returns **401** | Rotate the secret on the Webhook setup page and re‑paste it in GHL |
 | Webhook **503 not configured** | Set the four `TWILIO_*` vars |

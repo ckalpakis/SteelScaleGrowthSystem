@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 
-import { Badge, Button, Card, CardBody } from "@/components/ui";
+import { Badge, Button, Card, CardBody, Input } from "@/components/ui";
 import { ClientStatusBadge, RunStatusBadge, stepTone } from "@/components/dashboard/onboarding/StatusBadge";
 import {
   completeAdminTaskAction,
@@ -11,6 +11,7 @@ import {
   markCustomValuesTaskCompleteAction,
   markSnapshotTaskCompleteAction,
   pauseClientAction,
+  setClientLocationIdAction,
   rerunCustomValueSyncAction,
   retryProvisioningAction,
 } from "@/app/dashboard/onboarding/actions";
@@ -102,6 +103,13 @@ export function ClientDetailView({ detail }: { detail: ClientDetail }) {
                 <div key={t.id} className="rounded-lg border border-amber-200 bg-white p-3">
                   <div className="font-medium text-[#37352f]">{t.title}</div>
                   {t.instructions && <pre className="mt-1 whitespace-pre-wrap font-sans text-xs text-[#5f5e5b]">{t.instructions}</pre>}
+                  {t.task_type === "enter_location_id" && (
+                    <LocationIdForm
+                      clientId={client.id}
+                      busy={busy !== null}
+                      onSave={(value) => withBusy(`loc-${t.id}`, () => setClientLocationIdAction(client.id, value))}
+                    />
+                  )}
                   <div className="mt-2 flex gap-2">
                     {t.task_type === "load_review_snapshot" ? (
                       <Button disabled={busy !== null} onClick={() => withBusy(`snap-${t.id}`, () => markSnapshotTaskCompleteAction(t.id))}>
@@ -111,7 +119,7 @@ export function ClientDetailView({ detail }: { detail: ClientDetail }) {
                       <Button disabled={busy !== null} onClick={() => withBusy(`cv-${t.id}`, () => markCustomValuesTaskCompleteAction(t.id))}>
                         Mark custom values done
                       </Button>
-                    ) : (
+                    ) : t.task_type === "enter_location_id" ? null : (
                       <Button disabled={busy !== null} onClick={() => withBusy(`done-${t.id}`, () => completeAdminTaskAction(t.id, "complete"))}>
                         Mark complete
                       </Button>
@@ -287,6 +295,25 @@ function EditForm({ client, onDone }: { client: ClientDetail["client"]; onDone: 
         Ask for referral
       </label>
       <Button disabled={saving} onClick={save}>{saving ? "Saving…" : "Save changes"}</Button>
+    </div>
+  );
+}
+
+// Inline form to enter the GHL Location ID for a client (manual location mode).
+function LocationIdForm({ clientId, busy, onSave }: { clientId: string; busy: boolean; onSave: (value: string) => void }) {
+  const [value, setValue] = useState("");
+  return (
+    <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+      <Input
+        aria-label={`GHL Location ID for ${clientId}`}
+        placeholder="Paste the GHL Location ID"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="sm:max-w-xs"
+      />
+      <Button disabled={busy || value.trim().length < 6} onClick={() => onSave(value.trim())}>
+        Save Location ID
+      </Button>
     </div>
   );
 }

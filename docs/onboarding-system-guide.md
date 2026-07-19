@@ -89,6 +89,14 @@ Watch progress at **Onboarding → (client)**
 step's status, and the **GHL** panel shows the location ID, snapshot status, and
 custom‑values status.
 
+> **Creating the sub‑account is manual by default.** GHL blocks API sub‑account
+> creation for Private Integration Tokens (and gates it behind higher plans), so
+> the first thing provisioning parks on is a **"Create the GHL sub‑account and
+> enter its Location ID"** task: create it in GHL (ideally from your snapshot),
+> paste the **Location ID**, and click **Save Location ID** to continue. Set
+> `GHL_AUTOMATE_LOCATION_CREATION=true` (agency OAuth on a qualifying plan) to
+> automate it.
+
 ### Status colors
 - 🟢 **Active** — fully provisioned
 - 🟡 **Needs action** — a manual step is required (see below)

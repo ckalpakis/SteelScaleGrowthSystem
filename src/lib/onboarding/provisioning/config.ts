@@ -47,11 +47,21 @@ export interface ProvisioningPolicy {
    * `GHL_AUTOMATE_CUSTOM_VALUES=true` to re-enable full API automation.
    */
   automateCustomValues: boolean;
+  /**
+   * When false (the default), the engine does NOT create the sub-account via the
+   * API. Creating a sub-account is an agency action GHL blocks for Private
+   * Integration Tokens (403) and gates behind higher plans even for OAuth.
+   * Instead the operator creates it in GHL (e.g. from the snapshot) and pastes
+   * its Location ID into the dashboard; the engine records it and continues. Set
+   * `GHL_AUTOMATE_LOCATION_CREATION=true` to create sub-accounts via the API.
+   */
+  automateLocationCreation: boolean;
 }
 
 export const DEFAULT_POLICY: ProvisioningPolicy = {
   snapshotGatesCustomValues: true,
   automateCustomValues: process.env.GHL_AUTOMATE_CUSTOM_VALUES === "true",
+  automateLocationCreation: process.env.GHL_AUTOMATE_LOCATION_CREATION === "true",
 };
 
 /**
@@ -78,3 +88,5 @@ export const TASK_MISSING_CUSTOM_VALUE = "missing_custom_value";
 export const TASK_CUSTOM_VALUE_MISMATCH = "custom_value_mismatch";
 /** Manual-mode task: operator enters the custom values by hand in the sub-account. */
 export const TASK_SET_CUSTOM_VALUES = "set_custom_values";
+/** Manual-mode task: operator creates the sub-account in GHL and enters its Location ID. */
+export const TASK_ENTER_LOCATION_ID = "enter_location_id";

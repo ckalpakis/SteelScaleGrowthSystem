@@ -11,6 +11,7 @@ import {
   markCustomValuesTaskComplete,
   markSnapshotTaskComplete,
   pauseClient,
+  setClientLocationId,
   recordAudit,
   rerunCustomValueSync,
   resendInvitation,
@@ -103,6 +104,15 @@ export async function markSnapshotTaskCompleteAction(taskId: string): Promise<{ 
 export async function markCustomValuesTaskCompleteAction(taskId: string): Promise<{ ok: boolean; message: string }> {
   const { email } = await requireAgencyAdmin();
   const res = await markCustomValuesTaskComplete(createAdminClient(), taskId, email);
+  revalidatePath("/dashboard/onboarding");
+  return res;
+}
+
+// Manual location mode: save the GHL Location ID the operator created by hand.
+export async function setClientLocationIdAction(clientAccountId: string, locationId: string): Promise<{ ok: boolean; message: string }> {
+  const { email } = await requireAgencyAdmin();
+  const res = await setClientLocationId(createAdminClient(), clientAccountId, locationId, email);
+  revalidatePath(`/dashboard/onboarding/clients/${clientAccountId}`);
   revalidatePath("/dashboard/onboarding");
   return res;
 }

@@ -27,6 +27,7 @@ import {
   PROVISIONING_REQUIRED_SCOPES,
   SNAPSHOT_POLL_MAX_ATTEMPTS,
   TASK_CUSTOM_VALUE_MISMATCH,
+  TASK_ENTER_LOCATION_ID,
   TASK_INSTALL_WEBHOOK,
   TASK_LOAD_SNAPSHOT,
   TASK_MISSING_CUSTOM_VALUE,
@@ -123,6 +124,27 @@ export async function validateSubmission(ctx: StepContext): Promise<StepOutcome>
 export async function createGhlLocation(ctx: StepContext): Promise<StepOutcome> {
   const c = ctx.client;
   const loc = await ctx.store.ensureLocation(c.id);
+
+  // Manual location mode: the operator creates the sub-account in GHL and pastes
+  // its Location ID. We never call the create/verify API (which a PIT can't do).
+  if (!ctx.policy.automateLocationCreation) {
+    if (loc.ghl_location_id) {
+      await ctx.store.setLocation(c.id, { provider_status: "complete" });
+      await ctx.store.setRun(ctx.run.id, { ghl_location_id: loc.ghl_location_id });
+      return ok({ ghl_location_id: loc.ghl_location_id, manual: true });
+    }
+    const existing = await ctx.store.findOpenAdminTask(c.id, TASK_ENTER_LOCATION_ID);
+    if (!existing) {
+      await ctx.store.createAdminTask({
+        clientAccountId: c.id,
+        provisioningRunId: ctx.run.id,
+        taskType: TASK_ENTER_LOCATION_ID,
+        title: "Create the GHL sub-account and enter its Location ID",
+        instructions: manualLocationInstructions(ctx),
+      });
+    }
+    return needsAction("Create the sub-account in GHL, then paste its Location ID here.", { manual_location: true });
+  }
 
   // Idempotent: if we already recorded a location id, verify + finish. Never
   // create a second location on retry.
@@ -475,11 +497,14 @@ export async function runHealthChecks(ctx: StepContext): Promise<StepOutcome> {
 
   if (!locationId) return needsAction("Location is not created yet.");
 
-  // Location exists.
-  try {
-    await runTransient(ctx, () => ctx.ghl.getLocation(locationId));
-  } catch {
-    failures.push("location not reachable");
+  // Location exists. Only verify via the API when we have API access to it
+  // (manual-location mode uses a token that can't read the sub-account).
+  if (ctx.policy.automateLocationCreation) {
+    try {
+      await runTransient(ctx, () => ctx.ghl.getLocation(locationId));
+    } catch {
+      failures.push("location not reachable");
+    }
   }
 
   // Snapshot confirmed / manual approved.
@@ -566,6 +591,23 @@ function snapshotInstructions(client: ClientAccount, locationId: string, snapsho
     "4. Wait for the push to finish.",
     "5. Return here and mark this task complete to continue provisioning.",
   ].join("\n");
+}
+
+function manualLocationInstructions(ctx: StepContext): string {
+  const c = ctx.client;
+  return [
+    `Client: ${c.public_business_name}`,
+    c.primary_email ? `Owner email: ${c.primary_email}` : "",
+    "",
+    "Create the sub-account in GHL, then paste its Location ID above:",
+    "1. Switch to Agency View.",
+    `2. Create a new sub-account for "${c.public_business_name}"`,
+    `   (tip: create it FROM the "${ctx.snapshot.name}" snapshot so the snapshot step is done too).`,
+    "3. Open the new sub-account → Settings → Business Info (or the URL) to find its Location ID.",
+    "4. Paste the Location ID into the field on this task and save.",
+  ]
+    .filter(Boolean)
+    .join("\n");
 }
 
 async function manualCustomValuesInstructions(ctx: StepContext, locationId: string): Promise<string> {

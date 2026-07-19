@@ -139,6 +139,25 @@ export async function markSnapshotTaskComplete(admin: SupabaseClient, taskId: st
   return { ok: true, message: "Snapshot marked complete." };
 }
 
+// Manual location mode: the operator created the sub-account in GHL and is
+// entering its Location ID. Record it, complete the task, and resume provisioning.
+export async function setClientLocationId(admin: SupabaseClient, clientAccountId: string, rawLocationId: string, actorEmail: string): Promise<{ ok: boolean; message: string }> {
+  const locationId = rawLocationId.trim();
+  if (!/^[A-Za-z0-9_-]{6,64}$/.test(locationId)) {
+    return { ok: false, message: "That doesn't look like a valid GHL Location ID." };
+  }
+
+  // Ensure a location row exists, then record the id (unique per client).
+  await admin.from("ghl_locations").upsert({ client_account_id: clientAccountId, ghl_location_id: locationId }, { onConflict: "client_account_id" });
+  await admin.from("admin_tasks").update({ status: "complete", completed_at: new Date().toISOString() })
+    .eq("client_account_id", clientAccountId).eq("task_type", "enter_location_id").eq("status", "open");
+  await recordAudit(admin, actorEmail, "location.set_id", "client_account", clientAccountId, { ghlLocationId: locationId });
+
+  const { data: run } = await admin.from("provisioning_runs").select("id").eq("client_account_id", clientAccountId).order("created_at", { ascending: false }).limit(1).maybeSingle<{ id: string }>();
+  if (run) return retryProvisioning(admin, run.id, actorEmail);
+  return { ok: true, message: "Location ID saved." };
+}
+
 // Manual custom-values mode: the operator entered the values by hand in GHL and
 // is attesting completion. Mark the location's custom values complete and resume.
 export async function markCustomValuesTaskComplete(admin: SupabaseClient, taskId: string, actorEmail: string): Promise<{ ok: boolean; message: string }> {

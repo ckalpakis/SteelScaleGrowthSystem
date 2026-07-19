@@ -279,8 +279,8 @@ function makeEngine(store: FakeStore, ghl: GhlProvisioningClient, workerId = "w1
     ghl,
     workerId,
     // These tests exercise the FULL API automation path; opt in explicitly
-    // (production defaults to manual custom values).
-    policy: { snapshotGatesCustomValues: true, automateCustomValues: true, ...policyOverride },
+    // (production defaults to manual location + custom values).
+    policy: { snapshotGatesCustomValues: true, automateCustomValues: true, automateLocationCreation: true, ...policyOverride },
     now: () => new Date("2026-07-17T00:00:00Z"),
     sleep: () => Promise.resolve(),
     makeWebhookSecret: () => ({ publicId: "whc_test", rawSecret: "raw", secretHash: "hash", secretCiphertext: "cipher", secretExpiresAt: new Date().toISOString() }),
@@ -414,7 +414,7 @@ describe("ProvisioningEngine", () => {
       store,
       ghl: makeGhl({ snapshotSupported: true }),
       workerId: "w1",
-      policy: { snapshotGatesCustomValues: true, automateCustomValues: true },
+      policy: { snapshotGatesCustomValues: true, automateCustomValues: true, automateLocationCreation: true },
       now: () => new Date("2026-07-17T00:00:00Z"),
       sleep: () => Promise.resolve(),
       makeWebhookSecret: () => ({ publicId: "whc_test", rawSecret: "raw-secret", secretHash: "h", secretCiphertext: "c", secretExpiresAt: new Date().toISOString() }),
@@ -469,5 +469,32 @@ describe("ProvisioningEngine", () => {
     expect(store.steps.get("run_1:update_custom_values")!.status).toBe("skipped");
     // The whole flow never touched the custom-value API.
     expect(ghl.getLocationAccessToken).not.toHaveBeenCalled();
+  });
+
+  // ---- manual location mode (PIT can't create sub-accounts) ----
+  it("manual location: parks with an enter_location_id task and never calls the create API", async () => {
+    const store = new FakeStore();
+    const ghl = makeGhl({ snapshotSupported: true });
+    const outcome = await makeEngine(store, ghl, "w1", { automateLocationCreation: false }).provision("run_1");
+
+    expect(outcome).toMatchObject({ result: "needs_action", step: "create_ghl_location" });
+    expect(store.clients.get("acc_1")!.status).toBe("needs_action");
+    expect(store.adminTasks.find((t) => t.task_type === "enter_location_id")).toBeTruthy();
+    expect(ghl.calls.createLocation).toBe(0);
+  });
+
+  it("manual location: completes once the operator enters the Location ID (no create/read API)", async () => {
+    const store = new FakeStore();
+    const ghl = makeGhl({ snapshotSupported: false });
+    // Operator created the sub-account, loaded the snapshot, and set values by hand.
+    await store.setLocation("acc_1", { ghl_location_id: "loc_manual", snapshot_status: "applied", custom_values_status: "complete" });
+
+    const outcome = await makeEngine(store, ghl, "w1", { automateLocationCreation: false, automateCustomValues: false }).provision("run_1");
+
+    expect(outcome).toEqual({ result: "complete" });
+    expect(store.clients.get("acc_1")!.status).toBe("active");
+    expect(store.runs.get("run_1")!.ghl_location_id).toBe("loc_manual");
+    expect(ghl.calls.createLocation).toBe(0);
+    expect(ghl.calls.getLocation).toBe(0);
   });
 });
