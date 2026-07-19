@@ -22,6 +22,7 @@ import type {
 import { expectedValueFor, matchMapping } from "@/lib/onboarding/provisioning/matching";
 import {
   DEFAULT_POLICY,
+  PROVISIONING_LOCATION_SCOPES,
   PROVISIONING_MAX_ATTEMPTS,
   PROVISIONING_REQUIRED_SCOPES,
   SNAPSHOT_POLL_MAX_ATTEMPTS,
@@ -136,7 +137,9 @@ export async function createGhlLocation(ctx: StepContext): Promise<StepOutcome> 
     }
   }
 
-  ctx.ghl.assertScopes(PROVISIONING_REQUIRED_SCOPES);
+  // In manual custom-values mode we only create/read the sub-account, so we only
+  // require the location scopes (not the custom-value scopes the plan may lack).
+  ctx.ghl.assertScopes(ctx.policy.automateCustomValues ? PROVISIONING_REQUIRED_SCOPES : PROVISIONING_LOCATION_SCOPES);
 
   let created;
   try {

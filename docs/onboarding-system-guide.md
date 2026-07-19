@@ -1,5 +1,10 @@
 # Client Onboarding & Provisioning — Operator Guide
 
+> **Looking for the full start‑to‑finish setup?** See
+> **`docs/COMPLETE-SETUP-GUIDE.md`** — it covers platform setup (Supabase, env,
+> GHL connection, snapshot) plus this onboarding flow, end to end. This doc is
+> the detailed operator reference for the onboarding/provisioning part.
+
 How to onboard a new client from start to finish using the system in this repo:
 invite → the client fills the **Business setup** form → automatic provisioning of
 their Steel Scale sub‑account → load the review snapshot → wire the review

@@ -54,13 +54,22 @@ export const DEFAULT_POLICY: ProvisioningPolicy = {
   automateCustomValues: process.env.GHL_AUTOMATE_CUSTOM_VALUES === "true",
 };
 
-/** Scopes required across the provisioning flow (verified before GHL calls). */
+/**
+ * Scopes required for the FULL flow including API custom-value writes. Only
+ * asserted when `automateCustomValues` is on.
+ */
 export const PROVISIONING_REQUIRED_SCOPES = [
   GHL_SCOPES.locationsWrite,
   GHL_SCOPES.locationsRead,
   GHL_SCOPES.customValuesRead,
   GHL_SCOPES.customValuesWrite,
 ] as const;
+
+/**
+ * Scopes required when custom values are handled manually (the default): the
+ * engine only creates/reads the sub-account, so no custom-value scopes are needed.
+ */
+export const PROVISIONING_LOCATION_SCOPES = [GHL_SCOPES.locationsWrite, GHL_SCOPES.locationsRead] as const;
 
 // Admin task types.
 export const TASK_LOAD_SNAPSHOT = "load_review_snapshot";
