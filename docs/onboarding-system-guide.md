@@ -23,7 +23,7 @@ Set these environment variables (see `.env.example` for the full list):
 | --- | --- |
 | Supabase | `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` |
 | Admins | `AGENCY_ADMIN_EMAILS` (comma‑separated) |
-| App URL | `NEXT_PUBLIC_APP_URL` (e.g. `https://app.steelscale.xyz`) |
+| App URL | `NEXT_PUBLIC_APP_URL` (e.g. `https://steelscale.xyz`) |
 | GHL agency | `GHL_AUTH_METHOD`, `GHL_COMPANY_ID`, and the OAuth **or** PIT vars — see `docs/ghl-authentication-setup.md` |
 | Snapshot | `GHL_REVIEW_SNAPSHOT_NAME` (and `GHL_REVIEW_SNAPSHOT_ID` if you have it) |
 | Messaging | `TWILIO_ACCOUNT_SID`, `TWILIO_API_KEY`, `TWILIO_API_SECRET`, `TWILIO_MESSAGING_SERVICE_SID` |

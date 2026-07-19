@@ -39,7 +39,7 @@ GoHighLevel Workflow
 > rejects oversized bodies.
 
 > Replace `<your-app-domain>` with your **actual deployed domain** (for example
-> `https://app.steelscale.xyz/api/review`). This must be the live production URL —
+> `https://steelscale.xyz/api/review`). This must be the live production URL —
 > GoHighLevel calls it from Google's servers, not from your browser.
 
 A successful call returns:
