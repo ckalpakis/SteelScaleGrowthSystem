@@ -37,6 +37,7 @@ export function Sidebar({
   if (isAdmin) {
     nav.push({ href: "/dashboard/clients", label: "Clients", icon: <GridIcon /> });
     nav.push({ href: "/dashboard/onboarding", label: "Onboarding", icon: <TicketIcon /> });
+    nav.push({ href: "/dashboard/tools/phone-lookup", label: "Phone check", icon: <PhoneIcon /> });
   }
 
   const isActive = (item: NavItem) =>
@@ -191,6 +192,13 @@ function GridIcon() {
       <rect x="13" y="4" width="7" height="7" rx="1.5" />
       <rect x="4" y="13" width="7" height="7" rx="1.5" />
       <rect x="13" y="13" width="7" height="7" rx="1.5" />
+    </svg>
+  );
+}
+function PhoneIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={ic} stroke="currentColor" strokeWidth="1.7">
+      <path d="M6.5 4h3l1.5 4-2 1.5a11 11 0 0 0 5 5l1.5-2 4 1.5v3a2 2 0 0 1-2 2A16 16 0 0 1 4.5 6a2 2 0 0 1 2-2Z" />
     </svg>
   );
 }

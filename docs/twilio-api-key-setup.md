@@ -101,6 +101,16 @@ TWILIO_MESSAGING_SERVICE_SID=MG…
 | **21704** Messaging Service has no senders | Sender Pool empty | Add a number to the Service's Sender Pool (step 3.3) |
 | Message sends but from an unexpected number | Shared pool picks a number per recipient | Expected with one shared Service; use the per‑client sender build if you want dedicated numbers |
 
+## Phone line‑type check (admin tool)
+
+Once the credentials above are set, admins get a **Phone check** tool at
+**`/dashboard/tools/phone-lookup`** (in the sidebar). Paste up to 50 numbers to
+see whether each is **mobile / landline / VoIP** (via Twilio Lookup — Line Type
+Intelligence), and one‑click **copy the mobile numbers** to scrub a list before a
+campaign. Each lookup is a small billable Twilio request (~$0.005). It uses the
+same `TWILIO_ACCOUNT_SID` / `TWILIO_API_KEY` / `TWILIO_API_SECRET` — no extra
+setup.
+
 ## Related docs
 - `docs/setup-twilio-and-vercel.md` — the older Auth‑Token single‑account flow (legacy)
 - `docs/COMPLETE-SETUP-GUIDE.md` — full platform + onboarding setup
