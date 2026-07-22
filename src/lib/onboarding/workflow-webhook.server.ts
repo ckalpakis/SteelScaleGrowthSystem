@@ -9,6 +9,9 @@ import { buildReviewMessage } from "@/lib/review/messageBuilder";
 import { sendMessage } from "@/lib/review/services/twilioService";
 import { isTwilioConfigured } from "@/lib/onboarding/test-config";
 import { normalizePhoneToE164 } from "@/lib/onboarding/validation";
+import { getReviewImageConfig } from "@/lib/review-image/config.server";
+import { shouldAttachImage } from "@/lib/review-image";
+import { buildReviewImageUrl, reviewImageSigningConfigured } from "@/lib/review-image/sign";
 import type { WorkflowClient, WorkflowCredential, WorkflowDeps, WorkflowStore } from "@/lib/onboarding/workflow-webhook";
 
 export class SupabaseWorkflowStore implements WorkflowStore {
@@ -68,7 +71,23 @@ export function workflowDeps(admin: SupabaseClient): WorkflowDeps {
       const to = normalizePhoneToE164(p.to);
       if (!to) throw new Error("invalid phone");
       const body = buildReviewMessage({ firstName: p.firstName, businessName: p.businessName, reviewLink: p.reviewLink });
-      await sendMessage({ to, body });
+
+      // Personalized MMS image on the first two stages, if the client enabled it.
+      let mediaUrl: string[] | undefined;
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+      if (appUrl && reviewImageSigningConfigured()) {
+        try {
+          const config = await getReviewImageConfig(admin, p.clientAccountId);
+          if (shouldAttachImage(p.eventType, config)) {
+            mediaUrl = [buildReviewImageUrl(appUrl, p.clientAccountId, p.firstName)];
+          }
+        } catch {
+          // Never fail a send because the image couldn't be prepared — fall back to SMS.
+          mediaUrl = undefined;
+        }
+      }
+
+      await sendMessage({ to, body, mediaUrl });
     },
   };
 }

@@ -21,6 +21,7 @@ import {
   type ClientConfigPatch,
 } from "@/lib/onboarding/admin.server";
 import { buildTestChecklist, isTwilioConfigured, type ChecklistItem } from "@/lib/onboarding/test-config";
+import { saveReviewImageConfig, uploadReviewImageBase, type ReviewImageConfigPatch } from "@/lib/review-image/config.server";
 import { hashWebhookSecret } from "@/lib/onboarding/provisioning/webhook";
 import { buildReviewMessage } from "@/lib/review/messageBuilder";
 import { sendMessage } from "@/lib/review/services/twilioService";
@@ -114,6 +115,28 @@ export async function setClientLocationIdAction(clientAccountId: string, locatio
   const res = await setClientLocationId(createAdminClient(), clientAccountId, locationId, email);
   revalidatePath(`/dashboard/onboarding/clients/${clientAccountId}`);
   revalidatePath("/dashboard/onboarding");
+  return res;
+}
+
+// ---- personalized review image (MMS) ----
+export async function uploadReviewImageBaseAction(clientAccountId: string, formData: FormData): Promise<{ ok: boolean; message: string; url?: string }> {
+  const { email } = await requireAgencyAdmin();
+  const file = formData.get("image");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, message: "Choose an image file." };
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const admin = createAdminClient();
+  const res = await uploadReviewImageBase(admin, clientAccountId, bytes);
+  await recordAudit(admin, email, "review_image.upload_base", "client_account", clientAccountId);
+  revalidatePath(`/dashboard/onboarding/clients/${clientAccountId}/review-image`);
+  return res;
+}
+
+export async function saveReviewImageConfigAction(clientAccountId: string, patch: ReviewImageConfigPatch): Promise<{ ok: boolean; message: string }> {
+  const { email } = await requireAgencyAdmin();
+  const admin = createAdminClient();
+  const res = await saveReviewImageConfig(admin, clientAccountId, patch);
+  await recordAudit(admin, email, "review_image.save_config", "client_account", clientAccountId, { enabled: patch.enabled });
+  revalidatePath(`/dashboard/onboarding/clients/${clientAccountId}/review-image`);
   return res;
 }
 

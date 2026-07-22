@@ -63,6 +63,10 @@ export interface WorkflowSendParams {
   firstName: string;
   businessName: string;
   reviewLink: string;
+  /** The workflow stage — used to decide whether to attach a personalized image. */
+  eventType: string;
+  /** Our client id — used to look up the personalized-image config. */
+  clientAccountId: string;
 }
 
 export interface WorkflowDeps {
@@ -138,6 +142,8 @@ export async function handleWorkflowWebhook(deps: WorkflowDeps, rawSecret: strin
       firstName: payload.firstName,
       businessName: client.public_business_name, // resolved from OUR record
       reviewLink: client.google_review_link, // resolved from OUR record
+      eventType: payload.eventType,
+      clientAccountId: client.id,
     });
     await deps.store.setEventStatus(payload.idempotencyKey, "processed");
     return { ok: true, outcome: "sent" };
