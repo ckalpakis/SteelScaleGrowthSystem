@@ -33,6 +33,8 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/auth") ||
     pathname.startsWith("/site/") ||
     pathname.startsWith("/r/") || // tracked review short links resolve on any host
+    pathname.startsWith("/onboard/") || // public onboarding links resolve on any host
+    pathname === "/onboard" ||
     pathname.includes(".")
   ) {
     return NextResponse.next();
