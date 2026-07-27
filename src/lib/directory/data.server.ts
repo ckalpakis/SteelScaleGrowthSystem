@@ -17,6 +17,26 @@ export async function getDirectoryById(admin: SupabaseClient, id: string): Promi
   return data ?? null;
 }
 
+/**
+ * The directory shown at the site root (`/`). Uses PRIMARY_DIRECTORY_SLUG when
+ * set, otherwise the most recently created published directory. Null if none.
+ */
+export async function getPrimaryDirectory(admin: SupabaseClient): Promise<Directory | null> {
+  const slug = process.env.PRIMARY_DIRECTORY_SLUG;
+  if (slug) {
+    const byEnv = await getDirectoryBySlug(admin, slug, { publishedOnly: true });
+    if (byEnv) return byEnv;
+  }
+  const { data } = await admin
+    .from("directories")
+    .select("*")
+    .eq("published", true)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle<Directory>();
+  return data ?? null;
+}
+
 export async function getDirectoryBySlug(admin: SupabaseClient, slug: string, opts: { publishedOnly?: boolean } = {}): Promise<Directory | null> {
   let q = admin.from("directories").select("*").eq("slug", slug);
   if (opts.publishedOnly) q = q.eq("published", true);

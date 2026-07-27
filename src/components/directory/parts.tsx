@@ -4,12 +4,21 @@ import Link from "next/link";
 
 import type { Directory, DirectoryListing } from "@/lib/directory/types";
 
-export function DirectoryHeader({ directory, categories }: { directory: Directory; categories: string[] }) {
+export function DirectoryHeader({
+  directory,
+  categories,
+  homeHref,
+}: {
+  directory: Directory;
+  categories: string[];
+  homeHref?: string;
+}) {
   const base = `/directory/${directory.slug}`;
+  const home = homeHref ?? base;
   return (
     <header className="border-b border-black/10 bg-white">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-5 py-4">
-        <Link href={base} className="flex items-center gap-2.5">
+        <Link href={home} className="flex items-center gap-2.5">
           {directory.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={directory.logo_url} alt={directory.name} className="h-8 w-auto" />
@@ -20,13 +29,20 @@ export function DirectoryHeader({ directory, categories }: { directory: Director
           )}
         </Link>
         <nav className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-[#4b4b4b]">
-          <Link href={base} className="hover:underline">Home</Link>
+          <Link href={home} className="hover:underline">Home</Link>
           {categories.slice(0, 8).map((c) => (
             <Link key={c} href={`${base}/category/${encodeURIComponent(c)}`} className="hover:underline">
               {c}
             </Link>
           ))}
         </nav>
+        {/* Client login — for businesses/agency members with an account. */}
+        <Link
+          href="/login"
+          className="ml-auto rounded-md border border-black/15 px-3.5 py-1.5 text-sm font-medium text-[#1f1f1f] hover:bg-black/[0.04]"
+        >
+          Client login
+        </Link>
       </div>
     </header>
   );
@@ -42,9 +58,9 @@ export function DirectoryFooter({ directory }: { directory: Directory }) {
   );
 }
 
-export function SearchBar({ slug, defaultValue, color }: { slug: string; defaultValue?: string; color: string }) {
+export function SearchBar({ action, defaultValue, color }: { action: string; defaultValue?: string; color: string }) {
   return (
-    <form action={`/directory/${slug}`} method="get" className="flex w-full max-w-xl gap-2">
+    <form action={action} method="get" className="flex w-full max-w-xl gap-2">
       <input
         name="q"
         defaultValue={defaultValue}
