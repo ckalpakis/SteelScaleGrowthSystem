@@ -104,7 +104,7 @@ TWILIO_MESSAGING_SERVICE_SID=MG…
 ## Phone line‑type check (admin tool)
 
 Once the credentials above are set, admins get a **Phone check** tool at
-**`/dashboard/tools/phone-lookup`** (in the sidebar). Paste up to 50 numbers to
+**`/dashboard/tools/phone-lookup`** (in the sidebar). Paste up to 100 numbers to
 see whether each is **mobile / landline / VoIP** (via Twilio Lookup — Line Type
 Intelligence), and one‑click **copy the mobile numbers** to scrub a list before a
 campaign. Each lookup is a small billable Twilio request (~$0.005). It uses the

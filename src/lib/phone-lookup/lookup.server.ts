@@ -101,7 +101,7 @@ export async function lookupLineType(rawInput: string, deps: LookupDeps = defaul
 }
 
 /** Max numbers processed per request (cost + serverless time guard). */
-export const LOOKUP_BATCH_MAX = 50;
+export const LOOKUP_BATCH_MAX = 100;
 
 /** Split a pasted blob into candidate numbers (newline/comma/semicolon separated). */
 export function parseNumberList(blob: string): string[] {
@@ -121,7 +121,7 @@ export function parseNumberList(blob: string): string[] {
 export async function lookupMany(inputs: string[], deps: LookupDeps = defaultDeps(), max: number = LOOKUP_BATCH_MAX): Promise<LookupResult[]> {
   const list = inputs.slice(0, max);
   const results: LookupResult[] = [];
-  const CONCURRENCY = 5;
+  const CONCURRENCY = 8; // ~100 lookups finish well under the serverless timeout
   for (let i = 0; i < list.length; i += CONCURRENCY) {
     const batch = list.slice(i, i + CONCURRENCY);
     results.push(...(await Promise.all(batch.map((n) => lookupLineType(n, deps)))));
