@@ -59,12 +59,23 @@ export async function slugForDomain(host: string): Promise<string | null> {
   if (!url || !key) return null;
 
   try {
+    // Match whether the client's domain is stored as apex or www, and whether
+    // the request arrives on apex or www (a 308 apex↔www redirect shouldn't
+    // decide whether we find the tenant).
+    const bare = host.replace(/^www\./, "");
+    const candidates = Array.from(new Set([host, bare, `www.${bare}`]));
+    const inList = candidates.map((c) => `"${encodeURIComponent(c)}"`).join(",");
     const res = await fetch(
-      `${url}/rest/v1/clients?select=slug&domain=eq.${encodeURIComponent(host)}`,
+      `${url}/rest/v1/clients?select=slug,domain&domain=in.(${inList})`,
       { headers: { apikey: key, authorization: `Bearer ${key}` } }
     );
-    const rows = (await res.json()) as { slug: string }[];
-    const slug = Array.isArray(rows) && rows[0]?.slug ? rows[0].slug : null;
+    const rows = (await res.json()) as { slug: string; domain: string }[];
+    // Prefer an exact host match, then the bare-domain match, then any.
+    const pick =
+      rows.find((r) => r.domain === host) ??
+      rows.find((r) => r.domain === bare) ??
+      rows[0];
+    const slug = pick?.slug ?? null;
     domainCache.set(host, { slug, exp: now + (slug ? HIT_TTL_MS : MISS_TTL_MS) });
     return slug;
   } catch {
