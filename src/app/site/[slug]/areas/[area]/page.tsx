@@ -60,7 +60,7 @@ export default async function AreaPage({ params }: { params: { slug: string; are
                   {site.services.map((s) => (
                     <Link
                       key={s.slug}
-                      href={`${base}/services/${s.slug}`}
+                      href={`${base}/areas/${area.slug}/${s.slug}`}
                       className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-card transition hover:border-client hover:text-client"
                     >
                       {s.name} in {area.name}

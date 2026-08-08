@@ -1,10 +1,11 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getSiteContent } from "@/lib/site";
 import { LeadForm } from "@/components/site/LeadForm";
 import { Section, SectionHeading, Button } from "@/components/site/ui";
 import { FaqAccordion } from "@/components/site/Faq";
-import { PageHero, ProcessSplit, FinancingCards, AreasSplit, CTABand } from "@/components/site/sections";
+import { PageHero, ProcessSplit, FinancingCards, CTABand } from "@/components/site/sections";
 
 async function getService(slug: string, serviceSlug: string) {
   const site = await getSiteContent(slug);
@@ -97,9 +98,18 @@ export default async function ServicePage({ params }: { params: { slug: string; 
         </Section>
       )}
 
-      {/* Areas (light) */}
+      {/* Areas (light) — link to the per-location version of THIS service. */}
       {site.areas.length > 0 && (
-        <Section tone="light"><AreasSplit site={site} /></Section>
+        <Section tone="light">
+          <SectionHeading align="left" eyebrow="Where we work" title={<>{service.name} in <span className="text-client">Your Area</span></>} />
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {site.areas.map((a) => (
+              <Link key={a.slug} href={`${site.base}/areas/${a.slug}/${service.slug}`} className="rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-card transition hover:border-client hover:text-client">
+                {service.name} in {a.name}
+              </Link>
+            ))}
+          </div>
+        </Section>
       )}
 
       <CTABand site={site} />
